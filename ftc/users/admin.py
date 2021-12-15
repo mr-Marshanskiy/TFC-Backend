@@ -11,7 +11,7 @@ class UserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'phone_number', 'email', 'password')}),
         (_('Личная информация'),
-         {'fields': ('first_name', 'last_name', 'patronymic',)}),
+         {'fields': ('first_name', 'last_name', 'patronymic', 'birthday')}),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
@@ -23,7 +23,7 @@ class UserAdmin(UserAdmin):
             'fields': ('username', 'email', 'phone_number', 'password1', 'password2',),
         }),
     )
-    list_display = ('id', 'username', 'email', 'phone_number', 'first_name', 'last_name')
+    list_display = ('id', 'username', 'email', 'phone_number', 'first_name', 'last_name', 'birthday')
     list_display_links = ('id',)
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
     search_fields = ('first_name', 'last_name', 'patronymic', 'email', 'username')

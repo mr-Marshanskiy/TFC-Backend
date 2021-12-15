@@ -6,6 +6,7 @@ import users.views as user
 from . import views
 from .yasg import urlpatterns as doc_urls
 
+
 app_name = 'api'
 router = routers.DefaultRouter()
 
