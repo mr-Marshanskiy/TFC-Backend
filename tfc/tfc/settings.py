@@ -3,21 +3,20 @@ import os
 import environ
 from datetime import timedelta
 
-
-root = environ.Path(__file__) - 1
+root = environ.Path(__file__) - 2
 env = environ.Env()
-
 environ.Env.read_env(env.str(root(), '.env'))
 
 BASE_DIR = root()
 
+
+DEBUG = env.bool('DEBUG', True)
 SECRET_KEY = env('SECRET_KEY')
 
-env.bool('DEBUG', True)
+ALLOWED_HOSTS = ['*']
 
-ALLOWED_HOSTS = []
 
-CORS_ORIGIN_ALLOW_ALL = True
+# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -27,10 +26,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    #'drf_spectacular',
+    'drf_yasg',
+    'rest_framework',
+    'djoser',
+
     'common',
     'users',
     'api',
-
 ]
 
 MIDDLEWARE = [
@@ -64,6 +67,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'tfc.wsgi.application'
 
 
+# Database
+# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+
 DATABASES = {
     'default': {
         'ENGINE': env('DB_ENGINE'),
@@ -86,42 +92,22 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.NormalNumberPagination',
     'PAGE_SIZE': 20,
-}
-
-DJOSER = {
-    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
-    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
-    'ACTIVATION_URL': '#/activate/{uid}/{token}',
-    'SEND_ACTIVATION_EMAIL': False,
-    'SERIALIZERS': {},
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-    'VERIFYING_KEY': None,
-    'AUDIENCE': None,
-    'ISSUER': None,
-
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    'TOKEN_TYPE_CLAIM': 'token_type',
-
-    'JTI_CLAIM': 'jti',
-
-    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=1),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=7),
-
-
+    # Устанавливаем срок жизни токена
+   'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+   'AUTH_HEADER_TYPES': ('Bearer',)
 }
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'FTC-Project',
+    'DESCRIPTION': 'Free Team Collaboration Project',
+    'VERSION': '1.0.0',
+}
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -138,10 +124,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
-
 LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'Europe/Moscow'
@@ -156,6 +138,8 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'users.User'
