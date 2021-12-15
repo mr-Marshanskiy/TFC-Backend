@@ -9,7 +9,7 @@ class User(AbstractUser):
                                   blank=True, null=True)
     phone_number = PhoneNumberField(verbose_name='Номер телефона', unique=True)
     active = models.BooleanField(default=True, verbose_name='Активность')
-    birthday = models.DateField(verbose_name='День Рождения', blank=True, null=True)
+    #birthday = models.DateField(verbose_name='День Рождения', blank=True, null=True)
     REQUIRED_FIELDS = ['phone_number', 'first_name', 'last_name', 'email']
 
     class Meta:
