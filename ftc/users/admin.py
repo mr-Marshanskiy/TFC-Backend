@@ -23,7 +23,7 @@ class UserAdmin(UserAdmin):
             'fields': ('username', 'email', 'phone_number', 'password1', 'password2',),
         }),
     )
-    list_display = ('id', 'username', 'email', 'phone_number', 'first_name', 'last_name', 'birthday')
+    list_display = ('id', 'username', 'email', 'phone_number', 'first_name', 'last_name', )
     list_display_links = ('id',)
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
     search_fields = ('first_name', 'last_name', 'patronymic', 'email', 'username')
