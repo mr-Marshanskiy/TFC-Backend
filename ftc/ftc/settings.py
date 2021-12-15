@@ -46,7 +46,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'tfc.urls'
+ROOT_URLCONF = 'ftc.urls'
 
 TEMPLATES = [
     {
@@ -64,7 +64,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'tfc.wsgi.application'
+WSGI_APPLICATION = 'ftc.wsgi.application'
 
 
 # Database
