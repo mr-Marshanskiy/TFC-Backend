@@ -15,6 +15,15 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+        db_table = 'users'
+
+    def get_full_name(self):
+        full_name = " ".join(map(lambda s: s.strip() if s else '',
+                                 [self.first_name, self.last_name, self.patronymic])).strip()
+        if full_name:
+            return full_name
+        else:
+            return self.email
 
     def __str__(self):
-        return str(self.username)
+        return self.get_full_name()
