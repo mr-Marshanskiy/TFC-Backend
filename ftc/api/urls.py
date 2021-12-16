@@ -10,8 +10,16 @@ from .yasg import urlpatterns as doc_urls
 app_name = 'api'
 router = routers.DefaultRouter()
 
+router.register(r'teams', views.TeamViewSet, basename='teams')
+router.register(r'locations', views.LocationViewSet, basename='locations')
+router.register(r'players', views.PlayerViewSet, basename='players')
+router.register(r'events', views.EventViewSet, basename='events')
+
+
 urlpatterns = doc_urls
+urlpatterns += path('', include(router.urls)),
 urlpatterns += [
+
     path('auth/', include('djoser.urls')),
     # JWT-эндпоинты, для управления JWT-токенами:
     path('auth/', include('djoser.urls.jwt')),
