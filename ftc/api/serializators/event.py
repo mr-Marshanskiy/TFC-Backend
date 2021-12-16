@@ -12,7 +12,7 @@ class EventDetailSerializer(serializers.ModelSerializer):
 
 class EventListSerializer(serializers.ModelSerializer):
     location = s.LocationNestedSerializer()
-    players = s.PlayerNestedSerializer()
+    players = s.PlayerNestedSerializer(many=True)
 
     class Meta:
         model = Event
