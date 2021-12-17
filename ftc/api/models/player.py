@@ -15,6 +15,7 @@ class Player(InfoMixin):
         verbose_name = 'Игрок'
         verbose_name_plural = 'Игроки'
         ordering = ('-id',)
+        unique_together = (('user', 'team',), ('user', 'team', 'number', 'active'))
 
     def __str__(self):
         return f'{self.user}. Команда: {self.team}. Номер: {self.number}'

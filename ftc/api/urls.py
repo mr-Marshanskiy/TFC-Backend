@@ -20,6 +20,8 @@ urlpatterns = doc_urls
 urlpatterns += path('', include(router.urls)),
 urlpatterns += [
 
+
+    path('events/<int:id>/participation/', views.EventParticipateView.as_view(), name='participation'),
     path('auth/', include('djoser.urls')),
     # JWT-эндпоинты, для управления JWT-токенами:
     path('auth/', include('djoser.urls.jwt')),
