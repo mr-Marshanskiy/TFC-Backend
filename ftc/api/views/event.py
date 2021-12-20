@@ -1,7 +1,12 @@
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django_filters.rest_framework import DjangoFilterBackend
+from crum import get_current_user
+from drf_yasg import openapi
+
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters, permissions, viewsets, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
@@ -32,12 +37,31 @@ class EventViewSet(CRUViewSet):
 
 
 class EventParticipateView(APIView):
+    permissions = [IsAuthenticated,]
 
-    @swagger_auto_schema(manual_parameters=[PLAYER], operation_summary="Заяввка на участие в событие", tags=['Событие'])
-    def post(self, request, id):
+    @swagger_auto_schema(operation_summary="Просмотр события для подачи заявки", tags=['Событие'])
+    def get(self, request, id: int):
+        result = dict()
+        event = get_object_or_404(Event, id=id)
+        serializer = serializators.EventDetailSerializer(event)
+        result['event'] = serializer.data
+        result['player_teams'] = []
+        user = get_current_user()
+        if user and not user.pk:
+            return Response(result)
+        players = Player.objects.filter(user=user)
+        serializer = serializators.PlayerListSerializer(players, many=True)
+        result['player_teams'] = serializer.data
+        return Response(result)
 
-        player_id = request.POST.get('player')
-        print(player_id)
+    @swagger_auto_schema(request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT, properties={
+        'player': openapi.Schema(type=openapi.TYPE_INTEGER, description='игрок'),
+
+    }), operation_summary="Заяввка на участие в событие", tags=['Событие'])
+    def post(self, request, id: int):
+        data = request.data
+        player_id = data.get('player')
         player = Player.objects.filter(id=player_id).first()
         event = Event.objects.filter(id=id, status__in=ACTIVE_STATUS).first()
         if not event:
@@ -45,8 +69,10 @@ class EventParticipateView(APIView):
         if not player:
             raise ParseError('Такого игрока не существует')
 
-        if player in event.players:
-            event.players.add(player).save()
+        if player in event.players.all():
+            event.players.remove(player)
+            event.save()
         else:
-            event.players.add(player).save()
+            event.players.add(player)
+            event.save()
         return Response(status.HTTP_200_OK)
