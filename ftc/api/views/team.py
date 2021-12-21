@@ -14,7 +14,7 @@ from api import serializators
 @method_decorator(name='update', decorator=swagger_auto_schema(operation_summary="Обновить команду", tags=['Команды']))
 @method_decorator(name='partial_update',  decorator=swagger_auto_schema(operation_summary="Обновить команду частично", tags=['Команды']))
 class TeamViewSet(CRUViewSet):
-    queryset = Team.objects.all()
+    queryset = Team.objects.prefetch_related('players')
     permissions = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['active']

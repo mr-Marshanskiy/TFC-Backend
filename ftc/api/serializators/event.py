@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from api.models import Event
-from api import serializators as s
+from api.serializators.nested import LocationNestedSerializer, PlayerNestedSerializer
 
 
 class EventDetailSerializer(serializers.ModelSerializer):
@@ -11,8 +11,8 @@ class EventDetailSerializer(serializers.ModelSerializer):
 
 
 class EventListSerializer(serializers.ModelSerializer):
-    location = s.LocationNestedSerializer()
-    players = s.PlayerNestedSerializer(many=True)
+    location = LocationNestedSerializer()
+    players = PlayerNestedSerializer(many=True)
 
     class Meta:
         model = Event
@@ -24,8 +24,3 @@ class EventPostSerializer(serializers.ModelSerializer):
         model = Event
         fields = ('id', 'time_start', 'location', 'type', 'status', 'players', 'price', 'active',)
 
-
-class EventNestedSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Event
-        fields = ('id', 'time_start', 'location', 'type', 'status', 'players', 'price', 'active',)

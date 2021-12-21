@@ -21,8 +21,3 @@ class LocationPostSerializer(serializers.ModelSerializer):
         model = Location
         fields = ('id', 'name', 'address', 'description', 'active',)
 
-
-class LocationNestedSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Location
-        fields = ('id', 'name', 'address', 'active',)

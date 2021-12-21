@@ -2,7 +2,7 @@ from rest_framework import serializers
 from datetime import datetime
 
 from api.models import Player
-from api import serializators as s
+from api.serializators.nested import TeamNestedSerializer
 
 
 class PlayerDetailSerializer(serializers.ModelSerializer):
@@ -12,7 +12,7 @@ class PlayerDetailSerializer(serializers.ModelSerializer):
 
 
 class PlayerListSerializer(serializers.ModelSerializer):
-    team = s.TeamNestedSerializer()
+    team = TeamNestedSerializer()
 
     class Meta:
         model = Player
@@ -24,8 +24,3 @@ class PlayerPostSerializer(serializers.ModelSerializer):
         model = Player
         fields = ('id', 'user', 'team', 'number', 'active',)
 
-
-class PlayerNestedSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Player
-        fields = ('id', 'user', 'team', 'number', 'active',)
