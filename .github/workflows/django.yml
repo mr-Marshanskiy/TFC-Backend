@@ -16,7 +16,6 @@ jobs:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
-        publickey: ${{ secrets.SSH_PUBLIC_KEY }}
         script: |
           # Выполняет деплой
           cd /var/war/api-dev/
