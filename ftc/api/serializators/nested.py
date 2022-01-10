@@ -1,0 +1,39 @@
+from api.models import Team, Player, Event, Location
+from rest_framework import serializers
+
+from users.serializers import UserNestedSerializer
+
+
+class TeamNestedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ('id', 'full_name', 'short_name', 'active',)
+
+
+class PlayerNestedTeamSerializer(serializers.ModelSerializer):
+    user = UserNestedSerializer()
+
+    class Meta:
+        model = Player
+        fields = ('id', 'user', 'number', 'active',)
+
+
+class PlayerNestedSerializer(serializers.ModelSerializer):
+    user = UserNestedSerializer()
+    team = TeamNestedSerializer()
+
+    class Meta:
+        model = Player
+        fields = ('id', 'user', 'team', 'number', 'active',)
+
+
+class EventNestedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = ('id', 'time_start', 'location', 'type', 'status', 'players', 'price', 'active',)
+
+
+class LocationNestedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ('id', 'name', 'address', 'active',)
