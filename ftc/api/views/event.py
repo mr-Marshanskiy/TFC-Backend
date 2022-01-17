@@ -68,14 +68,11 @@ class EventParticipateView(APIView):
         if not player:
             raise ParseError('Такого игрока не существует')
 
-        exist_player = event.players.filter(user=player_id).first()
+        exist_players = event.players.filter(user_id=player.user.id)
 
-        if exist_player:
-            raise ParseError(f'Вы уже подали заявку на участие от команды'
-                             f'{exist_player.team}. ')
-
-        if player in event.players.all():
-            event.players.remove(player)
+        if exist_players:
+            for player in exist_players:
+                event.players.remove(player)
             event.save()
         else:
             event.players.add(player)
