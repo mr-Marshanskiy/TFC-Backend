@@ -35,9 +35,8 @@ class EventViewSet(CRUViewSet):
         return serializators.EventDetailSerializer
 
 
-
 class EventParticipateView(APIView):
-    permissions = [IsAuthenticated,]
+    permissions = [IsAuthenticated]
 
     @swagger_auto_schema(operation_summary="Просмотр события для подачи заявки", tags=['Событие'])
     def get(self, request, id: int):
@@ -68,6 +67,12 @@ class EventParticipateView(APIView):
             raise ParseError('Выбранное событие недоступно или завершилось')
         if not player:
             raise ParseError('Такого игрока не существует')
+
+        exist_player = event.players.filter(user=player_id).first()
+
+        if exist_player:
+            raise ParseError(f'Вы уже подали заявку на участие от команды'
+                             f'{exist_player.team}. ')
 
         if player in event.players.all():
             event.players.remove(player)
