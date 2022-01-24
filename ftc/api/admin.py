@@ -4,7 +4,7 @@ from django.contrib.admin.sites import AlreadyRegistered
 from django.db import models
 from django.forms import Textarea, TextInput
 
-from .models import Team, Location, Player, Event
+from .models import Team, Location, Player, Event, EventStatus, EventType, KindOfSport
 
 
 @admin.register(Team)
@@ -31,11 +31,29 @@ class PlayerAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at', 'created_by', 'updated_by',)
 
 
+@admin.register(EventStatus)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+
+
+@admin.register(EventType)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+
+
+@admin.register(KindOfSport)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+
+
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('id', 'location', 'time_start', 'type', 'price', 'status',
-                    'created_at', 'updated_at', 'created_by', 'updated_by',)
+    list_display = ('id', 'location', 'kind', 'type', 'status', 'time_start', 'price')
+
     search_fields = ('time_start', 'location', 'status', 'type')
-    readonly_fields = ('created_at', 'updated_at', 'created_by', 'updated_by',)
-    ordering = ('time_start',)
+
+    list_filter = ('location', 'type', 'status', 'kind')
+    readonly_fields = ('time_wait', 'time_open', 'time_close', 'time_cancel',
+                       'created_at', 'updated_at', 'created_by', 'updated_by',)
+    ordering = ('-id',)
     filter_horizontal = ('players',)

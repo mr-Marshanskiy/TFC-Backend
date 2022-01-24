@@ -24,8 +24,8 @@ class EventViewSet(CRUViewSet):
     queryset = Event.objects.all()
     permissions = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['active', 'type', 'status']
-    search_fields = ['location', ]
+    filterset_fields = ['type', 'status', 'kind', 'players']
+    search_fields = ['players__user__first_name', ]
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -39,7 +39,7 @@ class EventParticipateView(APIView):
     permissions = [IsAuthenticated]
 
     @swagger_auto_schema(operation_summary="Просмотр события для подачи заявки", tags=['Событие'])
-    def get(self, request, id: int):
+    def get(self, request, id):
         result = dict()
         event = get_object_or_404(Event, id=id)
         serializer = serializators.EventDetailSerializer(event)
@@ -55,10 +55,10 @@ class EventParticipateView(APIView):
 
     @swagger_auto_schema(request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT, properties={
-        'player': openapi.Schema(type=openapi.TYPE_INTEGER, description='игрок'),
-
-    }), operation_summary="Заяввка на участие в событие", tags=['Событие'])
-    def post(self, request, id: int):
+            'player': openapi.Schema(type=openapi.TYPE_INTEGER, description='игрок'),
+        }
+    ), operation_summary="Заяввка на участие в событие", tags=['Событие'])
+    def post(self, request, id):
         data = request.data
         player_id = data.get('player')
         player = Player.objects.filter(id=player_id).first()
