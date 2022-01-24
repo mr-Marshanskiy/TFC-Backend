@@ -22,7 +22,14 @@ urlpatterns += [
 
 
     path('events/<int:id>/participation/', views.EventParticipateView.as_view(), name='participation'),
-    path('auth/', include('djoser.urls')),
-    # JWT-эндпоинты, для управления JWT-токенами:
-    path('auth/', include('djoser.urls.jwt')),
+    # пользователь
+    path('me/', user.UserView.as_view(), name='me'),
+    path('token/', include('djoser.urls.jwt')),
+    path('auth/', include('users.urls')),
+    path(
+        'api-auth/',
+        include('rest_framework.urls',
+                namespace='rest_framework')
+    )
+
 ]
