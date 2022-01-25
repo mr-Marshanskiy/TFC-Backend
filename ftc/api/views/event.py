@@ -10,10 +10,37 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
-from common.mixins.views import CRUViewSet
-from api.models import Event, Player
+
+from api.serializators.event import EventStatusSerializer, EventTypeSerializer, EventKindSerializer
+from common.mixins.views import CRUViewSet, ListCreateViewSet
+from api.models import Event, Player, EventStatus, EventType, KindOfSport
 from api import serializators
-from api.constants import ACTIVE_STATUS, PLAYER
+from api.constants import ACTIVE_STATUS
+
+
+@method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Список статусов", tags=['Статус события']))
+@method_decorator(name='create', decorator=swagger_auto_schema(operation_summary="Добавить статус", tags=['Статус события']))
+class EventStatusViewSet(ListCreateViewSet):
+    queryset = EventStatus.objects.all()
+    permissions = [permissions.IsAuthenticated]
+    serializer_class = EventStatusSerializer
+
+
+@method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Список типов события", tags=['Тип события']))
+@method_decorator(name='create', decorator=swagger_auto_schema(operation_summary="Добавить тип события", tags=['Тип события']))
+class EventTypeViewSet(ListCreateViewSet):
+    queryset = EventType.objects.all()
+    permissions = [permissions.IsAuthenticated]
+    serializer_class = EventTypeSerializer
+
+
+@method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Список видов спорта", tags=['Вид спорта']))
+@method_decorator(name='create', decorator=swagger_auto_schema(operation_summary="Добавить вид спорта", tags=['Вид спорта']))
+class EventKindViewSet(ListCreateViewSet):
+    queryset = KindOfSport.objects.all()
+    permissions = [permissions.IsAuthenticated]
+    serializer_class = EventKindSerializer
+
 
 @method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Список событий", tags=['Событие']))
 @method_decorator(name='create', decorator=swagger_auto_schema(operation_summary="Добавить событие", tags=['Событие']))

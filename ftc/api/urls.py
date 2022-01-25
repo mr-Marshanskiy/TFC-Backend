@@ -14,6 +14,9 @@ router.register(r'teams', views.TeamViewSet, basename='teams')
 router.register(r'locations', views.LocationViewSet, basename='locations')
 router.register(r'players', views.PlayerViewSet, basename='players')
 router.register(r'events', views.EventViewSet, basename='events')
+router.register(r'statuses', views.EventStatusViewSet, basename='statuses')
+router.register(r'types', views.EventTypeViewSet, basename='types')
+router.register(r'kinds', views.EventKindViewSet, basename='kinds')
 
 
 urlpatterns = doc_urls
