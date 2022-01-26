@@ -2,8 +2,7 @@ from rest_framework import serializers
 from datetime import datetime
 
 from api.models import Player
-from api.serializators.nested import TeamNestedSerializer
-from users.serializers import UserNestedSerializer
+from api.serializators.nested import TeamNestedSerializer, UserNestedSerializer
 
 
 class PlayerDetailSerializer(serializers.ModelSerializer):

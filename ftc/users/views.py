@@ -57,7 +57,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 
 @method_decorator(name='get', decorator=swagger_auto_schema(operation_summary="Общая информация",
                                                             tags=['Пользователи']))
-class UserView(IsAuthenticated, generics.RetrieveAPIView):
+class MeViewSet(IsAuthenticated, generics.RetrieveAPIView):
     serializer_class = UserInfoSerializer
 
     def get_object(self):

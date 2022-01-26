@@ -1,8 +1,7 @@
 from rest_framework import serializers
 
 from api.models import Event, EventStatus, EventType, KindOfSport
-from api.serializators.nested import LocationNestedSerializer, PlayerNestedSerializer
-from users.serializers import UserNestedSerializer
+from api.serializators.nested import LocationNestedSerializer, PlayerNestedSerializer, UserNestedSerializer
 
 
 class EventStatusSerializer(serializers.ModelSerializer):

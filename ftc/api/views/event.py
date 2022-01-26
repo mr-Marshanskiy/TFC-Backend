@@ -1,3 +1,6 @@
+from datetime import timedelta
+
+import django_filters
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,6 +15,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 
 from api.serializators.event import EventStatusSerializer, EventTypeSerializer, EventKindSerializer
+from api.views.filters import EventFilter
 from common.mixins.views import CRUViewSet, ListCreateViewSet
 from api.models import Event, Player, EventStatus, EventType, KindOfSport
 from api import serializators
@@ -51,7 +55,8 @@ class EventViewSet(CRUViewSet):
     queryset = Event.objects.all()
     permissions = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['type', 'status', 'kind', 'players']
+    #filterset_fields = ['type', 'status', 'kind', 'players', 'players__user']
+    filter_class = EventFilter
     search_fields = ['players__user__first_name', ]
 
     def get_serializer_class(self):
@@ -105,3 +110,6 @@ class EventParticipateView(APIView):
             event.players.add(player)
             event.save()
         return Response(status.HTTP_200_OK)
+
+
+
