@@ -52,12 +52,11 @@ class EventKindViewSet(ListCreateViewSet):
 @method_decorator(name='update', decorator=swagger_auto_schema(operation_summary="Обновить событие", tags=['Событие']))
 @method_decorator(name='partial_update',  decorator=swagger_auto_schema(operation_summary="Обновить событие частично", tags=['Событие']))
 class EventViewSet(CRUViewSet):
-    queryset = Event.objects.all()
+    queryset = Event.objects.all().order_by('time_start')
     permissions = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    #filterset_fields = ['type', 'status', 'kind', 'players', 'players__user']
     filter_class = EventFilter
-    search_fields = ['players__user__first_name', ]
+    #search_fields = ['players__user__first_name', 'players__user___name',]
 
     def get_serializer_class(self):
         if self.action == 'list':
