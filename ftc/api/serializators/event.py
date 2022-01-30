@@ -42,9 +42,10 @@ class EventDetailSerializer(serializers.ModelSerializer):
 
 
 class EventListSerializer(serializers.ModelSerializer):
-    status = EventStatusSerializer()
-    type = EventTypeSerializer()
-    kind = EventKindSerializer()
+    status = serializers.CharField(source='status.name')
+    type = serializers.CharField(source='type.name')
+    kind = serializers.CharField(source='kind.name')
+
 
     location = LocationNestedSerializer()
     players = PlayerNestedSerializer(many=True)
