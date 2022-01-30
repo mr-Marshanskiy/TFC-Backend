@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from django.utils.text import slugify
 from model_utils import FieldTracker
 
 from common.mixins.system import InfoMixin
@@ -10,8 +11,9 @@ from . import Player, Location
 
 
 class EventType(models.Model):
-    name = models.CharField('Название', max_length=15)
-    description = models.CharField('Описание', max_length=127)
+    name = models.CharField('Название', max_length=63)
+    description = models.TextField('Описание', null=True, blank=True)
+    slug = models.SlugField('Слаг', max_length=15, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Тип события'
@@ -21,10 +23,16 @@ class EventType(models.Model):
     def __str__(self):
         return f'{self.name}'
 
+    def save(self, *args, **kwargs):
+        if not self.id and not self.slug:
+            self.slug = slugify(self.name)
+        super(EventType, self).save(*args, **kwargs)
+
 
 class KindOfSport(models.Model):
     name = models.CharField('Название', max_length=63)
-    description = models.CharField('Описание', max_length=255)
+    description = models.TextField('Описание', null=True, blank=True)
+    slug = models.SlugField('Слаг', max_length=15, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Вид спорта'
@@ -34,10 +42,17 @@ class KindOfSport(models.Model):
     def __str__(self):
         return f'{self.name}'
 
+    def save(self, *args, **kwargs):
+        if not self.id and not self.slug:
+            self.slug = slugify(self.name)
+            print(self.slug)
+        super(KindOfSport, self).save(*args, **kwargs)
+
 
 class EventStatus(models.Model):
     name = models.CharField('Название', max_length=63)
-    description = models.CharField('Описание', max_length=255)
+    description = models.TextField('Описание', null=True, blank=True)
+    slug = models.SlugField('Слаг', max_length=15, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Статус события'
@@ -46,6 +61,11 @@ class EventStatus(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+
+    def save(self, *args, **kwargs):
+        if not self.id and not self.slug:
+            self.slug = slugify(self.name)
+        super(EventStatus, self).save(*args, **kwargs)
 
 
 class Event(InfoMixin):

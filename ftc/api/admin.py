@@ -33,17 +33,17 @@ class PlayerAdmin(admin.ModelAdmin):
 
 @admin.register(EventStatus)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
+    list_display = ('id', 'name', 'slug', 'description')
 
 
 @admin.register(EventType)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
+    list_display = ('id', 'name', 'slug', 'description')
 
 
 @admin.register(KindOfSport)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
+    list_display = ('id', 'name', 'slug', 'description')
 
 
 @admin.register(Event)
