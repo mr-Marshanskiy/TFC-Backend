@@ -18,7 +18,7 @@ jobs:
         password: ${{ secrets.SSH_PASSWORD }}
         script: |
           # Выполняет деплой
-          cd /var/war/api/
+          cd /var/www/api/
           source venv/bin/activate
           cd ftc/
           git pull
