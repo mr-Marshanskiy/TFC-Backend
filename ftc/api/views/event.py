@@ -52,7 +52,7 @@ class EventKindViewSet(ListCreateViewSet):
 @method_decorator(name='update', decorator=swagger_auto_schema(operation_summary="Обновить событие", tags=['Событие']))
 @method_decorator(name='partial_update',  decorator=swagger_auto_schema(operation_summary="Обновить событие частично", tags=['Событие']))
 class EventViewSet(CRUViewSet):
-    queryset = Event.objects.all().order_by('time_start')
+    queryset = Event.objects.all().order_by('-time_start')
     permissions = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filter_class = EventFilter
