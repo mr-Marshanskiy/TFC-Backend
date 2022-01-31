@@ -23,9 +23,9 @@ class EventKindSerializer(serializers.ModelSerializer):
 
 
 class EventDetailSerializer(serializers.ModelSerializer):
-    status = EventStatusSerializer()
-    type = EventTypeSerializer()
-    kind = EventKindSerializer()
+    status = EventStatusSerializer(allow_null=True)
+    type = EventTypeSerializer(allow_null=True)
+    kind = EventKindSerializer(allow_null=True)
 
     location = LocationNestedSerializer()
     created_by = UserNestedSerializer()
@@ -42,9 +42,9 @@ class EventDetailSerializer(serializers.ModelSerializer):
 
 
 class EventListSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(source='status.name')
-    type = serializers.CharField(source='type.name')
-    kind = serializers.CharField(source='kind.name')
+    status = serializers.CharField(source='status.name', allow_null=True)
+    type = serializers.CharField(source='type.name', allow_null=True)
+    kind = serializers.CharField(source='kind.name', allow_null=True)
 
 
     location = LocationNestedSerializer()
