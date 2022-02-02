@@ -99,13 +99,23 @@ class EventParticipateView(APIView):
         if not player:
             raise ParseError('Такого игрока не существует')
 
-        exist_players = event.players.filter(user_id=player.user.id)
+        exist_players = event.players.filter(user_id=player.user.id).first()
 
         if exist_players:
-            for player in exist_players:
-                event.players.remove(player)
+            event.players.remove(player)
             event.save()
         else:
+            queryset = Event.objects.filter(
+                status__in=ACTIVE_STATUS,
+                time_start__lte=event.time_end,
+                time_end__gt=event.time_start,
+            )
+            queryset = queryset.exclude(pk=event.id)
+            events_duplicate = queryset.filter(players=player).first()
+            if events_duplicate:
+                raise ParseError(
+                    f'Игрок {player} в это время уже участвует в {events_duplicate}'
+                )
             event.players.add(player)
             event.save()
         return Response(status.HTTP_200_OK)
