@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Status(models.Model):
-    name = models.CharField('Название', max_length=31)
+    name = models.CharField('Название', max_length=63)
     slug = models.SlugField('Слаг', max_length=15)
     description = models.TextField('Описание', null=True, blank=True)
 

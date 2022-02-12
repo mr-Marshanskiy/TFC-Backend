@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.core.management import BaseCommand
 
-from api.models import Event
+from events.models.event import Event
 
 
 class Command(BaseCommand):
