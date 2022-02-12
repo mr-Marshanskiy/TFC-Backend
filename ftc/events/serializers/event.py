@@ -19,9 +19,9 @@ from users.serializers import UserNestedSerializer
 
 
 class EventDetailSerializer(serializers.ModelSerializer):
-    status = StatusSerializer()
-    type = TypeSerializer()
-    sport = SportNestedSerializer()
+    status = serializers.CharField(source='status.name')
+    type = serializers.CharField(source='type.name')
+    sport = serializers.CharField(source='sport.name')
     location = LocationNestedSerializer()
 
     created_by = UserNestedSerializer()
