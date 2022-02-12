@@ -55,5 +55,7 @@ class User(AbstractUser):
                 [self.last_name, self.first_name, self.patronymic],
             )
         ).strip()
+        if full_name is None or full_name == '':
+            full_name = self.email
         return full_name
 
