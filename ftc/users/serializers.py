@@ -1,10 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.db.models import Count, Q
 from rest_framework import serializers
 
-from api.constants import ACTIVE_STATUS, NOT_CANCEL_STATUS
-from api.models import Player, Event
-from api.serializators import EventNestedSerializer, PlayerNestedSerializer, TeamNestedSerializer
+from api.constants import NOT_CANCEL_STATUS
+
+from events.models.participant import Participant
+from events.models.survey import Survey
+from players.models.player import Player
+from teams.serializers.nested import TeamNestedSerializer
 
 User = get_user_model()
 
@@ -18,7 +22,8 @@ class PlayerNestedUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'number', 'team', 'events_count')
 
     def get_events_count(self, obj):
-        events_count = Event.objects.filter(players=obj, status__in=NOT_CANCEL_STATUS).count()
+        events_count = Participant.objects.filter(
+            player=obj, event__status_id__in=NOT_CANCEL_STATUS).count()
         return events_count
 
 
@@ -62,10 +67,11 @@ class UserInfoSerializer(serializers.ModelSerializer):
     groups = GroupSerializer(many=True)
     teams = serializers.SerializerMethodField()
     stats = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ('id', 'phone_number', 'active', 'teams', 'stats',
-                  'first_name', 'last_name', 'email', 'groups')
+                  'first_name', 'last_name', 'email', 'groups', 'is_superuser')
 
     def get_teams(self, obj):
         teams = obj.players.filter(active=True)
@@ -74,9 +80,14 @@ class UserInfoSerializer(serializers.ModelSerializer):
 
     def get_stats(self, obj):
         result = dict()
-        total_events = Event.objects.filter(players__user=obj,
-                                            status__in=NOT_CANCEL_STATUS).count()
-        result['total_events'] = total_events
+        result['total_events'] = Participant.objects.filter(
+            player__user=obj, event__status_id__in=NOT_CANCEL_STATUS).count()
+
+        result['invitations'] = (Survey.objects.filter(player__user=obj)
+            .aggregate(true=Count('id', filter=Q(answer=True)),
+                       false=Count('id', filter=Q(answer=False)),
+                       unknown=Count('id', filter=Q(answer__isnull=True))))
+
         return result
 
 
@@ -86,3 +97,16 @@ class UserShortSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'phone_number',
                   'first_name', 'last_name', 'email')
+
+
+class UserNestedSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'phone_number',
+                  'full_name', 'email')
+
+    def get_full_name(self, obj):
+        full_name = obj.get_full_name()
+        return full_name

@@ -2,7 +2,16 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
+from players.models.player import Player
 from .models import User
+
+
+class PlayerTabular(admin.TabularInline):
+    extra = 0
+    show_change_link = True
+    fields = ('team', 'number', 'confirmed', 'active')
+    model = Player
+    fk_name = 'user'
 
 
 @admin.register(User)
@@ -30,4 +39,5 @@ class UserAdmin(UserAdmin):
     ordering = ('pk',)
     filter_horizontal = ('groups', 'user_permissions',)
     readonly_fields = ('last_login',)
+    inlines = [PlayerTabular]
 

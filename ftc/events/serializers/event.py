@@ -1,0 +1,187 @@
+import pprint
+from datetime import timedelta
+
+from django.db.models import Count, Q
+from django.db.models.functions import Coalesce
+from rest_framework import serializers
+from rest_framework.fields import IntegerField
+
+from api.constants import ACTIVE_STATUS, BASE_DURATION_MINUTES
+from common.service import get_now
+from events.models.event import Event
+from events.serializers.nested import SurveyNestedSerializer, \
+    CommentNestedSerializer, ParticipantNestedSerializer
+from events.serializers.status import StatusSerializer
+from events.serializers.type import TypeSerializer
+from locations.serializers.nested import LocationNestedSerializer
+from sports.serializers.nested import SportNestedSerializer
+from users.serializers import UserNestedSerializer
+
+
+class EventDetailSerializer(serializers.ModelSerializer):
+    status = StatusSerializer()
+    type = TypeSerializer()
+    sport = SportNestedSerializer()
+    location = LocationNestedSerializer()
+
+    created_by = UserNestedSerializer()
+    updated_by = UserNestedSerializer()
+
+    comments = CommentNestedSerializer(many=True)
+    surveys = serializers.SerializerMethodField()
+    participants = serializers.SerializerMethodField()
+
+    stats = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Event
+        fields = '__all__'
+
+    def get_participants(self, obj):
+        confirmed = obj.participants.filter(confirmed=True).select_related()
+        unconfirmed = obj.participants.filter(confirmed=False).select_related()
+        result = {
+            'confirmed': ParticipantNestedSerializer(confirmed, many=True).data,
+            'unconfirmed': ParticipantNestedSerializer(unconfirmed, many=True).data,
+        }
+        return result
+
+    def get_surveys(self, obj):
+        true = obj.surveys.filter(answer=True).select_related()
+        false = obj.surveys.filter(answer=False).select_related()
+        unknown = obj.surveys.filter(answer=None).select_related()
+        result = {
+            'true': SurveyNestedSerializer(true, many=True).data,
+            'false': SurveyNestedSerializer(false, many=True).data,
+            'unknown': SurveyNestedSerializer(unknown, many=True).data,
+        }
+        return result
+
+    def get_stats(self, obj):
+        result = dict()
+        result['participants'] = (Event.objects.filter(id=obj.id)
+            .aggregate(
+                confirmed=Count('id', filter=Q(participants__confirmed=True)),
+                unconfirmed=Count('id', filter=Q(participants__confirmed=False))
+            )
+        )
+        result['surveys'] = (Event.objects.filter(id=obj.id)
+            .aggregate(
+            true=Count('id', filter=Q(surveys__answer=True)),
+            false=Count('id', filter=Q(surveys__answer=False)),
+            unknown=Count('id', filter=Q(surveys__answer=None))
+        )
+        )
+        price_per_player = {
+            'only_confirmed': float(
+                obj.price /result.get('participants').get('confirmed')),
+            'with_unconfirmed': float(
+                obj.price / (result.get('participants').get('confirmed') +
+                             result.get('participants').get('unconfirmed'))),
+        }
+        result['event'] = price_per_player
+        return result
+
+
+class EventListSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(source='status.name')
+    type = serializers.CharField(source='type.name')
+    location = LocationNestedSerializer()
+    sport = SportNestedSerializer()
+
+    class Meta:
+        model = Event
+        fields = ('id', 'time_start', 'time_end', 'sport',
+                  'type', 'status', 'location', 'price')
+
+
+class EventPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = ('id', 'time_start', 'time_end',
+                  'type', 'status', 'sport',
+                  'location', 'price')
+
+    def validate_time_start(self, value):
+        now = get_now()
+        if value < now:
+            raise serializers.ValidationError(
+                'Время начала мероприятия должно быть больше текущего времени')
+        return value
+
+    def validate_time_end(self, value):
+        if not value:
+            return value
+        now = get_now()
+        if value < now:
+            raise serializers.ValidationError(
+                'Время окончания мероприятия должно быть больше текущего времени.')
+        return value
+
+    def validate_price(self, value):
+        if not value:
+            return value
+        if value < 0:
+            raise serializers.ValidationError(
+                'Значение стоимости не должно быть отрицательным.')
+        return value
+
+    def validate(self, data):
+        """ Проверка времени """
+        if not data.get('time_end'):
+            data['time_end'] = data.get('time_start') + timedelta(minutes=BASE_DURATION_MINUTES)
+        if data.get('time_start') and data.get('time_end'):
+            if data.get('time_start') > data.get('time_end'):
+                raise serializers.ValidationError(
+                    'Время окончания не должно превышать время начала.')
+
+        if data.get('time_start').date() != data.get('time_end').date():
+            raise serializers.ValidationError(
+                'Событие должно начинаться и заканчиваться в один день.'
+            )
+
+        """ Проверка пересечений """
+        if data.get('time_start') and data.get('time_end') and data.get('location'):
+            queryset = Event.objects.filter(
+                status__in=ACTIVE_STATUS,
+                location=data.get('location'),
+                time_start__lte=data.get('time_end'),
+                time_end__gt=data.get('time_start'),
+            )
+        if self.instance:
+            queryset = queryset.exclude(pk=self.instance.id)
+
+        if queryset.count() > 0:
+            message = []
+            for i in queryset.all().distinct():
+                event = f'Место уже занято событием № {i.id}, '
+
+                event += (f'время: '
+                         f'{i.time_start.astimezone().strftime("%H:%M")}-'
+                         f'{i.time_end.astimezone().strftime("%H:%M")}')
+                message.append(event)
+            raise serializers.ValidationError(message)
+
+        """ Проверка участников """
+        if (data.get('time_start') and data.get('time_end')
+                and data.get('location') and data.get('players')):
+            queryset = Event.objects.filter(
+                status__in=ACTIVE_STATUS,
+                time_start__lte=data.get('time_end'),
+                time_end__gt=data.get('time_start'),
+            )
+            if self.instance:
+                queryset = queryset.exclude(pk=self.instance.id)
+
+            message = []
+
+            for i in data.get('players'):
+                events = queryset.filter(players=i)
+                if events.count() > 0:
+                    event = events.first()
+                    player = f'Игрок {i} в это время уже участвует в другом событии'
+                    message.append(player)
+            if len(message) > 0:
+                raise serializers.ValidationError(message)
+
+        return data
