@@ -59,27 +59,12 @@ class EventDetailSerializer(serializers.ModelSerializer):
 
     def get_stats(self, obj):
         result = dict()
-        result['participants'] = (Event.objects.filter(id=obj.id)
-            .aggregate(
-                confirmed=Count('id', filter=Q(participants__confirmed=True)),
-                unconfirmed=Count('id', filter=Q(participants__confirmed=False))
-            )
-        )
-        result['surveys'] = (Event.objects.filter(id=obj.id)
-            .aggregate(
-            true=Count('id', filter=Q(surveys__answer=True)),
-            false=Count('id', filter=Q(surveys__answer=False)),
-            unknown=Count('id', filter=Q(surveys__answer=None))
-        )
-        )
-        price_per_player = {
-            'only_confirmed': float(
-                obj.price /result.get('participants').get('confirmed')),
-            'with_unconfirmed': float(
-                obj.price / (result.get('participants').get('confirmed') +
-                             result.get('participants').get('unconfirmed'))),
-        }
-        result['event'] = price_per_player
+        player_count = obj.participants.filter(confirmed=True).count()
+        if player_count == 0:
+            result['price_per_player'] = 0
+        else:
+            result['price_per_player'] = float(obj.price / player_count)
+
         return result
 
 
