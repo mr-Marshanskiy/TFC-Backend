@@ -170,3 +170,31 @@ class EventPostSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(message)
 
         return data
+
+
+class EventForMainSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(source='status.name', allow_null=True)
+    type = serializers.CharField(source='type.name', allow_null=True)
+    location = LocationNestedSerializer()
+    sport = serializers.CharField(source='sport.name', allow_null=True)
+    date = serializers.SerializerMethodField()
+    players_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Event
+        fields = ('id', 'date', 'sport', 'players_count',
+                  'type', 'status', 'location', 'price')
+
+    def get_date(self, instance):
+        result = dict()
+        result['time_start'] = instance.time_start
+        result['time_end'] = instance.time_end
+        result['date_short'] = instance.time_start.date()
+        result['time_short'] = (f'{instance.time_start.strftime("%H:%M")}-'
+                                f'{instance.time_end.strftime("%H:%M")}')
+
+        return result
+
+    def get_players_count(self, instance):
+        result = instance.participants.count()
+        return result

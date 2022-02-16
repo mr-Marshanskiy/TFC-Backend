@@ -2,6 +2,7 @@ from django.urls import include, path
 from rest_framework import routers
 
 import users.views as user
+from .views.main import MainTitleView
 
 from .yasg import urlpatterns as doc_urls
 
@@ -20,6 +21,7 @@ urlpatterns += [
 
 
     path('me/', user.MeViewSet.as_view(), name='me'),
+    path('main/', MainTitleView.as_view(), name='main'),
     path('token/', include('djoser.urls.jwt')),
     path('auth/', include('users.urls')),
     path(
