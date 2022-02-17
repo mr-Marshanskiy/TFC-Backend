@@ -12,3 +12,11 @@ class PlayerNestedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ('id', 'user', 'team', 'number')
+
+
+class PlayerNestedForTeamSerializer(serializers.ModelSerializer):
+    user = UserNestedSerializer()
+
+    class Meta:
+        model = Player
+        fields = ('id', 'user', 'confirmed', 'number')

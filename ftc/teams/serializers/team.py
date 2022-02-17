@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
-from players.serializers.nested import PlayerNestedSerializer
+from players.serializers.nested import PlayerNestedForTeamSerializer
 from teams.models.team import Team
 
 
 class TeamDetailSerializer(serializers.ModelSerializer):
-    players = PlayerNestedSerializer(many=True)
+    players = PlayerNestedForTeamSerializer(many=True)
     players_count = serializers.SerializerMethodField()
 
     class Meta:
