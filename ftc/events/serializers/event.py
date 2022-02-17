@@ -11,8 +11,6 @@ from common.service import get_now
 from events.models.event import Event
 from events.serializers.nested import SurveyNestedSerializer, \
     CommentNestedSerializer, ParticipantNestedSerializer
-from events.serializers.status import StatusSerializer
-from events.serializers.type import TypeSerializer
 from locations.serializers.nested import LocationNestedSerializer
 from sports.serializers.nested import SportNestedSerializer
 from users.serializers import UserNestedSerializer
@@ -72,12 +70,17 @@ class EventListSerializer(serializers.ModelSerializer):
     status = serializers.CharField(source='status.name')
     type = serializers.CharField(source='type.name')
     location = LocationNestedSerializer()
-    sport = SportNestedSerializer()
+    sport = serializers.CharField(source='sport.name', allow_null=True)
+    participants_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
         fields = ('id', 'time_start', 'time_end', 'sport',
-                  'type', 'status', 'location', 'price')
+                  'type', 'status', 'location', 'price', 'participants_count')
+
+    def get_participants_count(self, instance):
+        result = instance.participants.count()
+        return result
 
 
 class EventPostSerializer(serializers.ModelSerializer):
@@ -178,11 +181,11 @@ class EventForMainSerializer(serializers.ModelSerializer):
     location = LocationNestedSerializer()
     sport = serializers.CharField(source='sport.name', allow_null=True)
     date = serializers.SerializerMethodField()
-    players_count = serializers.SerializerMethodField()
+    participants_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
-        fields = ('id', 'date', 'sport', 'players_count',
+        fields = ('id', 'date', 'sport', 'participants_count',
                   'type', 'status', 'location', 'price')
 
     def get_date(self, instance):
@@ -195,6 +198,6 @@ class EventForMainSerializer(serializers.ModelSerializer):
 
         return result
 
-    def get_players_count(self, instance):
+    def get_participants_count(self, instance):
         result = instance.participants.count()
         return result
