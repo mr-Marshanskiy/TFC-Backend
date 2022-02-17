@@ -12,10 +12,10 @@ class LocationDetailSerializer(serializers.ModelSerializer):
 class LocationListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
-        fields = ('id', 'name', 'address', 'description', 'active',)
+        fields = ('id', 'name', 'address', 'description', 'confirmed', 'active',)
 
 
 class LocationPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
-        fields = ('id', 'name', 'address', 'description', 'active',)
+        fields = ('id', 'name', 'address', 'description', 'confirmed', 'active',)
