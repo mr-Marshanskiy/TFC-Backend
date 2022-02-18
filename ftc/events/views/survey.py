@@ -25,6 +25,7 @@ from events.serializers.survey import (SurveyListSerializer,
 class SurveyViewSet(CRUDViewSet):
     queryset = Survey.objects.all().select_related('event', 'player')
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ('player', 'player__user', 'answer')
 
     def get_queryset(self):
         if not self.request:
