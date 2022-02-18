@@ -147,7 +147,7 @@ class EventPostSerializer(serializers.ModelSerializer):
                          f'{i.time_start.astimezone().strftime("%H:%M")}-'
                          f'{i.time_end.astimezone().strftime("%H:%M")}')
                 message.append(event)
-            raise serializers.ValidationError(message)
+            raise serializers.ValidationError('\n'.join(m for m in message))
 
         """ Проверка участников """
         if (data.get('time_start') and data.get('time_end')
