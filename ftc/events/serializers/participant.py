@@ -22,4 +22,4 @@ class ParticipantPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Participant
-        fields = ['player', 'event', 'confirmed']
+        fields = ('player', 'event', 'confirmed')

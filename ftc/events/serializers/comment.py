@@ -18,4 +18,4 @@ class CommentDetailSerializer(serializers.ModelSerializer):
 class CommentPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = ('player', 'event', 'comment')
