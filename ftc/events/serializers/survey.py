@@ -6,10 +6,11 @@ from events.models.event import Event
 from events.models.survey import Survey
 from events.serializers.event import EventListSerializer
 from players.serializers.nested import PlayerNestedSerializer
+from users.serializers import UserInfoSerializer
 
 
 class SurveyListSerializer(serializers.ModelSerializer):
-    player = PlayerNestedSerializer()
+    user = UserInfoSerializer()
     event = EventListSerializer()
 
     class Meta:
@@ -18,7 +19,7 @@ class SurveyListSerializer(serializers.ModelSerializer):
 
 
 class SurveyDetailSerializer(serializers.ModelSerializer):
-    player = PlayerNestedSerializer()
+    user = UserInfoSerializer()
     event = EventListSerializer()
 
     class Meta:
