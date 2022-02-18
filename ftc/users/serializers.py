@@ -83,7 +83,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
         result['total_events'] = Participant.objects.filter(
             player__user=obj, event__status_id__in=NOT_CANCEL_STATUS).count()
 
-        result['invitations'] = (Survey.objects.filter(player__user=obj)
+        result['invitations'] = (Survey.objects.filter(user=obj)
             .aggregate(true=Count('id', filter=Q(answer=True)),
                        false=Count('id', filter=Q(answer=False)),
                        unknown=Count('id', filter=Q(answer__isnull=True))))
