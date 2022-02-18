@@ -31,6 +31,7 @@ class TeamListSerializer(serializers.ModelSerializer):
 
 
 class TeamPostSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Team
         fields = ('id', 'full_name', 'short_name', 'active', 'description')

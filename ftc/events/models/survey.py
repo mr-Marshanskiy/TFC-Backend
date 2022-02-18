@@ -8,9 +8,11 @@ from model_utils import FieldTracker
 from common.mixins.system import InfoMixin
 from events.models.event import Event
 from players.models.player import Player
+from users.models import User
 
 
 class Survey(InfoMixin):
+    user = models.ForeignKey(User, models.RESTRICT, 'surveys', verbose_name='Пользователь', blank=True, null=True)
     player = models.ForeignKey(Player, models.RESTRICT, 'surveys', verbose_name='Участник')
     event = models.ForeignKey(Event, models.RESTRICT, 'surveys', verbose_name='Событие')
     answer = models.BooleanField('Будет участвовать?', null=True, blank=True)
