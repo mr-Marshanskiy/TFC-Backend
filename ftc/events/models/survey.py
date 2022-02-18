@@ -1,5 +1,3 @@
-from django.contrib.admin import forms
-from django.core.exceptions import BadRequest
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -13,7 +11,6 @@ from users.models import User
 
 class Survey(InfoMixin):
     user = models.ForeignKey(User, models.RESTRICT, 'surveys', verbose_name='Пользователь', blank=True, null=True)
-    player = models.ForeignKey(Player, models.RESTRICT, 'surveys', verbose_name='Участник')
     event = models.ForeignKey(Event, models.RESTRICT, 'surveys', verbose_name='Событие')
     answer = models.BooleanField('Будет участвовать?', null=True, blank=True)
     comment = models.CharField('Комментарий к ответу', max_length=255,
@@ -24,14 +21,14 @@ class Survey(InfoMixin):
         verbose_name = 'Опрос к событию'
         verbose_name_plural = 'Опросы к событиям'
         ordering = ('id',)
-        unique_together = ('player', 'event',)
+        unique_together = ('user', 'event',)
 
     def __str__(self):
-        return f'{self.event}({self.player})'
+        return f'{self.event}({self.user})'
 
     def is_duplicated(self):
         queryset = Survey.objects.filter(
-            event=self.event, player__user=self.player.user)
+            event=self.event, user=self.user)
         if self.id:
             queryset.exclude(id=self.id)
         if queryset.count() > 0:
@@ -41,18 +38,21 @@ class Survey(InfoMixin):
 
 @receiver(post_save, sender=Survey)
 def survey_post_save(sender, instance: Survey, created, **kwargs):
-    if created and instance.answer:
-        instance.event.participants.update_or_create(
-            player=instance.player, event=instance.event)
-    if instance.tracker.previous('answer') is None and instance.answer:
-        instance.event.participants.update_or_create(
-            player=instance.player, event=instance.event,
-            defaults={'confirmed': True})
-    elif instance.tracker.previous('answer') and instance.answer is False:
-        instance.event.participants.filter(
-            event=instance.event,
-            player=instance.player
-        ).delete()
+    participant = Player.objects.filter(
+        team__id=1, user=instance.user).first()
+    if participant:
+        if created and instance.answer:
+            instance.event.participants.update_or_create(
+                player=participant, event=instance.event)
+        if instance.tracker.previous('answer') is None and instance.answer:
+            instance.event.participants.update_or_create(
+                player=participant, event=instance.event,
+                defaults={'confirmed': True})
+        elif instance.tracker.previous('answer') and instance.answer is False:
+            instance.event.participants.filter(
+                event=instance.event,
+                player=participant
+            ).delete()
 
 
 

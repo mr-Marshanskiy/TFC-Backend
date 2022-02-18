@@ -17,7 +17,7 @@ from events.serializers.comment import (CommentListSerializer,
 @method_decorator(name='update', decorator=swagger_auto_schema(operation_summary="Обновить укомментарий к событию", tags=['События: Комментарии']))
 @method_decorator(name='partial_update',  decorator=swagger_auto_schema(operation_summary="Обновить комментарий к событию частично", tags=['События: Комментарии']))
 class CommentViewSet(CRUViewSet):
-    queryset = Comment.objects.all().select_related('event', 'player',
+    queryset = Comment.objects.all().select_related('event', 'user',
                                                     'created_by', 'updated_by')
 
     def get_queryset(self):

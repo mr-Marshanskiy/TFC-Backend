@@ -23,9 +23,10 @@ from events.serializers.survey import (SurveyListSerializer,
 @method_decorator(name='partial_update',  decorator=swagger_auto_schema(operation_summary="Обновить решение игрока частично", tags=['События: Голосование']))
 @method_decorator(name='destroy',  decorator=swagger_auto_schema(operation_summary="Удалить решение игрока", tags=['События: Голосование']))
 class SurveyViewSet(CRUDViewSet):
-    queryset = Survey.objects.all().select_related('event', 'player')
+    queryset = Survey.objects.all().select_related('event', 'user',
+                                                   'created_by', 'updated_by')
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ('player', 'player__user', 'answer')
+    filterset_fields = ('user', 'answer')
 
     def get_queryset(self):
         if not self.request:

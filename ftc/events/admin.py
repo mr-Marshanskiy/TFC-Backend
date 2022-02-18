@@ -11,7 +11,7 @@ from events.models.type import Type
 class SurveyTabular(admin.TabularInline):
     extra = 0
     show_change_link = True
-    fields = ('user', 'player', 'answer', 'comment')
+    fields = ('user', 'answer', 'comment')
     model = Survey
 
 
@@ -25,7 +25,7 @@ class ParticipantTabular(admin.TabularInline):
 class CommentTabular(admin.TabularInline):
     extra = 0
     show_change_link = True
-    fields = ('player', 'comment')
+    fields = ('user', 'comment')
     model = Comment
 
 
@@ -47,13 +47,13 @@ class ParticipantAdmin(admin.ModelAdmin):
 
 @admin.register(Survey)
 class SurveyAdmin(admin.ModelAdmin):
-    list_display = ('id', 'player', 'event', 'answer', 'comment')
+    list_display = ('id', 'user', 'event', 'answer', 'comment')
     readonly_fields = ('created_at', 'updated_at', 'created_by', 'updated_by',)
 
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'player', 'event', 'comment')
+    list_display = ('id', 'user', 'event', 'comment')
     readonly_fields = ('created_at', 'updated_at', 'created_by', 'updated_by',)
 
 

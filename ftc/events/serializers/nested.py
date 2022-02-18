@@ -4,14 +4,15 @@ from events.models.comment import Comment
 from events.models.participant import Participant
 from events.models.survey import Survey
 from players.serializers.nested import PlayerNestedSerializer
+from users.serializers import UserNestedSerializer
 
 
 class CommentNestedSerializer(serializers.ModelSerializer):
-    player = PlayerNestedSerializer()
-
+    user = UserNestedSerializer()
+    time = serializers.DateTimeField(source='created_at')
     class Meta:
         model = Comment
-        fields = ('player', 'comment',)
+        fields = ('user', 'comment', 'time')
 
 
 class ParticipantNestedSerializer(serializers.ModelSerializer):
@@ -23,9 +24,9 @@ class ParticipantNestedSerializer(serializers.ModelSerializer):
 
 
 class SurveyNestedSerializer(serializers.ModelSerializer):
-    player = PlayerNestedSerializer()
+    user = UserNestedSerializer()
 
     class Meta:
         model = Survey
-        fields = ('answer', 'comment', 'player')
+        fields = ('answer', 'comment', 'user')
 

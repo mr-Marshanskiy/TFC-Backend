@@ -31,10 +31,8 @@ class EventViewSet(CRUViewSet):
         else:
             queryset = Event.objects.prefetch_related(
                 'comments', 'surveys', 'participants',
-                'comments__player__user',
-                'comments__player__team',
-                'surveys__player__user',
-                'surveys__player__team',
+                'comments__user',
+                'surveys__user',
                 'participants__player__user',
                 'participants__player__team').select_related(
                 'sport', 'status', 'type', 'location', 'created_by',
