@@ -9,17 +9,16 @@ from rest_framework.fields import IntegerField
 from api.constants import ACTIVE_STATUS, BASE_DURATION_MINUTES
 from common.service import get_now
 from events.models.event import Event
-from events.serializers.nested import SurveyNestedSerializer, \
-    CommentNestedSerializer, ParticipantNestedSerializer
+from events.serializers.nested import (SurveyNestedSerializer,
+    CommentNestedSerializer, ParticipantNestedSerializer)
 from locations.serializers.nested import LocationNestedSerializer
-from sports.serializers.nested import SportNestedSerializer
 from users.serializers import UserNestedSerializer
 
 
 class EventDetailSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(source='status.name')
-    type = serializers.CharField(source='type.name')
-    sport = serializers.CharField(source='sport.name')
+    status = serializers.CharField(source='status.name', allow_null=True)
+    type = serializers.CharField(source='type.name', allow_null=True)
+    sport = serializers.CharField(source='sport.name', allow_null=True)
     location = LocationNestedSerializer()
 
     created_by = UserNestedSerializer()
