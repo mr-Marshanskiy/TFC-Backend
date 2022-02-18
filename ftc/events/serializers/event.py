@@ -133,7 +133,7 @@ class EventPostSerializer(serializers.ModelSerializer):
             queryset = Event.objects.filter(
                 status__in=ACTIVE_STATUS,
                 location=data.get('location'),
-                time_start__lte=data.get('time_end'),
+                time_start__lt=data.get('time_end'),
                 time_end__gt=data.get('time_start'),
             )
         if self.instance:
