@@ -128,7 +128,8 @@ class EventPostSerializer(serializers.ModelSerializer):
             )
 
         """ Проверка пересечений """
-        if data.get('time_start') and data.get('time_end') and data.get('location'):
+        if data.get('time_start') and data.get(
+                'time_end') and data.get('location'):
             queryset = Event.objects.filter(
                 status__in=ACTIVE_STATUS,
                 location=data.get('location'),
@@ -139,15 +140,13 @@ class EventPostSerializer(serializers.ModelSerializer):
             queryset = queryset.exclude(pk=self.instance.id)
 
         if queryset.count() > 0:
-            message = []
             for i in queryset.all().distinct():
                 event = f'Место уже занято событием № {i.id}, '
 
                 event += (f'время: '
-                         f'{i.time_start.astimezone().strftime("%H:%M")}-'
-                         f'{i.time_end.astimezone().strftime("%H:%M")}')
-                message.append(event)
-            raise serializers.ValidationError('\n'.join(m for m in message))
+                          f'{i.time_start.astimezone().strftime("%H:%M")}-'
+                          f'{i.time_end.astimezone().strftime("%H:%M")}')
+                raise serializers.ValidationError(event)
 
         """ Проверка участников """
         if (data.get('time_start') and data.get('time_end')
