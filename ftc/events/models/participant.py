@@ -18,3 +18,12 @@ class Participant(InfoMixin):
 
     def __str__(self):
         return f'{self.event}({self.player})'
+
+    def is_duplicated_confirm(self):
+        queryset = Participant.objects.filter(
+            event=self.event, player__user=self.player.user, confirmed=True)
+        if self.id:
+            queryset.exclude(id=self.id)
+        if queryset.count() > 0:
+            return True
+        return False

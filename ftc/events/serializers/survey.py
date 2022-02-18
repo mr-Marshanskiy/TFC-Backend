@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ParseError
 
 from events.models.survey import Survey
 from events.serializers.event import EventListSerializer
@@ -28,3 +29,9 @@ class SurveyPostSerializer(serializers.ModelSerializer):
         model = Survey
         fields = ('player', 'event', 'answer', 'comment')
 
+    def create(self, validated_data):
+        instance = Survey(**validated_data)
+        if instance.is_duplicated():
+            raise ParseError('Вы уже проголосовали от имени другой команды')
+        instance.save()
+        return instance

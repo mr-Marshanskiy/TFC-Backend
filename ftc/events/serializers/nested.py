@@ -24,6 +24,8 @@ class ParticipantNestedSerializer(serializers.ModelSerializer):
 
 class SurveyNestedSerializer(serializers.ModelSerializer):
     player = PlayerNestedSerializer()
+
     class Meta:
         model = Survey
         fields = ('answer', 'comment', 'player')
+

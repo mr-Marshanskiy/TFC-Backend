@@ -1,3 +1,5 @@
+from django.contrib.admin import forms
+from django.core.exceptions import BadRequest
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -25,9 +27,18 @@ class Survey(InfoMixin):
     def __str__(self):
         return f'{self.event}({self.player})'
 
+    def is_duplicated(self):
+        queryset = Survey.objects.filter(
+            event=self.event, player__user=self.player.user)
+        if self.id:
+            queryset.exclude(id=self.id)
+        if queryset.count() > 0:
+            return True
+        return False
+
 
 @receiver(post_save, sender=Survey)
-def booking_post_save(sender, instance: Survey, created, **kwargs):
+def survey_post_save(sender, instance: Survey, created, **kwargs):
     if created and instance.answer:
         instance.event.participants.update_or_create(
             player=instance.player, event=instance.event)
