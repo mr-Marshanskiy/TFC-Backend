@@ -26,5 +26,5 @@ class SurveyDetailSerializer(serializers.ModelSerializer):
 class SurveyPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Survey
-        fields = '__all__'
+        fields = ('player', 'event', 'answer', 'comment')
 
