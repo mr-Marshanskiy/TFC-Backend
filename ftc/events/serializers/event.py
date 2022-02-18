@@ -190,11 +190,12 @@ class EventForMainSerializer(serializers.ModelSerializer):
 
     def get_date(self, instance):
         result = dict()
-        result['time_start'] = instance.time_start
-        result['time_end'] = instance.time_end
-        result['date_short'] = instance.time_start.date()
-        result['time_short'] = (f'{instance.time_start.strftime("%H:%M")}-'
-                                f'{instance.time_end.strftime("%H:%M")}')
+        result['time_start'] = instance.time_start.astimezone()
+        result['time_end'] = instance.time_end.astimezone()
+        result['date_short'] = instance.time_start.astimezone().date()
+        result['time_short'] = (
+            f'{instance.time_start.astimezone().strftime("%H:%M")}-'
+            f'{instance.time_end.astimezone().strftime("%H:%M")}')
 
         return result
 

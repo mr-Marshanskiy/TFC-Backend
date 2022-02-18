@@ -17,17 +17,18 @@ from events.serializers.comment import (CommentListSerializer,
 @method_decorator(name='update', decorator=swagger_auto_schema(operation_summary="Обновить укомментарий к событию", tags=['События: Комментарии']))
 @method_decorator(name='partial_update',  decorator=swagger_auto_schema(operation_summary="Обновить комментарий к событию частично", tags=['События: Комментарии']))
 class CommentViewSet(CRUViewSet):
-    queryset = Comment.objects.all().select_related('event', 'player', 'created_by', 'updated_by')
+    queryset = Comment.objects.all().select_related('event', 'player',
+                                                    'created_by', 'updated_by')
 
-    # def get_queryset(self):
-    #     if not self.request:
-    #         return Event.objects.none()
-    #     event_id = self.kwargs.get("event_pk")
-    #     event = Event.objects.filter(id=event_id).first()
-    #     if event:
-    #         return self.queryset.filter(event=event)
-    #     else:
-    #         return self.queryset.none()
+    def get_queryset(self):
+        if not self.request:
+            return Event.objects.none()
+        event_id = self.kwargs.get("event_pk")
+        event = Event.objects.filter(id=event_id).first()
+        if event:
+            return self.queryset.filter(event=event)
+        else:
+            return self.queryset.none()
 
     def get_serializer_class(self):
         if self.action == 'list':

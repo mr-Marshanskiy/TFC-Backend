@@ -55,7 +55,7 @@ class User(AbstractUser):
                 [self.last_name, self.first_name, self.patronymic],
             )
         ).strip()
-        if full_name is None or full_name == '':
-            full_name = self.email
+        if full_name is None or not any(c.isalpha() for c in full_name):
+            full_name = str(self.phone_number)
         return full_name
 
