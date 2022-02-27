@@ -13,7 +13,7 @@ BASE_DIR = root()
 DEBUG = env.bool('DEBUG', True)
 SECRET_KEY = env('SECRET_KEY')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = env.str("ALLOWED_HOSTS", default="").split(" ")
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
