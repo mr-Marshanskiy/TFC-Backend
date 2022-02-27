@@ -13,7 +13,7 @@ BASE_DIR = root()
 DEBUG = env.bool('DEBUG', True)
 SECRET_KEY = env('SECRET_KEY')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = env.str("ALLOWED_HOSTS", default="").split(" ")
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
@@ -32,10 +32,16 @@ INSTALLED_APPS = [
     'djoser',
     'corsheaders',
     'django_filters',
+    'debug_toolbar',
 
     'common',
     'users',
     'api',
+    'events',
+    'teams',
+    'players',
+    'locations',
+    'sports',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 MIDDLEWARE += ('crum.CurrentRequestUserMiddleware',)
@@ -84,7 +91,7 @@ DATABASES = {
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -183,3 +190,17 @@ sentry_sdk.init(
     traces_sample_rate=1.0,
     send_default_pii=True,
 )
+
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'basic': {
+            'type': 'basic'
+        }
+    },
+    'TAGS_SORTER': 'alpha',
+}
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
