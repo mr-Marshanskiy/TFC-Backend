@@ -7,6 +7,7 @@ from rest_framework import filters, permissions
 
 from api.views.filters import EventFilter
 from common.mixins.views import CRUViewSet
+from common.permissions import IsOwnerAdminOrCreate
 
 from events.models.event import Event
 from events.serializers.event import (EventListSerializer, EventPostSerializer,
@@ -19,6 +20,7 @@ from events.serializers.event import (EventListSerializer, EventPostSerializer,
 @method_decorator(name='update', decorator=swagger_auto_schema(operation_summary="Обновить событие", tags=['События']))
 @method_decorator(name='partial_update',  decorator=swagger_auto_schema(operation_summary="Обновить событие частично", tags=['События']))
 class EventViewSet(CRUViewSet):
+    permission_classes = ((IsOwnerAdminOrCreate),)
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filter_class = EventFilter
 
