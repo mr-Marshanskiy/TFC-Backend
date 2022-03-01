@@ -5,6 +5,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters, generics, permissions, viewsets
 from rest_framework.permissions import IsAuthenticated
 
+from common.permissions import AnonCreate, IsOwnerOrAdmin, ReadOnly
 from .models import User
 from .serializers import (GroupSerializer, UserInfoSerializer,
                           UserPostSerializer, UserSerializer,
@@ -22,7 +23,7 @@ class UserViewSet(viewsets.ModelViewSet):
     API endpoint that allows users to be viewed or edited.
     """
     queryset = User.objects.all().order_by('-id')
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = ((AnonCreate | IsOwnerOrAdmin | ReadOnly),)
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['active']
     search_fields = ['email', 'first_name', 'last_name']
