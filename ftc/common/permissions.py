@@ -10,7 +10,7 @@ class IsOwnerOrAdmin(BasePermission):
         if request.user.is_superuser:
             return True
         if hasattr(obj, 'created_by'):
-            return obj.created_by == request.user
+            return obj == request.user
         return False
 
 
