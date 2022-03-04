@@ -40,7 +40,7 @@ class Survey(InfoMixin):
 def survey_post_save(sender, instance: Survey, created, **kwargs):
     participant = Player.objects.filter(user=instance.user).first()
     if participant:
-        if instance.answer:
+        if instance.answer == True:
             instance.event.participants.update_or_create(
                 player=participant, event=instance.event, confirmed=True)
         elif instance.answer:
