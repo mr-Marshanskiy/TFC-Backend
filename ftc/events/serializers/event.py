@@ -1,7 +1,7 @@
 import pprint
 from datetime import timedelta
 
-from django.db.models import Count, Q
+from django.db.models import Count, Q, DecimalField
 from django.db.models.functions import Coalesce
 from rest_framework import serializers
 from rest_framework.fields import IntegerField
@@ -60,8 +60,8 @@ class EventDetailSerializer(serializers.ModelSerializer):
         if player_count == 0:
             result['price_per_player'] = 0
         else:
-            result['price_per_player'] = float(obj.price / player_count)
-
+            result['price_per_player'] = round(float(obj.price / player_count), 2)
+            print(result['price_per_player'])
         return result
 
 
