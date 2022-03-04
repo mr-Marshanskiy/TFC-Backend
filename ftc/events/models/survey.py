@@ -40,17 +40,13 @@ class Survey(InfoMixin):
 def survey_post_save(sender, instance: Survey, created, **kwargs):
     participant = Player.objects.filter(user=instance.user).first()
     if participant:
-        if created and instance.answer:
+        if instance.answer:
             instance.event.participants.update_or_create(
-                player=participant, event=instance.event)
-        if instance.tracker.previous('answer') is None and instance.answer:
-            instance.event.participants.update_or_create(
-                player=participant, event=instance.event,
-                defaults={'confirmed': True})
-        elif instance.tracker.previous('answer') and instance.answer is False:
+                player=participant, event=instance.event, confirmed=True)
+        elif instance.answer:
             instance.event.participants.filter(
                 event=instance.event,
-                player=participant
+                player__user=instance.user
             ).delete()
 
 
