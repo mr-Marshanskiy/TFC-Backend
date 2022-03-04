@@ -43,7 +43,7 @@ def survey_post_save(sender, instance: Survey, created, **kwargs):
         if instance.answer == True:
             instance.event.participants.update_or_create(
                 player=participant, event=instance.event, confirmed=True)
-        elif instance.answer:
+        elif instance.answer == False or instance.answer == None:
             instance.event.participants.filter(
                 event=instance.event,
                 player__user=instance.user
