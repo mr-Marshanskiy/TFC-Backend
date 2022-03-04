@@ -44,7 +44,11 @@ def event_pre_save(sender, instance: Event, **kwargs):
 
     '''
         Проверка статусов
-        1 - new, 2 - wait, 3 - open, 4 - close, 5 - cancel
+        1 - new,
+        2 - wait,
+        3 - open,
+        4 - close,
+        5 - cancel
     '''
     if not instance.id:
         instance.status_id = 1
