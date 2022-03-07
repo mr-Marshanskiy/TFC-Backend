@@ -7,15 +7,19 @@ from users.models import User
 
 
 class CommentListSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='user.get_full_name')
+
     class Meta:
         model = Comment
-        fields = '__all__'
+        exclude = ('created_by', 'updated_by')
 
 
 class CommentDetailSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='user.get_full_name')
+
     class Meta:
         model = Comment
-        fields = '__all__'
+        exclude = ('created_by', 'updated_by')
 
 
 class CommentPostSerializer(serializers.ModelSerializer):
