@@ -19,12 +19,10 @@ class CommentDetailSerializer(serializers.ModelSerializer):
 
 
 class CommentPostSerializer(serializers.ModelSerializer):
-    user = serializers.HiddenField(default=None)
-    event = serializers.HiddenField(default=None)
 
     class Meta:
         model = Comment
-        fields = ('comment', 'user', 'event')
+        fields = ('comment',)
 
     def validate_user(self, value):
         return self.context.get('request').user
@@ -33,3 +31,4 @@ class CommentPostSerializer(serializers.ModelSerializer):
         event = get_object_or_404(
             Event, id=self.context['view'].kwargs.get('event_pk'))
         return event
+
