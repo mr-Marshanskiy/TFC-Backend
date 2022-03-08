@@ -8,7 +8,7 @@ from users.serializers import UserNestedSerializer
 
 
 class CommentListSerializer(serializers.ModelSerializer):
-    user = serializers.CharField(source='user.get_full_name')
+    user = UserNestedSerializer()
 
     class Meta:
         model = Comment
