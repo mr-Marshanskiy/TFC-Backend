@@ -4,6 +4,7 @@ from rest_framework import serializers
 from events.models.comment import Comment
 from events.models.event import Event
 from users.models import User
+from users.serializers import UserNestedSerializer
 
 
 class CommentListSerializer(serializers.ModelSerializer):
@@ -15,7 +16,7 @@ class CommentListSerializer(serializers.ModelSerializer):
 
 
 class CommentDetailSerializer(serializers.ModelSerializer):
-    user = serializers.CharField(source='user.get_full_name')
+    user = UserNestedSerializer()
 
     class Meta:
         model = Comment
