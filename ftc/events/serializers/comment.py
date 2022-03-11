@@ -3,7 +3,6 @@ from rest_framework import serializers
 
 from events.models.comment import Comment
 from events.models.event import Event
-from users.models import User
 from users.serializers import UserNestedSerializer
 
 

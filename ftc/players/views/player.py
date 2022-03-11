@@ -3,7 +3,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters
 
-from common.mixins.views import CRUViewSet
+from common.mixins.views import CRUViewSet, CRUDViewSet
+from common.permissions import IsOwnerAdminOrCreate
 from players.models.player import Player
 from players.serializers.player import (PlayerListSerializer, PlayerPostSerializer,
                                         PlayerDetailSerializer)
@@ -14,8 +15,10 @@ from players.serializers.player import (PlayerListSerializer, PlayerPostSerializ
 @method_decorator(name='retrieve', decorator=swagger_auto_schema(operation_summary="Получить профиль игрока", tags=['Профили игроков']))
 @method_decorator(name='update', decorator=swagger_auto_schema(operation_summary="Обновить профиль игрока", tags=['Профили игроков']))
 @method_decorator(name='partial_update',  decorator=swagger_auto_schema(operation_summary="Обновить профиль игрока частично", tags=['Профили игроков']))
-class PlayerViewSet(CRUViewSet):
+@method_decorator(name='destroy',  decorator=swagger_auto_schema(operation_summary="Удалить профиль игрока", tags=['Профили игроков']))
+class PlayerViewSet(CRUDViewSet):
     queryset = Player.objects.all()
+    permission_classes = ((IsOwnerAdminOrCreate),)
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['active', 'team', 'user', 'confirmed']
     search_fields = ['user__first_name',
