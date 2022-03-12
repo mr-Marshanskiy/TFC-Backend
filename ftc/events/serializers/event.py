@@ -135,15 +135,16 @@ class EventPostSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """ Проверка времени """
-        if not data.get('time_end'):
-            data['time_end'] = data.get('time_start') + timedelta(minutes=BASE_DURATION_MINUTES)
-        if data.get('time_start') and data.get('time_end'):
-            if data.get('time_start') > data.get('time_end'):
-                raise serializers.ValidationError(
-                    'Время окончания не должно превышать время начала.')
+        if data.get('time_start'):
+            if not data.get('time_end'):
+                data['time_end'] = data.get('time_start') + timedelta(minutes=BASE_DURATION_MINUTES)
+            if data.get('time_start') and data.get('time_end'):
+                if data.get('time_start') > data.get('time_end'):
+                    raise serializers.ValidationError(
+                        'Время окончания не должно превышать время начала.')
 
-        if data.get('time_start').date() != data.get('time_end').date():
-            raise serializers.ValidationError(
+            if data.get('time_start').date() != data.get('time_end').date():
+                raise serializers.ValidationError(
                 'Событие должно начинаться и заканчиваться в один день.'
             )
 
@@ -156,17 +157,17 @@ class EventPostSerializer(serializers.ModelSerializer):
                 time_start__lt=data.get('time_end'),
                 time_end__gt=data.get('time_start'),
             )
-        if self.instance:
-            queryset = queryset.exclude(pk=self.instance.id)
+            if self.instance:
+                queryset = queryset.exclude(pk=self.instance.id)
 
-        if queryset.count() > 0:
-            for i in queryset.all().distinct():
-                event = f'Место уже занято событием № {i.id}, '
+            if queryset.count() > 0:
+                for i in queryset.all().distinct():
+                    event = f'Место уже занято событием № {i.id}, '
 
-                event += (f'время: '
-                          f'{i.time_start.astimezone().strftime("%H:%M")}-'
-                          f'{i.time_end.astimezone().strftime("%H:%M")}')
-                raise serializers.ValidationError(event)
+                    event += (f'время: '
+                              f'{i.time_start.astimezone().strftime("%H:%M")}-'
+                              f'{i.time_end.astimezone().strftime("%H:%M")}')
+                    raise serializers.ValidationError(event)
 
         """ Проверка участников """
         if (data.get('time_start') and data.get('time_end')
