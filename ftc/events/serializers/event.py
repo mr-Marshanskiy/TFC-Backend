@@ -11,6 +11,7 @@ from common.service import get_now
 from events.models.event import Event
 from events.serializers.nested import (SurveyNestedSerializer,
     CommentNestedSerializer, ParticipantNestedSerializer)
+from guests.serializers.guest import GuestSerializer
 from locations.serializers.nested import LocationNestedSerializer
 from users.serializers import UserNestedSerializer
 
@@ -29,6 +30,8 @@ class EventDetailSerializer(serializers.ModelSerializer):
     participants = serializers.SerializerMethodField()
 
     stats = serializers.SerializerMethodField()
+
+    guests = GuestSerializer(many=True)
 
     class Meta:
         model = Event
@@ -57,6 +60,8 @@ class EventDetailSerializer(serializers.ModelSerializer):
     def get_stats(self, obj):
         result = dict()
         player_count = obj.participants.filter(confirmed=True).count()
+        player_count += obj.guests.count()
+
         if player_count == 0:
             result['price_per_player'] = 0
         else:
@@ -71,23 +76,38 @@ class EventListSerializer(serializers.ModelSerializer):
     location = LocationNestedSerializer()
     sport = serializers.CharField(source='sport.name', allow_null=True)
     participants_count = serializers.SerializerMethodField()
+    guests = GuestSerializer(many=True)
 
     class Meta:
         model = Event
-        fields = ('id', 'time_start', 'time_end', 'sport',
-                  'type', 'status', 'location', 'price', 'participants_count')
+        fields = ('id',
+                  'time_start',
+                  'time_end',
+                  'sport',
+                  'type',
+                  'status',
+                  'location',
+                  'price',
+                  'participants_count',
+                  'guests',)
 
     def get_participants_count(self, instance):
-        result = instance.participants.count()
+        result = instance.participants.count() + instance.guests.count()
         return result
 
 
 class EventPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ('id', 'time_start', 'time_end',
-                  'type', 'status', 'sport',
-                  'location', 'price')
+        fields = ('id',
+                  'time_start',
+                  'time_end',
+                  'type',
+                  'status',
+                  'sport',
+                  'location',
+                  'price',
+                  'guests',)
 
     def validate_time_start(self, value):
         now = get_now()
@@ -180,11 +200,19 @@ class EventForMainSerializer(serializers.ModelSerializer):
     sport = serializers.CharField(source='sport.name', allow_null=True)
     date = serializers.SerializerMethodField()
     participants_count = serializers.SerializerMethodField()
+    guests = GuestSerializer(many=True)
 
     class Meta:
         model = Event
-        fields = ('id', 'date', 'sport', 'participants_count',
-                  'type', 'status', 'location', 'price')
+        fields = ('id',
+                  'date',
+                  'sport',
+                  'participants_count',
+                  'type',
+                  'status',
+                  'location',
+                  'price',
+                  'guests')
 
     def get_date(self, instance):
         result = dict()
