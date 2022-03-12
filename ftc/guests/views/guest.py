@@ -9,10 +9,10 @@ from guests.serializers.guest import GuestDetailSerializer, GuestSerializer
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Список гостей", tags=['Гости']))
-@method_decorator(name='create', decorator=swagger_auto_schema(operation_summary="Добавить гостя", tags=['Места']))
-@method_decorator(name='retrieve', decorator=swagger_auto_schema(operation_summary="Получить гостя", tags=['Места']))
-@method_decorator(name='update', decorator=swagger_auto_schema(operation_summary="Обновить гостя", tags=['Места']))
-@method_decorator(name='partial_update',  decorator=swagger_auto_schema(operation_summary="Обновить гостя частично", tags=['Места']))
+@method_decorator(name='create', decorator=swagger_auto_schema(operation_summary="Добавить гостя", tags=['Гости']))
+@method_decorator(name='retrieve', decorator=swagger_auto_schema(operation_summary="Получить гостя", tags=['Гости']))
+@method_decorator(name='update', decorator=swagger_auto_schema(operation_summary="Обновить гостя", tags=['Гости']))
+@method_decorator(name='partial_update',  decorator=swagger_auto_schema(operation_summary="Обновить гостя частично", tags=['Гости']))
 class GuestViewSet(CRUViewSet):
     queryset = Guest.objects.all()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
