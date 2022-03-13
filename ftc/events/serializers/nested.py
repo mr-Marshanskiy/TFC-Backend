@@ -1,10 +1,9 @@
 from rest_framework import serializers
 
 from events.models.comment import Comment
-from events.models.participant import Participant
-from events.models.survey import Survey
+from events.models.application import Application
 from players.serializers.nested import PlayerNestedSerializer
-from users.serializers import UserNestedSerializer
+from users.serializers.user import UserNestedSerializer
 
 
 class CommentNestedSerializer(serializers.ModelSerializer):
@@ -15,18 +14,10 @@ class CommentNestedSerializer(serializers.ModelSerializer):
         fields = ('user', 'comment', 'time')
 
 
-class ParticipantNestedSerializer(serializers.ModelSerializer):
+class ApplicationNestedSerializer(serializers.ModelSerializer):
     player = PlayerNestedSerializer()
-
-    class Meta:
-        model = Participant
-        fields = ('player', 'confirmed',)
-
-
-class SurveyNestedSerializer(serializers.ModelSerializer):
     user = UserNestedSerializer()
 
     class Meta:
-        model = Survey
-        fields = ('answer', 'comment', 'user')
-
+        model = Application
+        fields = ['player', 'user', 'type',]

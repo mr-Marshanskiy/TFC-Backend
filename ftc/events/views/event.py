@@ -3,7 +3,7 @@ from django.utils.decorators import method_decorator
 from django_filters.rest_framework import DjangoFilterBackend
 
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import filters, permissions
+from rest_framework import filters
 
 from api.views.filters import EventFilter
 from common.mixins.views import CRUViewSet
@@ -32,11 +32,10 @@ class EventViewSet(CRUViewSet):
             ).order_by('-time_start')
         else:
             queryset = Event.objects.prefetch_related(
-                'comments', 'surveys', 'participants',
+                'comments', 'applications',
                 'comments__user',
-                'surveys__user',
-                'participants__player__user',
-                'participants__player__team').select_related(
+                'applications__player__user',
+                'applications__player__team').select_related(
                 'sport', 'status', 'type', 'location', 'created_by',
                 'updated_by',
             ).order_by('-time_start')

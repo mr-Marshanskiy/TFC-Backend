@@ -1,37 +1,14 @@
 from django.contrib import admin
 
 from events.models.comment import Comment
+from events.models.dict import Status, Type, ApplicationStatus
 from events.models.event import Event
-from events.models.participant import Participant
-from events.models.status import Status
-from events.models.survey import Survey
-from events.models.type import Type
+from events.models.application import Application
 
 
-class SurveyTabular(admin.TabularInline):
-    extra = 0
-    show_change_link = True
-    fields = ('user', 'answer', 'comment')
-    model = Survey
-    autocomplete_fields = ['user']
-
-
-class ParticipantTabular(admin.TabularInline):
-    extra = 0
-    show_change_link = True
-    fields = ('player', 'confirmed')
-    model = Participant
-    autocomplete_fields = ['player']
-
-
-class CommentTabular(admin.TabularInline):
-    extra = 0
-    show_change_link = True
-    fields = ('user', 'comment')
-    model = Comment
-    autocomplete_fields = ['user']
-
-
+#########################
+#       DICTS           #
+#########################
 @admin.register(Status)
 class StatusAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'slug', 'description')
@@ -44,17 +21,39 @@ class TypeAdmin(admin.ModelAdmin):
     search_fields = ['name', 'slug']
 
 
-@admin.register(Participant)
-class ParticipantAdmin(admin.ModelAdmin):
-    list_display = ('id', 'player', 'event', 'confirmed')
+@admin.register(ApplicationStatus)
+class TypeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'slug', 'description')
+    search_fields = ['name', 'slug']
+
+
+#########################
+#       TABULAR         #
+#########################
+class ApplicationTabular(admin.TabularInline):
+    extra = 0
+    show_change_link = True
+    fields = ('player', 'status')
+    model = Application
+    autocomplete_fields = ['player', 'status', 'user']
+
+
+class CommentTabular(admin.TabularInline):
+    extra = 0
+    show_change_link = True
+    fields = ('user', 'comment')
+    model = Comment
+    autocomplete_fields = ['user']
+
+
+#########################
+#       MODELS          #
+#########################
+@admin.register(Application)
+class ApplicationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'player', 'event', 'status')
     readonly_fields = ('created_at', 'updated_at', 'created_by', 'updated_by',)
     autocomplete_fields = ['player', 'event']
-
-
-@admin.register(Survey)
-class SurveyAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'event', 'answer', 'comment')
-    readonly_fields = ('created_at', 'updated_at', 'created_by', 'updated_by',)
 
 
 @admin.register(Comment)
@@ -84,8 +83,7 @@ class EventAdmin(admin.ModelAdmin):
     ordering = ('-id',)
 
     inlines = [
-        SurveyTabular,
-        ParticipantTabular,
+        ApplicationTabular,
         CommentTabular,
     ]
     autocomplete_fields = ['location', 'sport', 'type', 'status']

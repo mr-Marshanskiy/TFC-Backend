@@ -21,7 +21,7 @@ class MainTitleView(PublicMixin, APIView):
         now = get_now()
         events = (Event.objects.filter(time_start__gte=now,
                                       status__in=ACTIVE_STATUS)
-                  .prefetch_related('participants'))[:10]
+                  .prefetch_related('applications'))[:10]
         serializer = EventForMainSerializer(events, many=True)
         result = serializer.data
         return Response(result)

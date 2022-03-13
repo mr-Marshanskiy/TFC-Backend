@@ -46,6 +46,10 @@ class User(AbstractUser):
         db_table = 'user'
 
     def __str__(self):
+        return self.full_name
+
+    @property
+    def full_name(self):
         return self.get_full_name()
 
     def get_full_name(self):

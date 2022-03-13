@@ -5,8 +5,7 @@ from model_utils import FieldTracker
 
 from common.mixins.system import InfoMixin
 from common.service import get_now
-from events.models.status import Status
-from events.models.type import Type
+from events.models.dict import Status, Type
 from guests.models.guest import Guest
 from locations.models.location import Location
 from sports.models.sport import Sport
@@ -60,7 +59,7 @@ class Event(InfoMixin):
 
     # Temporary
     guests = models.ManyToManyField(Guest, 'events', verbose_name='Гости',
-                                    null=True, blank=True)
+                                    blank=True)
 
     # Service
     tracker = FieldTracker()

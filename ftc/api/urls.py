@@ -6,6 +6,7 @@ from .views.main import MainTitleView
 
 from .yasg import urlpatterns as doc_urls
 
+from users.urls import urlpatterns as user_urls
 
 app_name = 'api'
 router = routers.DefaultRouter()
@@ -21,10 +22,9 @@ urlpatterns += [
     path('guests/', include('guests.urls')),
 
 
-    path('me/', user.MeViewSet.as_view(), name='me'),
+
     path('main/', MainTitleView.as_view(), name='main'),
     path('token/', include('djoser.urls.jwt')),
-    path('auth/', include('users.urls')),
     path(
         'api-auth/',
         include('rest_framework.urls',
@@ -32,3 +32,5 @@ urlpatterns += [
     )
 
 ]
+
+urlpatterns += user_urls

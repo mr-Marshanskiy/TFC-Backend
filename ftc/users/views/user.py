@@ -1,4 +1,4 @@
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group
 from django.utils.decorators import method_decorator
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
@@ -6,10 +6,9 @@ from rest_framework import filters, generics, permissions, viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from common.permissions import AnonCreate, IsOwnerOrAdmin, ReadOnly
-from .models import User
-from .serializers import (GroupSerializer, UserInfoSerializer,
-                          UserPostSerializer, UserSerializer,
-                          )
+from users.models import User
+from users.serializers.user import UserSerializer, UserPostSerializer, \
+    GroupSerializer
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Список пользователей", tags=['Пользователи']))
@@ -56,11 +55,4 @@ class GroupViewSet(viewsets.ModelViewSet):
     pagination_class = None
 
 
-@method_decorator(name='get', decorator=swagger_auto_schema(operation_summary="Общая информация",
-                                                            tags=['Пользователи']))
-class MeViewSet(generics.RetrieveAPIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = UserInfoSerializer
 
-    def get_object(self):
-        return self.request.user

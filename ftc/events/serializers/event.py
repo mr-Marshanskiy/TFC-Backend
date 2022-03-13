@@ -1,19 +1,15 @@
-import pprint
 from datetime import timedelta
 
-from django.db.models import Count, Q, DecimalField
-from django.db.models.functions import Coalesce
 from rest_framework import serializers
-from rest_framework.fields import IntegerField
 
 from api.constants import ACTIVE_STATUS, BASE_DURATION_MINUTES
 from common.service import get_now
 from events.models.event import Event
-from events.serializers.nested import (SurveyNestedSerializer,
-    CommentNestedSerializer, ParticipantNestedSerializer)
+from events.serializers.nested import (CommentNestedSerializer,
+                                       ApplicationNestedSerializer)
 from guests.serializers.guest import GuestSerializer
 from locations.serializers.nested import LocationNestedSerializer
-from users.serializers import UserNestedSerializer
+from users.serializers.user import UserNestedSerializer
 
 
 class EventDetailSerializer(serializers.ModelSerializer):
@@ -26,8 +22,6 @@ class EventDetailSerializer(serializers.ModelSerializer):
     updated_by = UserNestedSerializer()
 
     comments = CommentNestedSerializer(many=True)
-    surveys = serializers.SerializerMethodField()
-    participants = serializers.SerializerMethodField()
 
     stats = serializers.SerializerMethodField()
 
@@ -37,29 +31,9 @@ class EventDetailSerializer(serializers.ModelSerializer):
         model = Event
         fields = '__all__'
 
-    def get_participants(self, obj):
-        confirmed = obj.participants.filter(confirmed=True).select_related()
-        unconfirmed = obj.participants.filter(confirmed=False).select_related()
-        result = {
-            'confirmed': ParticipantNestedSerializer(confirmed, many=True).data,
-            'unconfirmed': ParticipantNestedSerializer(unconfirmed, many=True).data,
-        }
-        return result
-
-    def get_surveys(self, obj):
-        true = obj.surveys.filter(answer=True).select_related()
-        false = obj.surveys.filter(answer=False).select_related()
-        unknown = obj.surveys.filter(answer=None).select_related()
-        result = {
-            'true': SurveyNestedSerializer(true, many=True).data,
-            'false': SurveyNestedSerializer(false, many=True).data,
-            'unknown': SurveyNestedSerializer(unknown, many=True).data,
-        }
-        return result
-
     def get_stats(self, obj):
         result = dict()
-        player_count = obj.participants.filter(confirmed=True).count()
+        player_count = obj.applications.filter(type=2).count()
         player_count += obj.guests.count()
 
         if player_count == 0:
@@ -75,7 +49,7 @@ class EventListSerializer(serializers.ModelSerializer):
     type = serializers.CharField(source='type.name')
     location = LocationNestedSerializer()
     sport = serializers.CharField(source='sport.name', allow_null=True)
-    participants_count = serializers.SerializerMethodField()
+    applications_count = serializers.SerializerMethodField()
     guests = GuestSerializer(many=True)
 
     class Meta:
@@ -88,11 +62,11 @@ class EventListSerializer(serializers.ModelSerializer):
                   'status',
                   'location',
                   'price',
-                  'participants_count',
+                  'applications_count',
                   'guests',)
 
-    def get_participants_count(self, instance):
-        result = instance.participants.count() + instance.guests.count()
+    def get_applications_count(self, instance):
+        result = instance.applications.count() + instance.guests.count()
         return result
 
 
@@ -145,8 +119,8 @@ class EventPostSerializer(serializers.ModelSerializer):
 
             if data.get('time_start').date() != data.get('time_end').date():
                 raise serializers.ValidationError(
-                'Событие должно начинаться и заканчиваться в один день.'
-            )
+                    'Событие должно начинаться и заканчиваться в один день.'
+                )
 
         """ Проверка пересечений """
         if data.get('time_start') and data.get(
@@ -200,7 +174,7 @@ class EventForMainSerializer(serializers.ModelSerializer):
     location = LocationNestedSerializer()
     sport = serializers.CharField(source='sport.name', allow_null=True)
     date = serializers.SerializerMethodField()
-    participants_count = serializers.SerializerMethodField()
+    applications_count = serializers.SerializerMethodField()
     guests = GuestSerializer(many=True)
 
     class Meta:
@@ -208,7 +182,7 @@ class EventForMainSerializer(serializers.ModelSerializer):
         fields = ('id',
                   'date',
                   'sport',
-                  'participants_count',
+                  'applications_count',
                   'type',
                   'status',
                   'location',
@@ -226,6 +200,6 @@ class EventForMainSerializer(serializers.ModelSerializer):
 
         return result
 
-    def get_participants_count(self, instance):
-        result = instance.participants.count()
+    def get_applications_count(self, instance):
+        result = instance.applications.count()
         return result
