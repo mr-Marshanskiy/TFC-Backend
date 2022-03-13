@@ -1,12 +1,16 @@
+from poplib import CR
 
+from crum import get_current_user
 from django.utils.decorators import method_decorator
 from django_filters.rest_framework import DjangoFilterBackend
 
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import filters
+from rest_framework import filters, generics
+from rest_framework.mixins import ListModelMixin
+from rest_framework.permissions import IsAuthenticated
 
 from api.views.filters import EventFilter
-from common.mixins.views import CRUViewSet
+from common.mixins.views import CRUViewSet, ListViewSet
 from common.permissions import IsOwnerAdminOrCreate
 
 from events.models.event import Event
@@ -47,3 +51,17 @@ class EventViewSet(CRUViewSet):
         if self.action in ['create', 'update', 'partial_update']:
             return EventPostSerializer
         return EventDetailSerializer
+
+
+@method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Игры пользователя", tags=['Профиль']))
+class MeEventViewSet(ListViewSet):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = EventListSerializer
+    model = serializer_class.Meta.model
+    filter_backends = [DjangoFilterBackend,]
+    filter_class = EventFilter
+
+    def get_queryset(self):
+        queryset = self.model.objects.filter(
+            applications__user=get_current_user())
+        return queryset.order_by('-time_start')

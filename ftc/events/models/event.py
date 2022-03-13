@@ -1,8 +1,11 @@
+from datetime import timedelta
+
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from model_utils import FieldTracker
 
+from api.constants import BASE_DURATION_MINUTES
 from common.mixins.system import InfoMixin
 from common.service import get_now
 from events.models.dict import Status, Type
@@ -32,17 +35,17 @@ class Event(InfoMixin):
                                null=True, blank=True)
     type = models.ForeignKey(Type, models.RESTRICT, 'events',
                              verbose_name='Тип события',
-                             null=True, blank=True)
+                             null=True)
     sport = models.ForeignKey(Sport, models.RESTRICT, 'events',
                               verbose_name='Вид спорта',
-                              null=True, blank=True)
+                              null=True)
     location = models.ForeignKey(Location, models.RESTRICT, 'events',
                                  verbose_name='Место проведения')
 
     # Date Times
     time_start = models.DateTimeField('Время начала события')
     time_end = models.DateTimeField('Время планового окончания события',
-                                    null=True, blank=True)
+                                    null=True)
     time_wait = models.DateTimeField('Время начала ожидания события',
                                      null=True, blank=True)
     time_open = models.DateTimeField('Время старта события',
@@ -63,6 +66,33 @@ class Event(InfoMixin):
 
     # Service
     tracker = FieldTracker()
+
+    @property
+    def short_date(self):
+        short_date = self.time_start.astimezone().strftime('%d.%m.%Y')
+        return short_date
+
+    @property
+    def short_time(self):
+        short_time = self.time_start.astimezone().strftime('%H:%M')
+        time_end = self.time_end
+        if not time_end:
+            return short_time
+        short_time += f'-{self.time_end.astimezone().strftime("%H:%M")}'
+        return short_time
+
+    @property
+    def applications_count(self):
+        return self.applications.all().count()
+
+    @property
+    def participants_count(self):
+        return self.applications.filter(status_id=2).count()
+
+    @property
+    def comments_count(self):
+        return self.comments.count()
+
 
     class Meta:
         verbose_name = 'Событие'

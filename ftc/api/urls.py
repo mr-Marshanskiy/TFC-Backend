@@ -7,6 +7,7 @@ from .views.main import MainTitleView
 from .yasg import urlpatterns as doc_urls
 
 from users.urls import urlpatterns as user_urls
+from events.urls import urlpatterns as event_urls
 
 app_name = 'api'
 router = routers.DefaultRouter()
@@ -14,7 +15,6 @@ router = routers.DefaultRouter()
 urlpatterns = doc_urls
 urlpatterns += path('', include(router.urls)),
 urlpatterns += [
-    path('events/', include('events.urls')),
     path('sports/', include('sports.urls')),
     path('players/', include('players.urls')),
     path('teams/', include('teams.urls')),
@@ -34,3 +34,5 @@ urlpatterns += [
 ]
 
 urlpatterns += user_urls
+urlpatterns += event_urls
+

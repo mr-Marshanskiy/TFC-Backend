@@ -15,7 +15,11 @@ class Application(InfoMixin):
     user = models.ForeignKey(User, models.RESTRICT, 'applications',
                              verbose_name='Пользователь', null=True, blank=True)
     status = models.ForeignKey(ApplicationStatus, models.RESTRICT, 'applications',
-                               verbose_name='Статус заявки', null=True, blank=True)
+                               verbose_name='Статус заявки', null=True)
+    comment_user = models.TextField('Комментарий пользователя',
+                                    blank=True, null=True)
+    comment_moderator = models.TextField('Комментарий модерации',
+                                         blank=True, null=True)
 
     class Meta:
         verbose_name = 'Заявка на участие в событии'

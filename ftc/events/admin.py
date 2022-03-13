@@ -53,7 +53,7 @@ class CommentTabular(admin.TabularInline):
 class ApplicationAdmin(admin.ModelAdmin):
     list_display = ('id', 'player', 'event', 'status')
     readonly_fields = ('created_at', 'updated_at', 'created_by', 'updated_by',)
-    autocomplete_fields = ['player', 'event']
+    autocomplete_fields = ['player', 'event', 'user',]
 
 
 @admin.register(Comment)
@@ -75,7 +75,7 @@ class EventAdmin(admin.ModelAdmin):
 
     list_display = ('id', 'location', 'sport', 'type', 'status', 'time_start', 'price')
 
-    search_fields = ['time_start', 'time_end', 'location__name', 'id']
+    search_fields = ['id',]
 
     list_filter = ('location', 'type', 'status')
     readonly_fields = ('time_wait', 'time_open', 'time_close', 'time_cancel',

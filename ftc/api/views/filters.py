@@ -2,6 +2,7 @@ from datetime import timedelta
 
 import django_filters
 
+from events.models.application import Application
 from events.models.event import Event
 
 
@@ -26,12 +27,11 @@ class EventFilter(django_filters.FilterSet):
     time_end = EndFilter(field_name='time_end', lookup_expr='lte')
     multi_status = django_filters.CharFilter(method='multi_status_filter',
                                              label='multi_status')
-    user = django_filters.CharFilter(field_name='players__user')
 
     class Meta:
         model = Event
         fields = ['time_start', 'time_end', 'multi_status',
-                  'status', 'user']
+                  'status']
 
     def multi_status_filter(self, queryset, name, value):
         statuses = []
@@ -41,3 +41,11 @@ class EventFilter(django_filters.FilterSet):
             pass
         queryset = queryset.filter(status__in=statuses)
         return queryset
+
+
+class ApplicationStatusFilter(django_filters.FilterSet):
+    status = django_filters.CharFilter(field_name='status__slug')
+
+    class Meta:
+        model = Application
+        fields = ['status']
