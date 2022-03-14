@@ -102,6 +102,38 @@ class Event(InfoMixin):
     def __str__(self):
         return f'Событие №{self.id}'
 
+    # Типы событий
+    def type_all(self):
+        return self.type.id == 1
+
+    def type_friends(self):
+        return self.type.id == 2
+
+    def type_team(self):
+        return self.type.id == 3
+
+    def type_knowns(self):
+        return self.type.id == 4
+
+    def type_private(self):
+        return self.type.id == 5
+
+    # Статусы события
+    def status_new(self):
+        return self.status.id == 1
+
+    def status_wait(self):
+        return self.status.id == 2
+
+    def status_open(self):
+        return self.status.id == 3
+
+    def status_close(self):
+        return self.status.id == 4
+
+    def status_cancel(self):
+        return self.status.id == 5
+
 
 @receiver(pre_save, sender=Event)
 def event_pre_save(sender, instance: Event, **kwargs):
@@ -119,13 +151,13 @@ def event_pre_save(sender, instance: Event, **kwargs):
         instance.status_id = 1
 
     if instance.tracker.has_changed('status_id'):
-        if instance.status_id == 2:
+        if instance.status_wait():
             instance.time_wait = now
-        elif instance.status_id == 3:
+        elif instance.status_open():
             instance.time_open = now
-        elif instance.status_id == 4:
+        elif instance.status_close():
             instance.time_close = now
-        elif instance.status_id == 5:
+        elif instance.status_cancel():
             instance.time_cancel = now
 
     #  если был wait и поменялось время - то поменять статус на new

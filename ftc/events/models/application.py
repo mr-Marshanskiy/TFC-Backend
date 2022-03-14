@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 from common.mixins.system import InfoMixin
 from events.models.dict import ApplicationStatus
@@ -38,3 +40,19 @@ class Application(InfoMixin):
         if queryset.count() > 0:
             return True
         return False
+
+
+@receiver(pre_save, sender=Application)
+def event_pre_save(sender, instance: Event, **kwargs):
+
+    if not instance.id:
+        if instance.created_by != instance.event.created_by:
+            instance.status_id = 1
+        elif instance.created_by == instance.event.created_by:
+            print(instance.user)
+            print(instance.created_by)
+            if instance.user == instance.created_by:
+                instance.status_id = 2
+            else:
+                instance.status_id = 4
+

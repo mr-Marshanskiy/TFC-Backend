@@ -6,12 +6,15 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import IsAuthenticated
 
 from api.views.filters import ApplicationStatusFilter
-from common.mixins.views import CRUViewSet, ListViewSet
+from common.mixins.views import CRUViewSet, ListViewSet, \
+    ListRetrieveUpdateViewSet
+from common.permissions import IsOwnerOrAdmin
 from events.models.application import Application
 from events.serializers.application import (ApplicationListSerializer,
                                             ApplicationPostSerializer,
                                             ApplicationDetailSerializer,
-                                            MeApplicationListSerializer)
+                                            MeApplicationListSerializer,
+                                            MeApplicationPostSerializer)
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Список заявок на событие", tags=['События: Заявки на участие']))
@@ -41,8 +44,10 @@ class ApplicationViewSet(CRUViewSet):
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Список заявок и приглашений пользователя", tags=['Профиль']))
-class MeApplicationAPIView(ListViewSet):
-    permission_classes = (IsAuthenticated,)
+@method_decorator(name='retrieve', decorator=swagger_auto_schema(operation_summary="Просмотр заявки пользователя", tags=['Профиль']))
+@method_decorator(name='partial_update', decorator=swagger_auto_schema(operation_summary="Частичное обновление заявки пользователя", tags=['Профиль']))
+class MeApplicationAPIView(ListRetrieveUpdateViewSet):
+    permission_classes = (IsOwnerOrAdmin,)
     serializer_class = MeApplicationListSerializer
     model = serializer_class.Meta.model
     filter_backends = [DjangoFilterBackend,]
@@ -51,3 +56,8 @@ class MeApplicationAPIView(ListViewSet):
     def get_queryset(self):
         queryset = self.model.objects.filter(user=get_current_user())
         return queryset.order_by('-updated_at')
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return MeApplicationPostSerializer
+        return MeApplicationListSerializer

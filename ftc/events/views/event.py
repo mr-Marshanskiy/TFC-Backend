@@ -6,14 +6,19 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters, generics
+from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from api.views.filters import EventFilter
 from common.mixins.views import CRUViewSet, ListViewSet
 from common.permissions import IsOwnerAdminOrCreate
 
 from events.models.event import Event
+from events.serializers.application import MeApplicationPostSerializer, \
+    ApplicationPostSerializer
 from events.serializers.event import (EventListSerializer, EventPostSerializer,
                                       EventDetailSerializer)
 
@@ -50,7 +55,23 @@ class EventViewSet(CRUViewSet):
             return EventListSerializer
         if self.action in ['create', 'update', 'partial_update']:
             return EventPostSerializer
+        if self.action == 'applications':
+            return MeApplicationPostSerializer
         return EventDetailSerializer
+
+    @method_decorator(name='post', decorator=swagger_auto_schema(operation_description="GET /events/{id}/applications/", operation_summary="Подать заявку на событие", tags=['События']))
+    @action(detail=True, methods=['post'], permission_classes=((IsAuthenticated),))
+    def applications(self, request, pk=None):
+        data = request.data
+        data['user'] = get_current_user().id
+        data['player'] = get_current_user().id
+        data['event'] = pk
+        # data['status'] = 1  # on_moderation
+        serializer = ApplicationPostSerializer(data=data)
+        if serializer.is_valid():
+            serializer.create(serializer.validated_data)
+            return Response({'status': 'Заявка успешно зарегистрирована'})
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Игры пользователя", tags=['Профиль']))

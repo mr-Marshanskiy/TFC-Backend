@@ -15,6 +15,12 @@ class MeApplicationListSerializer(serializers.ModelSerializer):
         fields = ['event', 'status', 'comment_user', 'comment_moderator']
 
 
+class MeApplicationPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        fields = ['comment_user']
+
+
 class ApplicationListSerializer(serializers.ModelSerializer):
     user = UserNestedSerializer()
     event = EventNestedSerializer()
@@ -34,9 +40,6 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
 
 
 class ApplicationPostSerializer(serializers.ModelSerializer):
-    user = UserNestedSerializer()
-
-
     class Meta:
         model = Application
         fields = ['player', 'user', 'event', 'status']
