@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from crum import get_current_user
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
@@ -93,6 +94,9 @@ class Event(InfoMixin):
     def comments_count(self):
         return self.comments.count()
 
+    @property
+    def is_admin(self):
+        return self.can_manage()
 
     class Meta:
         verbose_name = 'Событие'
@@ -101,6 +105,19 @@ class Event(InfoMixin):
 
     def __str__(self):
         return f'Событие №{self.id}'
+
+    def can_manage(self):
+        current_user = get_current_user()
+        if not current_user:
+            return False
+        if current_user != self.user or current_user.is_superuser:
+            return True
+        return False
+
+    def can_fast_accept(self):
+        if self.type_all():
+            return True
+        return False
 
     # Типы событий
     def type_all(self):
@@ -133,6 +150,11 @@ class Event(InfoMixin):
 
     def status_cancel(self):
         return self.status.id == 5
+
+    def status_active(self):
+        return (self.status_new() or
+                self.status_wait() or
+                self.status_open())
 
 
 @receiver(pre_save, sender=Event)

@@ -1,8 +1,10 @@
+from crum import get_current_user
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
 from common.mixins.system import InfoMixin
+from common.service import get_now
 from events.models.dict import ApplicationStatus
 from events.models.event import Event
 from players.models.player import Player
@@ -27,7 +29,7 @@ class Application(InfoMixin):
         verbose_name = 'Заявка на участие в событии'
         verbose_name_plural = 'Заявки на участие в событии'
         ordering = ('id',)
-        unique_together = ('player', 'event',)
+        unique_together = ('user', 'event',)
 
     def __str__(self):
         return f'{self.event}({self.player})'
@@ -41,18 +43,61 @@ class Application(InfoMixin):
             return True
         return False
 
+    def is_invitation(self):
+        user = get_current_user()
+        return self.created_by != user
+
+    def is_target_user(self):
+        user = get_current_user()
+        return self.user == user
+
+    def can_accept(self):
+        if self.event.fast_accept():
+            return True
+        if self.type_invited():
+            return True
+
+        # Добавить логику True для команд, друзей, знакомых
+        return False
+
+    def can_manage(self):
+        user = get_current_user()
+        if user.is_superuser():
+            return True
+        if self.created_by == user:
+            return True
+        return False
+
+
+    def can_change(self):
+        return self.event.time_start.astimezone() < get_now()
+
+    def status_on_moderation(self):
+        return self.status.id == 1
+
+    def status_accepted(self):
+        return self.status.id == 2
+
+    def status_rejected(self):
+        return self.status.id == 3
+
+    def status_invited(self):
+        return self.status.id == 4
+
+    def status_refused(self):
+        return self.status.id == 5
+
 
 @receiver(pre_save, sender=Application)
-def event_pre_save(sender, instance: Event, **kwargs):
+def event_pre_save(sender, instance: Application, **kwargs):
 
     if not instance.id:
-        if instance.created_by != instance.event.created_by:
-            instance.status_id = 1
-        elif instance.created_by == instance.event.created_by:
-            print(instance.user)
-            print(instance.created_by)
-            if instance.user == instance.created_by:
-                instance.status_id = 2
-            else:
-                instance.status_id = 4
+        if not instance.status_refused():
+            if instance.created_by != instance.event.created_by:
+                instance.status_id = 1
+            elif instance.created_by == instance.event.created_by:
+                if instance.user == instance.created_by:
+                    instance.status_id = 2
+                else:
+                    instance.status_id = 4
 

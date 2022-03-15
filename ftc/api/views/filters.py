@@ -41,11 +41,3 @@ class EventFilter(django_filters.FilterSet):
             pass
         queryset = queryset.filter(status__in=statuses)
         return queryset
-
-
-class ApplicationStatusFilter(django_filters.FilterSet):
-    status = django_filters.CharFilter(field_name='status__slug')
-
-    class Meta:
-        model = Application
-        fields = ['status']

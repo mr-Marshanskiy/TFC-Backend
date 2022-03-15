@@ -20,6 +20,6 @@ class StatusViewSet(ListViewSet):
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Список статусов заявок на участие", tags=['Словари']))
-class StatusViewSet(ListViewSet):
+class ApplicationStatusViewSet(ListViewSet):
     queryset = ApplicationStatus.objects.all()
     serializer_class = DictSerializer
