@@ -7,26 +7,62 @@ from common.mixins.system import InfoMixin
 from common.service import get_now
 from events.models.status import Status
 from events.models.type import Type
+from guests.models.guest import Guest
 from locations.models.location import Location
 from sports.models.sport import Sport
 
 
 class Event(InfoMixin):
-    status = models.ForeignKey(Status, models.RESTRICT, 'events', verbose_name='Статус события', null=True, blank=True)
-    type = models.ForeignKey(Type, models.RESTRICT, 'events', verbose_name='Тип события', null=True, blank=True)
-    sport = models.ForeignKey(Sport, models.RESTRICT, 'events', verbose_name='Вид спорта', null=True, blank=True)
-    location = models.ForeignKey(Location, models.RESTRICT, related_name='events', verbose_name='Место проведения')
+    """
+        status
+        type
+        sport
+        location
+        time_start
+        time_end
+        time_wait
+        time_open
+        time_close
+        time_cancel
+        price
+        comment
+    """
+    # Foreign Keys
+    status = models.ForeignKey(Status, models.RESTRICT, 'events',
+                               verbose_name='Статус события',
+                               null=True, blank=True)
+    type = models.ForeignKey(Type, models.RESTRICT, 'events',
+                             verbose_name='Тип события',
+                             null=True, blank=True)
+    sport = models.ForeignKey(Sport, models.RESTRICT, 'events',
+                              verbose_name='Вид спорта',
+                              null=True, blank=True)
+    location = models.ForeignKey(Location, models.RESTRICT, 'events',
+                                 verbose_name='Место проведения')
 
+    # Date Times
     time_start = models.DateTimeField('Время начала события')
-    time_end = models.DateTimeField('Время планового окончания события', null=True, blank=True)
-    time_wait = models.DateTimeField('Время начала ожидания события', null=True, blank=True)
-    time_open = models.DateTimeField('Время старта события', null=True, blank=True)
-    time_close = models.DateTimeField('Время окончания события', null=True, blank=True)
-    time_cancel = models.DateTimeField('Время отмены события', null=True, blank=True)
+    time_end = models.DateTimeField('Время планового окончания события',
+                                    null=True, blank=True)
+    time_wait = models.DateTimeField('Время начала ожидания события',
+                                     null=True, blank=True)
+    time_open = models.DateTimeField('Время старта события',
+                                     null=True, blank=True)
+    time_close = models.DateTimeField('Время окончания события',
+                                      null=True, blank=True)
+    time_cancel = models.DateTimeField('Время отмены события',
+                                       null=True, blank=True)
 
-    price = models.PositiveIntegerField('Общая стоимость участия', null=True, blank=True)
+    # Other
+    price = models.PositiveIntegerField('Общая стоимость участия',
+                                        null=True, blank=True)
     comment = models.TextField('Комментарий', null=True, blank=True)
 
+    # Temporary
+    guests = models.ManyToManyField(Guest, 'events', verbose_name='Гости',
+                                    null=True, blank=True)
+
+    # Service
     tracker = FieldTracker()
 
     class Meta:

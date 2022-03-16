@@ -3,28 +3,30 @@ from rest_framework import serializers
 
 from events.models.comment import Comment
 from events.models.event import Event
-from users.models import User
+from users.serializers import UserNestedSerializer
 
 
 class CommentListSerializer(serializers.ModelSerializer):
+    user = UserNestedSerializer()
+
     class Meta:
         model = Comment
-        fields = '__all__'
+        exclude = ('created_by', 'updated_by')
 
 
 class CommentDetailSerializer(serializers.ModelSerializer):
+    user = UserNestedSerializer()
+
     class Meta:
         model = Comment
-        fields = '__all__'
+        exclude = ('created_by', 'updated_by')
 
 
 class CommentPostSerializer(serializers.ModelSerializer):
-    user = serializers.HiddenField(default=None)
-    event = serializers.HiddenField(default=None)
 
     class Meta:
         model = Comment
-        fields = ('comment', 'user', 'event')
+        fields = ('comment',)
 
     def validate_user(self, value):
         return self.context.get('request').user
@@ -33,3 +35,4 @@ class CommentPostSerializer(serializers.ModelSerializer):
         event = get_object_or_404(
             Event, id=self.context['view'].kwargs.get('event_pk'))
         return event
+

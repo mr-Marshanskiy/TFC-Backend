@@ -18,6 +18,7 @@ urlpatterns += [
     path('players/', include('players.urls')),
     path('teams/', include('teams.urls')),
     path('locations/', include('locations.urls')),
+    path('guests/', include('guests.urls')),
 
 
     path('me/', user.MeViewSet.as_view(), name='me'),
