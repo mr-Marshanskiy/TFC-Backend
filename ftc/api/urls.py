@@ -8,6 +8,8 @@ from .yasg import urlpatterns as doc_urls
 
 from users.urls import urlpatterns as user_urls
 from events.urls import urlpatterns as event_urls
+from sports.urls import urlpatterns as sport_urls
+from teams.urls import urlpatterns as team_urls
 
 app_name = 'api'
 router = routers.DefaultRouter()
@@ -15,9 +17,6 @@ router = routers.DefaultRouter()
 urlpatterns = doc_urls
 urlpatterns += path('', include(router.urls)),
 urlpatterns += [
-    path('sports/', include('sports.urls')),
-    path('players/', include('players.urls')),
-    path('teams/', include('teams.urls')),
     path('locations/', include('locations.urls')),
     path('guests/', include('guests.urls')),
 
@@ -35,4 +34,6 @@ urlpatterns += [
 
 urlpatterns += user_urls
 urlpatterns += event_urls
+urlpatterns += sport_urls
+urlpatterns += team_urls
 

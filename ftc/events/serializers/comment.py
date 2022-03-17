@@ -41,10 +41,3 @@ class CommentPostSerializer(serializers.ModelSerializer):
             'comment',
 
         ]
-
-    def validate(self, attrs):
-        print('first_validate')
-        return attrs
-
-
-

@@ -13,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from api.constants import APPLICATION_ACTION
 from api.views.filters import EventFilter
 from common.mixins.views import CRUViewSet, ListViewSet
 from common.permissions import IsOwnerAdminOrCreate
@@ -60,85 +61,40 @@ class EventViewSet(CRUViewSet):
             return None
         return EventDetailSerializer
 
-    # @method_decorator(name='post', decorator=swagger_auto_schema(operation_summary="Подать заявку на событие", tags=['События']))
-    # @action(detail=True, methods=['post'], permission_classes=((IsAuthenticated),))
-    # def application(self, request, pk=None):
-    #     data = request.data
-    #     data['user'] = get_current_user().id
-    #     data['player'] = get_current_user().id
-    #     data['event'] = pk
-    #     serializer = ApplicationPostSerializer(data=data)
-    #     if serializer.is_valid():
-    #         serializer.create(serializer.validated_data)
-    #         return Response({'status': 'Заявка успешно зарегистрирована'})
-    #     return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
-
-    @method_decorator(name='get', decorator=swagger_auto_schema(operation_summary="Простая заявка на участие", tags=['События']))
+    @method_decorator(name='get', decorator=swagger_auto_schema(manual_parameters=[APPLICATION_ACTION], operation_summary='Быстрая заявка на участие', tags=['События']))
     @action(detail=True, methods=['get'], url_path='application', permission_classes=((IsAuthenticated),))
     def application(self, request, pk=None):
         event = get_object_or_404(Event, id=pk)
-        action = request.GET.get('action')
-        if not action:
-            return Response({'status': 'Не указан параметр action'},
+        query_action = request.GET.get('action')
+        if query_action not in ['accept', 'refuse']:
+            return Response({'status': 'Неверный параметр action'},
                             status=HTTP_400_BAD_REQUEST)
-        if not (event.status_new() or event.status_wait()):
+        if not event.status_active:
             return Response({'status': 'Время подачи заявок истекло'},
                             status=HTTP_400_BAD_REQUEST)
 
         user = get_current_user()
-        application = user.applications.filter(event_id=pk).first()
-        if application:
-            if application.status_accepted():
-                return Response({'status': 'Ваша заявка уже подтверждена'},
-                                status=HTTP_400_BAD_REQUEST)
+        application = event.applications.filter(user=user).first()
+        data = {'status': 1}
+        if query_action == 'refuse':
+            data['status'] = 5
 
-            if application.can_accept():
-                application.status_id = 2
-            else:
-                application.status_id = 1
-            application.save()
-            return Response({'status': 'Заявка успешно зарегистрирована'})
-        else:
-            data = {
-                'user': get_current_user().id,
-                'player': get_current_user().id,
-                'event': pk,
-            }
-            serializer = ApplicationPostSerializer(data=data)
+        if application:
+            serializer = ApplicationPostSerializer(
+                application, data=data, partial=True)
             if serializer.is_valid():
-                serializer.create(serializer.validated_data)
+                serializer.save()
                 return Response({'status': 'Заявка успешно зарегистрирована'})
-            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+            else:
+                return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
-    @method_decorator(name='get', decorator=swagger_auto_schema(operation_summary="Отказ от участия в событии", tags=['События']))
-    @action(detail=True, methods=['get'], url_path='application/refuse', permission_classes=((IsAuthenticated),))
-    def application_refuse(self, request, pk=None):
-        event = get_object_or_404(Event, id=pk)
-        # if not (event.status_new() or event.status_wait()):
-        #     return Response({'status': 'Время подачи заявок истекло'},
-        #                     status=HTTP_400_BAD_REQUEST)
-
-        user = get_current_user()
-        application = user.applications.filter(event_id=pk).first()
-        if application:
-            # if application.status_refused():
-            #     return Response({'status': 'Вы уже отказались участвовать в событии'},
-            #                     status=HTTP_400_BAD_REQUEST)
-            application.status_id = 5
-            application.save()
-            return Response({'status': 'Вы отказались участвовать в событии'})
-        else:
-            data = {
-                'user': get_current_user().id,
-                'player': get_current_user().id,
-                'event': pk,
-                'status': 5,
-            }
-            serializer = ApplicationPostSerializer(data=data)
-            if serializer.is_valid():
-                serializer.create(serializer.validated_data)
-                return Response({'status': 'Вы отказались участвовать в событии'})
-            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        data['user'] = get_current_user().id
+        data['event'] = pk
+        serializer = ApplicationPostSerializer(data=data)
+        if serializer.is_valid():
+            serializer.create(serializer.validated_data)
+            return Response({'status': 'Заявка успешно зарегистрирована'})
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Игры пользователя", tags=['Профиль']))

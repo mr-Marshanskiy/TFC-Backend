@@ -30,12 +30,28 @@ class ApplicationViewSet(CRUViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['status']
 
+    def get_queryset(self):
+        event_id = self.kwargs.get('event_id')
+        print(event_id)
+        if event_id:
+            return self.queryset.filter(event_id=event_id)
+        else:
+            return self.queryset.none()
+
     def get_serializer_class(self):
         if self.action == 'list':
             return ApplicationListSerializer
         if self.action in ['create', 'update', 'partial_update']:
             return ApplicationPostSerializer
         return ApplicationDetailSerializer
+
+    def perform_update(self, serializer):
+        event_id = self.kwargs.get('event_id')
+        serializer.save(event_id=event_id)
+
+    def perform_create(self, serializer):
+        event_id = self.kwargs.get('event_id')
+        serializer.save(event_id=event_id)
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Список заявок и приглашений пользователя", tags=['Профиль']))

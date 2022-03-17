@@ -29,6 +29,16 @@ class CommentViewSet(CRUDViewSet):
     filter_fields = ['event', 'user']
     search_fields = ['comment']
 
+    def get_queryset(self):
+        if not self.request:
+            return Event.objects.none()
+        event_id = self.kwargs.get('event_id')
+        event = Event.objects.filter(id=event_id).first()
+        if event:
+            return self.queryset.filter(event=event)
+        else:
+            return self.queryset.none()
+
     def get_serializer_class(self):
         if self.action == 'list':
             return CommentListSerializer
@@ -37,11 +47,12 @@ class CommentViewSet(CRUDViewSet):
         return CommentDetailSerializer
 
     def perform_update(self, serializer):
+        event_id = self.kwargs.get("event_id")
         user = get_current_user()
-        serializer.save(user=user)
+        serializer.save(user=user, event_id=event_id)
 
     def perform_create(self, serializer):
+        event_id = self.kwargs.get("event_id")
         user = get_current_user()
-        serializer.save(user=user)
-
+        serializer.save(user=user, event_id=event_id)
 

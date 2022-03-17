@@ -19,29 +19,25 @@ class EventDetailSerializer(serializers.ModelSerializer):
     location = LocationNestedSerializer()
 
     created_by = UserNestedSerializer()
-    updated_by = UserNestedSerializer()
-
-    comments = CommentNestedSerializer(many=True)
-
-    stats = serializers.SerializerMethodField()
 
     guests = GuestSerializer(many=True)
 
     class Meta:
         model = Event
-        fields = '__all__'
-
-    def get_stats(self, obj):
-        result = dict()
-        player_count = obj.applications.filter(type=2).count()
-        player_count += obj.guests.count()
-
-        if player_count == 0:
-            result['price_per_player'] = 0
-        else:
-            result['price_per_player'] = round(float(obj.price / player_count), 2)
-            print(result['price_per_player'])
-        return result
+        fields = ('id',
+                  'time_start',
+                  'time_end',
+                  'sport',
+                  'type',
+                  'status',
+                  'location',
+                  'price',
+                  'applications_count',
+                  'guests_count',
+                  'comments_count',
+                  'guests',
+                  'created_by',
+                  )
 
 
 class EventListSerializer(serializers.ModelSerializer):

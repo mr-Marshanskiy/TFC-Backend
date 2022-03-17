@@ -68,6 +68,14 @@ class Event(InfoMixin):
     # Service
     tracker = FieldTracker()
 
+    class Meta:
+        verbose_name = 'Событие'
+        verbose_name_plural = 'События'
+        ordering = ('-id',)
+
+    def __str__(self):
+        return f'Событие №{self.id}'
+
     @property
     def short_date(self):
         short_date = self.time_start.astimezone().strftime('%d.%m.%Y')
@@ -91,70 +99,75 @@ class Event(InfoMixin):
         return self.applications.filter(status_id=2).count()
 
     @property
+    def guests_count(self):
+        return self.guests.all().count()
+
+    @property
     def comments_count(self):
         return self.comments.count()
 
     @property
-    def is_admin(self):
-        return self.can_manage()
-
-    class Meta:
-        verbose_name = 'Событие'
-        verbose_name_plural = 'События'
-        ordering = ('-id',)
-
-    def __str__(self):
-        return f'Событие №{self.id}'
-
-    def can_manage(self):
+    def is_moderator(self):
         current_user = get_current_user()
         if not current_user:
             return False
-        if current_user != self.user or current_user.is_superuser:
+        if current_user == self.created_by or current_user.is_superuser:
             return True
         return False
 
+    @property
     def can_fast_accept(self):
-        if self.type_all():
+        if self.type_all:
             return True
         return False
 
     # Типы событий
+    @property
     def type_all(self):
         return self.type.id == 1
 
+    @property
     def type_friends(self):
         return self.type.id == 2
 
+    @property
     def type_team(self):
         return self.type.id == 3
 
-    def type_knowns(self):
+    @property
+    def type_familiar(self):
         return self.type.id == 4
 
+    @property
     def type_private(self):
         return self.type.id == 5
 
     # Статусы события
+    @property
     def status_new(self):
         return self.status.id == 1
 
+    @property
     def status_wait(self):
         return self.status.id == 2
 
+    @property
     def status_open(self):
         return self.status.id == 3
 
+    @property
     def status_close(self):
         return self.status.id == 4
 
+    @property
     def status_cancel(self):
         return self.status.id == 5
 
+    @property
     def status_active(self):
-        return (self.status_new() or
-                self.status_wait() or
-                self.status_open())
+        return (self.status_new or
+                self.status_wait or
+                self.status_open)
 
 
 @receiver(pre_save, sender=Event)
@@ -173,13 +186,13 @@ def event_pre_save(sender, instance: Event, **kwargs):
         instance.status_id = 1
 
     if instance.tracker.has_changed('status_id'):
-        if instance.status_wait():
+        if instance.status_wait:
             instance.time_wait = now
-        elif instance.status_open():
+        elif instance.status_open:
             instance.time_open = now
-        elif instance.status_close():
+        elif instance.status_close:
             instance.time_close = now
-        elif instance.status_cancel():
+        elif instance.status_cancel:
             instance.time_cancel = now
 
     #  если был wait и поменялось время - то поменять статус на new

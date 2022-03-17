@@ -51,7 +51,7 @@ class CommentTabular(admin.TabularInline):
 #########################
 @admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'player', 'event', 'status')
+    list_display = ('id', 'user', 'event', 'status')
     readonly_fields = ('created_at', 'updated_at', 'created_by', 'updated_by',)
     autocomplete_fields = ['player', 'event', 'user',]
 

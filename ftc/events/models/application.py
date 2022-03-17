@@ -13,7 +13,7 @@ from users.models import User
 
 class Application(InfoMixin):
     player = models.ForeignKey(Player, models.RESTRICT, 'applications',
-                               verbose_name='Участник')
+                               verbose_name='Участник', blank=True, null=True)
     event = models.ForeignKey(Event, models.RESTRICT, 'applications',
                               verbose_name='Событие')
     user = models.ForeignKey(User, models.RESTRICT, 'applications',
@@ -34,70 +34,57 @@ class Application(InfoMixin):
     def __str__(self):
         return f'{self.event}({self.player})'
 
-    def is_application_exist(self):
-        queryset = Application.objects.filter(
-            event=self.event, user=self.user)
-        if self.id:
-            queryset.exclude(id=self.id)
-        if queryset.count() > 0:
-            return True
-        return False
-
+    @property
     def is_invitation(self):
-        user = get_current_user()
-        return self.created_by != user
+        return self.created_by == self.user
 
+    @property
     def is_target_user(self):
+
         user = get_current_user()
         return self.user == user
 
-    def can_accept(self):
-        if self.event.fast_accept():
-            return True
-        if self.type_invited():
-            return True
-
-        # Добавить логику True для команд, друзей, знакомых
-        return False
-
-    def can_manage(self):
+    @property
+    def is_moderator(self):
         user = get_current_user()
-        if user.is_superuser():
+        if user.is_superuser:
             return True
-        if self.created_by == user:
+
+        if self.event.is_moderator:
             return True
         return False
 
-
-    def can_change(self):
-        return self.event.time_start.astimezone() < get_now()
-
+    @property
     def status_on_moderation(self):
         return self.status.id == 1
 
+    @property
     def status_accepted(self):
         return self.status.id == 2
 
+    @property
     def status_rejected(self):
         return self.status.id == 3
 
+    @property
     def status_invited(self):
         return self.status.id == 4
 
+    @property
     def status_refused(self):
         return self.status.id == 5
 
 
 @receiver(pre_save, sender=Application)
 def event_pre_save(sender, instance: Application, **kwargs):
-
-    if not instance.id:
-        if not instance.status_refused():
-            if instance.created_by != instance.event.created_by:
-                instance.status_id = 1
-            elif instance.created_by == instance.event.created_by:
-                if instance.user == instance.created_by:
-                    instance.status_id = 2
-                else:
-                    instance.status_id = 4
+    pass
+    # if not instance.id:
+    #     if not instance.status_refused:
+    #         if instance.created_by != instance.event.created_by:
+    #             instance.status_id = 1
+    #         elif instance.created_by == instance.event.created_by:
+    #             if instance.user == instance.created_by:
+    #                 instance.status_id = 2
+    #             else:
+    #                 instance.status_id = 4
 
