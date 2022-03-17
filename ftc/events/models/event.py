@@ -121,6 +121,53 @@ class Event(InfoMixin):
             return True
         return False
 
+    #статусы заявки
+    @property
+    def is_app_exists(self):
+        return self.get_user_app() is not None
+
+    @property
+    def app_status_on_moderation(self):
+        app = self.get_user_app()
+        if not app:
+            return False
+        return app.status_on_moderation
+
+    @property
+    def app_status_accepted(self):
+        app = self.get_user_app()
+        if not app:
+            return False
+        return app.status_accepted
+
+    @property
+    def app_status_rejected(self):
+        app = self.get_user_app()
+        if not app:
+            return False
+        return app.status_rejected
+
+    @property
+    def app_status_invited(self):
+        app = self.get_user_app()
+        if not app:
+            return False
+        return app.status_invited
+
+    @property
+    def app_status_refused(self):
+        app = self.get_user_app()
+        if not app:
+            return False
+        return app.status_refused
+
+    @property
+    def app_status_expired(self):
+        app = self.get_user_app()
+        if not app:
+            return False
+        return app.status_expired
+
     # Типы событий
     @property
     def type_all(self):
@@ -168,6 +215,9 @@ class Event(InfoMixin):
         return (self.status_new or
                 self.status_wait or
                 self.status_open)
+
+    def get_user_app(self):
+        return self.applications.filter(user=get_current_user()).first()
 
 
 @receiver(pre_save, sender=Event)

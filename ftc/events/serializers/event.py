@@ -27,6 +27,8 @@ class EventDetailSerializer(serializers.ModelSerializer):
         fields = ('id',
                   'time_start',
                   'time_end',
+                  'short_date',
+                  'short_time',
                   'sport',
                   'type',
                   'status',
@@ -37,6 +39,15 @@ class EventDetailSerializer(serializers.ModelSerializer):
                   'comments_count',
                   'guests',
                   'created_by',
+                  'is_moderator',
+                  'can_fast_accept',
+                  'is_app_exists',
+                  'app_status_on_moderation',
+                  'app_status_accepted',
+                  'app_status_rejected',
+                  'app_status_invited',
+                  'app_status_refused',
+                  'app_status_expired',
                   )
 
 
