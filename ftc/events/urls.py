@@ -1,32 +1,26 @@
 from django.urls import include, path
 from rest_framework import routers
-from rest_framework_nested.routers import NestedSimpleRouter
 
-from events.views.comment import CommentViewSet
-from events.views.event import EventViewSet
-from events.views.participant import ParticipantViewSet
-from events.views.status import StatusViewSet
-from events.views.survey import SurveyViewSet
-from events.views.type import TypeViewSet
+from events.views import event, dict, comment, application
+
 
 app_name = 'events'
 router = routers.DefaultRouter()
-router.register(r'all', EventViewSet, basename='events')
-router.register(r'statuses', StatusViewSet, basename='statuses')
-router.register(r'types', TypeViewSet, basename='types')
 
-router_event = NestedSimpleRouter(
-    router,
-    r'all',
-    lookup='event',
+# common
+router.register(r'events', event.EventViewSet, basename='events')
+router.register(r'events/(?P<event_id>\d+)/comments', comment.CommentViewSet, basename='comments')
+router.register(r'events/(?P<event_id>\d+)/applications', application.ApplicationViewSet, basename='comments')
 
-)
-router_event.register(r'surveys', SurveyViewSet, basename='surveys')
-router_event.register(r'participants', ParticipantViewSet, basename='participants')
-router_event.register(r'comments', CommentViewSet, basename='comments')
+# me
+router.register(r'me/events', event.MeEventViewSet, basename='me-events')
+router.register(r'me/applications', application.MeApplicationAPIView, basename='me-applications')
+
+# dict
+router.register(r'dict/events/statuses', dict.StatusViewSet, basename='event-statuses')
+router.register(r'dict/events/types', dict.TypeViewSet, basename='event-types')
+router.register(r'dict/applications/statuses', dict.ApplicationStatusViewSet, basename='app-statuses')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('', include(router_event.urls)),
-
     ]

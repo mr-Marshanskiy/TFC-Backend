@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from players.models.player import Player
 from teams.serializers.nested import TeamNestedSerializer
-from users.serializers import UserNestedSerializer
+from users.serializers.user import UserNestedSerializer
 
 
 class PlayerNestedSerializer(serializers.ModelSerializer):

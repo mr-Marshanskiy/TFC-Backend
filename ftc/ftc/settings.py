@@ -194,6 +194,7 @@ sentry_sdk.init(
 
 
 SWAGGER_SETTINGS = {
+    "DEFAULT_AUTO_SCHEMA_CLASS":"api.yasg.CustomAutoSchema",
     'SECURITY_DEFINITIONS': {
         'basic': {
             'type': 'basic'

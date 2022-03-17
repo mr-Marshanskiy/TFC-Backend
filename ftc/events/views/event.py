@@ -1,15 +1,26 @@
+from poplib import CR
 
+from crum import get_current_user
 from django.utils.decorators import method_decorator
 from django_filters.rest_framework import DjangoFilterBackend
 
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import filters, permissions
+from rest_framework import filters, generics
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
+from rest_framework.mixins import ListModelMixin
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from api.constants import APPLICATION_ACTION
 from api.views.filters import EventFilter
-from common.mixins.views import CRUViewSet
+from common.mixins.views import CRUViewSet, ListViewSet
 from common.permissions import IsOwnerAdminOrCreate
 
 from events.models.event import Event
+from events.serializers.application import MeApplicationPostSerializer, \
+    ApplicationPostSerializer
 from events.serializers.event import (EventListSerializer, EventPostSerializer,
                                       EventDetailSerializer)
 
@@ -32,11 +43,10 @@ class EventViewSet(CRUViewSet):
             ).order_by('-time_start')
         else:
             queryset = Event.objects.prefetch_related(
-                'comments', 'surveys', 'participants',
+                'comments', 'applications',
                 'comments__user',
-                'surveys__user',
-                'participants__player__user',
-                'participants__player__team').select_related(
+                'applications__player__user',
+                'applications__player__team').select_related(
                 'sport', 'status', 'type', 'location', 'created_by',
                 'updated_by',
             ).order_by('-time_start')
@@ -47,4 +57,55 @@ class EventViewSet(CRUViewSet):
             return EventListSerializer
         if self.action in ['create', 'update', 'partial_update']:
             return EventPostSerializer
+        if self.action == 'applications':
+            return None
         return EventDetailSerializer
+
+    @method_decorator(name='get', decorator=swagger_auto_schema(manual_parameters=[APPLICATION_ACTION], operation_summary='Быстрая заявка на участие', tags=['События']))
+    @action(detail=True, methods=['get'], url_path='application', permission_classes=((IsAuthenticated),))
+    def application(self, request, pk=None):
+        event = get_object_or_404(Event, id=pk)
+        query_action = request.GET.get('action')
+        if query_action not in ['accept', 'refuse']:
+            return Response({'status': 'Неверный параметр action'},
+                            status=HTTP_400_BAD_REQUEST)
+        if not event.status_active:
+            return Response({'status': 'Время подачи заявок истекло'},
+                            status=HTTP_400_BAD_REQUEST)
+
+        user = get_current_user()
+        application = event.applications.filter(user=user).first()
+        data = {'status': 1}
+        if query_action == 'refuse':
+            data['status'] = 5
+
+        if application:
+            serializer = ApplicationPostSerializer(
+                application, data=data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'status': 'Заявка успешно зарегистрирована'})
+            else:
+                return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+        data['user'] = get_current_user().id
+        data['event'] = pk
+        serializer = ApplicationPostSerializer(data=data)
+        if serializer.is_valid():
+            serializer.create(serializer.validated_data)
+            return Response({'status': 'Заявка успешно зарегистрирована'})
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+@method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Игры пользователя", tags=['Профиль']))
+class MeEventViewSet(ListViewSet):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = EventListSerializer
+    model = serializer_class.Meta.model
+    filter_backends = [DjangoFilterBackend,]
+    filter_class = EventFilter
+
+    def get_queryset(self):
+        queryset = self.model.objects.filter(
+            applications__user=get_current_user())
+        return queryset.order_by('-time_start')
