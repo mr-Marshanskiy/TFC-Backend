@@ -10,6 +10,7 @@ from users.urls import urlpatterns as user_urls
 from events.urls import urlpatterns as event_urls
 from sports.urls import urlpatterns as sport_urls
 from teams.urls import urlpatterns as team_urls
+from locations.urls import urlpatterns as location_urls
 
 app_name = 'api'
 router = routers.DefaultRouter()
@@ -17,7 +18,6 @@ router = routers.DefaultRouter()
 urlpatterns = doc_urls
 urlpatterns += path('', include(router.urls)),
 urlpatterns += [
-    path('locations/', include('locations.urls')),
     path('guests/', include('guests.urls')),
 
 
@@ -36,4 +36,5 @@ urlpatterns += user_urls
 urlpatterns += event_urls
 urlpatterns += sport_urls
 urlpatterns += team_urls
+urlpatterns += location_urls
 

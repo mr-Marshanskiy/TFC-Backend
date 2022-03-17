@@ -6,7 +6,7 @@ from locations.views.location import LocationViewSet
 app_name = 'locations'
 router = routers.DefaultRouter()
 
-router.register(r'all', LocationViewSet, basename='locations')
+router.register(r'', LocationViewSet, basename='locations')
 
 urlpatterns = [
     path('', include(router.urls)),
