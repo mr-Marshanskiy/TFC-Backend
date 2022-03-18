@@ -17,12 +17,12 @@ class CommentNestedSerializer(serializers.ModelSerializer):
 
 
 class ApplicationNestedSerializer(serializers.ModelSerializer):
-    player = PlayerNestedSerializer()
     user = UserNestedSerializer()
+    status = serializers.CharField(source='status.name')
 
     class Meta:
         model = Application
-        fields = ['player', 'user', 'type',]
+        fields = ['user', 'status',]
 
 
 class EventNestedSerializer(serializers.ModelSerializer):

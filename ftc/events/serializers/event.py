@@ -1,10 +1,13 @@
 from datetime import timedelta
 
+from django.db.models import Count, F
 from rest_framework import serializers
 
 from api.constants import ACTIVE_STATUS, BASE_DURATION_MINUTES
 from common.service import get_now
 from events.models.event import Event
+from events.serializers.application import MeApplicationListSerializer, \
+    ApplicationListSerializer
 from events.serializers.nested import (CommentNestedSerializer,
                                        ApplicationNestedSerializer)
 from guests.serializers.guest import GuestSerializer
@@ -22,6 +25,8 @@ class EventDetailSerializer(serializers.ModelSerializer):
 
     guests = GuestSerializer(many=True)
 
+    applications = serializers.SerializerMethodField()
+
     class Meta:
         model = Event
         fields = ('id',
@@ -38,6 +43,7 @@ class EventDetailSerializer(serializers.ModelSerializer):
                   'guests_count',
                   'comments_count',
                   'guests',
+                  'applications',
                   'created_by',
                   'is_moderator',
                   'can_fast_accept',
@@ -49,6 +55,18 @@ class EventDetailSerializer(serializers.ModelSerializer):
                   'app_status_refused',
                   'app_status_expired',
                   )
+
+    def get_applications(self, instance):
+        apps = instance.applications.select_related()
+        result = {
+            'on_moderation': ApplicationNestedSerializer(apps.filter(status=1), many=True).data,
+            'accepted': ApplicationNestedSerializer(apps.filter(status=2), many=True).data,
+            'rejected': ApplicationNestedSerializer(apps.filter(status=3), many=True).data,
+            'invited': ApplicationNestedSerializer(apps.filter(status=4), many=True).data,
+            'refused': ApplicationNestedSerializer(apps.filter(status=5), many=True).data,
+            'expired': ApplicationNestedSerializer(apps.filter(status=6), many=True).data,
+        }
+        return result
 
 
 class EventListSerializer(serializers.ModelSerializer):
