@@ -17,3 +17,25 @@ class Location(InfoMixin):
 
     def __str__(self):
         return self.name
+
+    @property
+    def short_name(self):
+        name = self.name[:15]
+        if len(name) != len(self.name):
+            name += '...'
+        return name
+
+    @property
+    def short_address(self):
+        address = self.address[:40]
+        if len(address) != len(self.address):
+            address += '...'
+        return f'{address}'
+
+    @property
+    def name_address(self):
+        return f'{self.name}, {self.address}'
+
+    @property
+    def name_address_short(self):
+        return f'{self.short_name}, {self.short_address}'

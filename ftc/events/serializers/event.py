@@ -1,13 +1,14 @@
 from datetime import timedelta
 
-from django.db.models import Count, F
+from crum import get_current_user
+from django.db.models import Count, F, Case, When, Q
 from rest_framework import serializers
 
 from api.constants import ACTIVE_STATUS, BASE_DURATION_MINUTES
 from common.service import get_now
 from events.models.event import Event
 from events.serializers.application import MeApplicationListSerializer, \
-    ApplicationListSerializer
+    ApplicationListSerializer, ApplicationDetailSerializer
 from events.serializers.nested import (CommentNestedSerializer,
                                        ApplicationNestedSerializer)
 from guests.serializers.guest import GuestSerializer
@@ -25,7 +26,8 @@ class EventDetailSerializer(serializers.ModelSerializer):
 
     guests = GuestSerializer(many=True)
 
-    applications = serializers.SerializerMethodField()
+    statistics = serializers.SerializerMethodField()
+    current_user_app = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
@@ -33,18 +35,21 @@ class EventDetailSerializer(serializers.ModelSerializer):
                   'time_start',
                   'time_end',
                   'short_date',
+                  'full_date',
                   'short_time',
                   'sport',
                   'type',
                   'status',
                   'location',
                   'price',
-                  'applications_count',
+                  'price_per_player',
                   'guests_count',
                   'comments_count',
                   'guests',
-                  'applications',
+                  'statistics',
                   'created_by',
+                  'comment',
+                  'current_user_app',
                   'is_moderator',
                   'can_fast_accept',
                   'is_app_exists',
@@ -56,17 +61,26 @@ class EventDetailSerializer(serializers.ModelSerializer):
                   'app_status_expired',
                   )
 
-    def get_applications(self, instance):
-        apps = instance.applications.select_related()
-        result = {
-            'on_moderation': ApplicationNestedSerializer(apps.filter(status=1), many=True).data,
-            'accepted': ApplicationNestedSerializer(apps.filter(status=2), many=True).data,
-            'rejected': ApplicationNestedSerializer(apps.filter(status=3), many=True).data,
-            'invited': ApplicationNestedSerializer(apps.filter(status=4), many=True).data,
-            'refused': ApplicationNestedSerializer(apps.filter(status=5), many=True).data,
-            'expired': ApplicationNestedSerializer(apps.filter(status=6), many=True).data,
-        }
-        return result
+    def get_statistics(self, instance):
+        result = dict()
+        apps = instance.applications.aggregate(
+            on_moderation=Count('id', filter=Q(status_id=1)),
+            accepted=Count('id', filter=Q(status_id=2)),
+            rejected=Count('id', filter=Q(status_id=3)),
+            invited=Count('id', filter=Q(status_id=4)),
+            refused=Count('id', filter=Q(status_id=5)),
+            expired=Count('id', filter=Q(status_id=6)),
+        )
+        result['applications'] = apps
+        result['guests'] = instance.guests.count()
+        return apps
+
+    def get_current_user_app(self, instance):
+        app = instance.applications.filter(user=get_current_user()).first()
+        if not app:
+            return None
+        serializer = ApplicationDetailSerializer(app, allow_null=True).data
+        return serializer
 
 
 class EventListSerializer(serializers.ModelSerializer):

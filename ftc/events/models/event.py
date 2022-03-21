@@ -2,13 +2,15 @@ from datetime import timedelta
 
 from crum import get_current_user
 from django.db import models
+from django.db.models import DecimalField
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from model_utils import FieldTracker
 
 from api.constants import BASE_DURATION_MINUTES
 from common.mixins.system import InfoMixin
-from common.service import get_now
+from common.service import get_now, get_date_ru, get_week_day_ru_full, \
+    get_week_day_ru_short, get_short_date
 from events.models.dict import Status, Type
 from guests.models.guest import Guest
 from locations.models.location import Location
@@ -77,9 +79,23 @@ class Event(InfoMixin):
         return f'Событие №{self.id}'
 
     @property
+    def price_per_player(self):
+        players = self.applications_count_accepted + self.guests_count
+        if players == 0:
+            return self.price
+        return round(float(self.price / players), 2)
+
+    @property
     def short_date(self):
-        short_date = self.time_start.astimezone().strftime('%d.%m.%Y')
-        return short_date
+        week_day = get_week_day_ru_short(self.time_start)
+        date_str = get_short_date(self.time_start)
+        return f'{week_day}, {date_str}'
+
+    @property
+    def full_date(self):
+        week_day = get_week_day_ru_full(self.time_start)
+        date_str = get_date_ru(self.time_start)
+        return f'{week_day}, {date_str}'
 
     @property
     def short_time(self):
@@ -93,6 +109,10 @@ class Event(InfoMixin):
     @property
     def applications_count(self):
         return self.applications.all().count()
+
+    @property
+    def applications_count_accepted(self):
+        return self.applications.filter(status=2).count()
 
     @property
     def participants_count(self):

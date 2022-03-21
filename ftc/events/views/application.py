@@ -32,7 +32,6 @@ class ApplicationViewSet(CRUViewSet):
 
     def get_queryset(self):
         event_id = self.kwargs.get('event_id')
-        print(event_id)
         if event_id:
             return self.queryset.filter(event_id=event_id)
         else:

@@ -2,6 +2,7 @@ from crum import get_current_user
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
+from common.serializers import DictSerializer
 from events.models.application import Application
 from events.serializers.nested import EventNestedSerializer
 from users.serializers.user import UserNestedSerializer
@@ -34,6 +35,8 @@ class ApplicationListSerializer(serializers.ModelSerializer):
 
 class ApplicationDetailSerializer(serializers.ModelSerializer):
     user = UserNestedSerializer()
+    created_by = UserNestedSerializer()
+    status = DictSerializer()
 
     class Meta:
         model = Application

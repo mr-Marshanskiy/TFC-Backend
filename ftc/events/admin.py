@@ -33,9 +33,9 @@ class TypeAdmin(admin.ModelAdmin):
 class ApplicationTabular(admin.TabularInline):
     extra = 0
     show_change_link = True
-    fields = ('player', 'status')
+    fields = ('user', 'status')
     model = Application
-    autocomplete_fields = ['player', 'status', 'user']
+    autocomplete_fields = ['status', 'user']
 
 
 class CommentTabular(admin.TabularInline):
@@ -53,7 +53,7 @@ class CommentTabular(admin.TabularInline):
 class ApplicationAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'event', 'status')
     readonly_fields = ('created_at', 'updated_at', 'created_by', 'updated_by',)
-    autocomplete_fields = ['player', 'event', 'user',]
+    autocomplete_fields = ['event', 'user',]
 
 
 @admin.register(Comment)
