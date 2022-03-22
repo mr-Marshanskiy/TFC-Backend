@@ -12,7 +12,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from api.constants import APPLICATION_ACTION
 from api.views.filters import EventFilter
@@ -100,9 +100,11 @@ class EventViewSet(CRUViewSet):
         application = event.applications.filter(user=user).first()
         query_action = request.GET.get('action')
         if query_action not in ['accept', 'refuse']:
-            serializer = (ApplicationNestedEventSerializer(application).data
-                          if application else None)
+            if not application:
+                return Response(status=HTTP_404_NOT_FOUND)
+            serializer = ApplicationNestedEventSerializer(application).data
             return Response({'result': serializer})
+
         if not event.status_active:
             return Response({'status': 'Время подачи заявок истекло'},
                             status=HTTP_400_BAD_REQUEST)
