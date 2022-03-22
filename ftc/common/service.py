@@ -43,7 +43,7 @@ def get_short_date(date):
 def get_date_ru(datetime):
     try:
         day = datetime.day
-        month = MONTH_LIST[datetime.month]
+        month = MONTH_LIST[datetime.month-1]
         year = datetime.year
         return f'{day} {month} {year}'
     except TypeError as e:
@@ -52,13 +52,13 @@ def get_date_ru(datetime):
 
 def get_week_day_ru_full(datetime):
     try:
-        return f'{DAYS_LIST[datetime.isoweekday()]}'
+        return f'{DAYS_LIST[datetime.isoweekday()-1]}'
     except TypeError as e:
         return str(datetime)
 
 
 def get_week_day_ru_short(datetime):
     try:
-        return f'{DAYS_SHORT_LIST[datetime.isoweekday()]}'
+        return f'{DAYS_SHORT_LIST[datetime.isoweekday()-1]}'
     except TypeError as e:
         return str(datetime)

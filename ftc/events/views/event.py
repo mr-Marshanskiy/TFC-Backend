@@ -1,6 +1,7 @@
 from poplib import CR
 
 from crum import get_current_user
+from django.db.models import Count, Q
 from django.utils.decorators import method_decorator
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -20,7 +21,7 @@ from common.permissions import IsOwnerAdminOrCreate
 
 from events.models.event import Event
 from events.serializers.application import MeApplicationPostSerializer, \
-    ApplicationPostSerializer
+    ApplicationPostSerializer, ApplicationNestedEventSerializer
 from events.serializers.event import (EventListSerializer, EventPostSerializer,
                                       EventDetailSerializer)
 
@@ -61,20 +62,50 @@ class EventViewSet(CRUViewSet):
             return None
         return EventDetailSerializer
 
+    @method_decorator(name='get', decorator=swagger_auto_schema(
+        operation_summary='Статистика по событию',
+        tags=['События']))
+    @action(detail=True, methods=['get'], url_path='counts')
+    def statistics(self, request, pk):
+        event = get_object_or_404(Event, id=pk)
+        result = dict()
+        app_stats = event.applications.aggregate(
+            all=Count('id'),
+            on_moderation=Count('id', filter=Q(status_id=1)),
+            accepted=Count('id', filter=Q(status_id=2)),
+            rejected=Count('id', filter=Q(status_id=3)),
+            invited=Count('id', filter=Q(status_id=4)),
+            refused=Count('id', filter=Q(status_id=5)),
+            expired=Count('id', filter=Q(status_id=6)),
+        )
+        result['applications'] = app_stats
+
+        guests_stats = {'all': event.guests_count}
+        result['guests_stats'] = guests_stats
+
+        event_stats = {
+            'price_per_player': event.price_per_player,
+            'players_count': event.participants_count + event.guests_count
+        }
+        result['event_stats'] = event_stats
+
+
+        return Response(result)
+
     @method_decorator(name='get', decorator=swagger_auto_schema(manual_parameters=[APPLICATION_ACTION], operation_summary='Быстрая заявка на участие', tags=['События']))
     @action(detail=True, methods=['get'], url_path='application', permission_classes=((IsAuthenticated),))
     def application(self, request, pk=None):
         event = get_object_or_404(Event, id=pk)
+        user = get_current_user()
+        application = event.applications.filter(user=user).first()
         query_action = request.GET.get('action')
         if query_action not in ['accept', 'refuse']:
-            return Response({'status': 'Неверный параметр action'},
-                            status=HTTP_400_BAD_REQUEST)
+            serializer = (ApplicationNestedEventSerializer(application).data
+                          if application else None)
+            return Response({'result': serializer})
         if not event.status_active:
             return Response({'status': 'Время подачи заявок истекло'},
                             status=HTTP_400_BAD_REQUEST)
-
-        user = get_current_user()
-        application = event.applications.filter(user=user).first()
         data = {'status': 1}
         if query_action == 'refuse':
             data['status'] = 5

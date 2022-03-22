@@ -6,4 +6,4 @@ from events.models.dict import Status
 class DictSerializer(serializers.ModelSerializer):
     class Meta:
         model = Status
-        fields = '__all__'
+        fields = ['id', 'name', 'slug']

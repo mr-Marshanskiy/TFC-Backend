@@ -8,7 +8,5 @@ class LocationNestedSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name',
-            'address',
-            'name_address',
             'name_address_short',
         )

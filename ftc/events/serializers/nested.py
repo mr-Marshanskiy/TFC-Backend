@@ -4,7 +4,6 @@ from events.models.comment import Comment
 from events.models.application import Application
 from events.models.event import Event
 from locations.serializers.nested import LocationNestedSerializer
-from players.serializers.nested import PlayerNestedSerializer
 from users.serializers.user import UserNestedSerializer
 
 
@@ -14,15 +13,6 @@ class CommentNestedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('user', 'comment', 'time')
-
-
-class ApplicationNestedSerializer(serializers.ModelSerializer):
-    user = UserNestedSerializer()
-    status = serializers.CharField(source='status.name')
-
-    class Meta:
-        model = Application
-        fields = ['user', 'status',]
 
 
 class EventNestedSerializer(serializers.ModelSerializer):

@@ -8,39 +8,41 @@ from events.serializers.nested import EventNestedSerializer
 from users.serializers.user import UserNestedSerializer
 
 
-class MeApplicationListSerializer(serializers.ModelSerializer):
+class ApplicationSerializer(serializers.ModelSerializer):
+    user = UserNestedSerializer()
     event = EventNestedSerializer()
-    status = serializers.CharField(source='status.name')
+    status = DictSerializer()
+    created_by = UserNestedSerializer()
+
+    class Meta:
+        model = Application
+        abstract = True
+
+
+class MeApplicationListSerializer(ApplicationSerializer):
 
     class Meta:
         model = Application
         fields = ['id', 'event', 'status', 'comment_user', 'comment_moderator']
 
 
-class MeApplicationPostSerializer(serializers.ModelSerializer):
+class ApplicationListSerializer(ApplicationSerializer):
     class Meta:
         model = Application
-        fields = ['comment_user']
+        fields = ['id', 'user', 'comment_moderator', 'status', 'created_by']
 
 
-class ApplicationListSerializer(serializers.ModelSerializer):
-    user = UserNestedSerializer()
-    event = EventNestedSerializer()
-    status = serializers.CharField(source='status.name')
-
-    class Meta:
-        model = Application
-        fields = ['id', 'player', 'user', 'event', 'status']
-
-
-class ApplicationDetailSerializer(serializers.ModelSerializer):
-    user = UserNestedSerializer()
-    created_by = UserNestedSerializer()
-    status = DictSerializer()
+class ApplicationDetailSerializer(ApplicationSerializer):
 
     class Meta:
         model = Application
         fields = '__all__'
+
+
+class MeApplicationPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        fields = ['comment_user']
 
 
 class ApplicationPostSerializer(serializers.ModelSerializer):
@@ -211,5 +213,11 @@ class ApplicationPostSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Заявка была ранее отклонена пользователем.')
 
-
         return value
+
+
+class ApplicationNestedEventSerializer(ApplicationSerializer):
+
+    class Meta:
+        model = Application
+        fields = ['id', 'user', 'comment_moderator', 'status', 'created_by']

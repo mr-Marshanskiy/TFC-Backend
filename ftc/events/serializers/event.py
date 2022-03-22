@@ -5,60 +5,40 @@ from django.db.models import Count, F, Case, When, Q
 from rest_framework import serializers
 
 from api.constants import ACTIVE_STATUS, BASE_DURATION_MINUTES
+from common.serializers import DictSerializer
 from common.service import get_now
 from events.models.event import Event
-from events.serializers.application import MeApplicationListSerializer, \
-    ApplicationListSerializer, ApplicationDetailSerializer
-from events.serializers.nested import (CommentNestedSerializer,
-                                       ApplicationNestedSerializer)
+from events.serializers.application import ApplicationDetailSerializer
+
 from guests.serializers.guest import GuestSerializer
 from locations.serializers.nested import LocationNestedSerializer
 from users.serializers.user import UserNestedSerializer
 
 
 class EventDetailSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(source='status.name', allow_null=True)
-    type = serializers.CharField(source='type.name', allow_null=True)
-    sport = serializers.CharField(source='sport.name', allow_null=True)
-    location = LocationNestedSerializer()
-
     created_by = UserNestedSerializer()
-
     guests = GuestSerializer(many=True)
-
-    statistics = serializers.SerializerMethodField()
-    current_user_app = serializers.SerializerMethodField()
+    location = LocationNestedSerializer()
+    sport = DictSerializer()
+    status = DictSerializer()
+    type = DictSerializer()
 
     class Meta:
         model = Event
         fields = ('id',
                   'time_start',
-                  'time_end',
-                  'short_date',
                   'full_date',
                   'short_time',
-                  'sport',
-                  'type',
-                  'status',
-                  'location',
                   'price',
-                  'price_per_player',
-                  'guests_count',
-                  'comments_count',
-                  'guests',
-                  'statistics',
-                  'created_by',
                   'comment',
-                  'current_user_app',
                   'is_moderator',
-                  'can_fast_accept',
-                  'is_app_exists',
-                  'app_status_on_moderation',
-                  'app_status_accepted',
-                  'app_status_rejected',
-                  'app_status_invited',
-                  'app_status_refused',
-                  'app_status_expired',
+
+                  'sport',
+                  'status',
+                  'type',
+                  'location',
+                  'guests',
+                  'created_by',
                   )
 
     def get_statistics(self, instance):

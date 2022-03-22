@@ -29,6 +29,7 @@ class ApplicationViewSet(CRUViewSet):
     queryset = Application.objects.all().select_related('event', 'user')
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['status']
+    pagination_class = None
 
     def get_queryset(self):
         event_id = self.kwargs.get('event_id')
@@ -62,7 +63,7 @@ class MeApplicationAPIView(ListRetrieveUpdateViewSet):
     serializer_class = MeApplicationListSerializer
     model = serializer_class.Meta.model
     filter_backends = [DjangoFilterBackend,]
-    filter_fields = ['status']
+    filter_fields = ['status', 'event', 'user']
 
     def get_queryset(self):
         queryset = self.model.objects.filter(user=get_current_user())
