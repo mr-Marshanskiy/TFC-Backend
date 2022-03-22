@@ -103,7 +103,7 @@ class EventViewSet(CRUViewSet):
             if not application:
                 return Response(status=HTTP_404_NOT_FOUND)
             serializer = ApplicationNestedEventSerializer(application).data
-            return Response({'result': serializer})
+            return Response(serializer)
 
         if not event.status_active:
             return Response({'status': 'Время подачи заявок истекло'},
