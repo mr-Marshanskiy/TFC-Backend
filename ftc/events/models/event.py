@@ -142,7 +142,9 @@ class Event(InfoMixin):
         return False
 
     @property
-    def can_submit(self):
+    def can_submit_app(self):
+        if not self.status_active:
+            return False
         if self.type_private:
             return False
         return True
@@ -150,8 +152,8 @@ class Event(InfoMixin):
     @property
     def is_app_exists(self):
         return self.get_user_app() is not None
-    #статусы заявки
 
+    #статусы заявки
     @property
     def app_status_on_moderation(self):
         app = self.get_user_app()

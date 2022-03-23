@@ -56,8 +56,7 @@ class Application(InfoMixin):
 
     @property
     def can_edit(self):
-        if not self.event.can_submit and (self.event.is_app_exists and
-                                          self.created_by == get_current_user()):
+        if not self.event.can_submit_app:
             return False
         if self.status_expired:
             return False
@@ -66,6 +65,26 @@ class Application(InfoMixin):
         if self.status_refused and not self.is_target_user:
             return False
         return True
+
+    @property
+    def can_accept(self):
+        if self.is_target_user:
+            if (self.can_edit and
+                    (self.status_invited or self.status_refused)):
+                return True
+        else:
+            if self.event.is_moderator:
+                return True
+        return False
+
+    @property
+    def can_refuse(self):
+        if self.is_target_user:
+            if (self.can_edit and
+                    (self.status_on_moderation or self.status_invited or
+                     self.status_accepted)):
+                return True
+        return False
 
     @property
     def status_on_moderation(self):

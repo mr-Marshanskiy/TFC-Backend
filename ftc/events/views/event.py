@@ -99,15 +99,26 @@ class EventViewSet(CRUViewSet):
         user = get_current_user()
         application = event.applications.filter(user=user).first()
         query_action = request.GET.get('action')
+
         if query_action not in ['accept', 'refuse']:
             result = {
                 'can_edit': False,
+                'accept_button': False,
+                'refuse_button': False,
                 'application': None,
             }
-            result['can_edit'] = event.can_submit
+
+            result['can_edit'] = event.can_submit_app
+
             if not application:
+                if application.can_edit:
+                    result['accept_button'] = True
+                    result['refuse_button'] = True
                 return Response(result)
+
             result['can_edit'] = application.can_edit
+            result['accept_button'] = application.can_accept
+            result['refuse_button'] = application.can_refuse
             result['application'] = ApplicationNestedEventSerializer(application).data
             return Response(result)
 
