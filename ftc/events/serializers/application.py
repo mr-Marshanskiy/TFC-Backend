@@ -217,7 +217,6 @@ class ApplicationPostSerializer(serializers.ModelSerializer):
 
 
 class ApplicationNestedEventSerializer(ApplicationSerializer):
-    message = serializers.SerializerMethodField()
 
     class Meta:
         model = Application
