@@ -141,10 +141,16 @@ class Event(InfoMixin):
             return True
         return False
 
-    #статусы заявки
+    @property
+    def can_submit(self):
+        if self.type_private:
+            return False
+        return True
+
     @property
     def is_app_exists(self):
         return self.get_user_app() is not None
+    #статусы заявки
 
     @property
     def app_status_on_moderation(self):

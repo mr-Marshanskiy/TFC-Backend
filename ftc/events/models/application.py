@@ -55,6 +55,19 @@ class Application(InfoMixin):
         return False
 
     @property
+    def can_edit(self):
+        if not self.event.can_submit and (self.event.is_app_exists and
+                                          self.created_by == get_current_user()):
+            return False
+        if self.status_expired:
+            return False
+        if self.status_rejected and not self.is_moderator:
+            return False
+        if self.status_refused and not self.is_target_user:
+            return False
+        return True
+
+    @property
     def status_on_moderation(self):
         return self.status.id == 1
 
@@ -73,6 +86,10 @@ class Application(InfoMixin):
     @property
     def status_refused(self):
         return self.status.id == 5
+
+    @property
+    def status_expired(self):
+        return self.status.id == 6
 
 
 @receiver(pre_save, sender=Application)

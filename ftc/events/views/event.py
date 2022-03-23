@@ -100,10 +100,16 @@ class EventViewSet(CRUViewSet):
         application = event.applications.filter(user=user).first()
         query_action = request.GET.get('action')
         if query_action not in ['accept', 'refuse']:
+            result = {
+                'can_edit': False,
+                'application': None,
+            }
+            result['can_edit'] = event.can_submit
             if not application:
-                return Response(status=HTTP_404_NOT_FOUND)
-            serializer = ApplicationNestedEventSerializer(application).data
-            return Response(serializer)
+                return Response(result)
+            result['can_edit'] = application.can_edit
+            result['application'] = ApplicationNestedEventSerializer(application).data
+            return Response(result)
 
         if not event.status_active:
             return Response({'status': 'Время подачи заявок истекло'},
