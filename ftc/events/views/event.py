@@ -65,7 +65,7 @@ class EventViewSet(CRUViewSet):
     @method_decorator(name='get', decorator=swagger_auto_schema(
         operation_summary='Статистика по событию',
         tags=['События']))
-    @action(detail=True, methods=['get'], url_path='counts')
+    @action(detail=True, methods=['get'], url_path='statistics')
     def statistics(self, request, pk):
         event = get_object_or_404(Event, id=pk)
         result = dict()

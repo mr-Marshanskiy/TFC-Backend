@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'locations',
     'sports',
     'guests',
+    'dadataru',
 ]
 
 MIDDLEWARE = [
@@ -206,3 +207,11 @@ SWAGGER_SETTINGS = {
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+
+#############################
+#       DADATARU            #
+#############################
+
+DADATA_API = env('DADATA_API')
+DADATA_SECRET = env('DADATA_SECRET')
