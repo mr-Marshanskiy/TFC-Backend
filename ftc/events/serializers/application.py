@@ -217,7 +217,16 @@ class ApplicationPostSerializer(serializers.ModelSerializer):
 
 
 class ApplicationNestedEventSerializer(ApplicationSerializer):
+    message = serializers.SerializerMethodField()
 
     class Meta:
         model = Application
-        fields = ['id', 'user', 'comment_moderator', 'status', 'created_by']
+        fields = [
+            'id',
+            'user',
+            'comment_moderator',
+            'status',
+            'created_by',
+            'is_moderator',
+        ]
+
