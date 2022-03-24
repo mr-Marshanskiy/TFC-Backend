@@ -111,7 +111,7 @@ class EventViewSet(CRUViewSet):
             result['can_edit'] = event.can_submit_app
 
             if not application:
-                if event.can_edit:
+                if result['can_edit']:
                     result['accept_button'] = True
                     result['refuse_button'] = True
                 return Response(result)
