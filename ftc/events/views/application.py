@@ -17,7 +17,8 @@ from events.serializers.application import (ApplicationListSerializer,
                                             ApplicationPostSerializer,
                                             ApplicationDetailSerializer,
                                             MeApplicationListSerializer,
-                                            MeApplicationPostSerializer)
+                                            MeApplicationPostSerializer,
+                                            ApplicationNestedEventShortSerializer)
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Список заявок на событие", tags=['События: Заявки на участие']))
@@ -40,7 +41,7 @@ class ApplicationViewSet(CRUViewSet):
 
     def get_serializer_class(self):
         if self.action == 'list':
-            return ApplicationListSerializer
+            return ApplicationNestedEventShortSerializer
         if self.action in ['create', 'update', 'partial_update']:
             return ApplicationPostSerializer
         return ApplicationDetailSerializer

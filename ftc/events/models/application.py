@@ -45,6 +45,24 @@ class Application(InfoMixin):
         return self.user == user
 
     @property
+    def user_status(self):
+        statuses = ('Вы', 'Создатель', 'Модератор', 'Игрок')
+        user = self.user
+        result = {'id': 3,
+                  'status': statuses[3]}
+
+        if user == get_current_user():
+            result = {'id': 0,
+                      'status': statuses[0]}
+        elif user == self.event.created_by:
+            result = {'id': 1,
+                      'status': statuses[1]}
+        elif user.is_superuser:
+            result = {'id': 2,
+                      'status': statuses[2]}
+        return result
+
+    @property
     def is_moderator(self):
         user = get_current_user()
         if user.is_superuser:

@@ -101,14 +101,10 @@ class EventViewSet(CRUViewSet):
         query_action = request.GET.get('action')
 
         if query_action not in ['accept', 'refuse']:
-            result = {
-                'can_edit': False,
-                'accept_button': False,
-                'refuse_button': False,
-                'application': None,
-            }
-
-            result['can_edit'] = event.can_submit_app
+            result = {'can_edit': event.can_submit_app,
+                      'accept_button': False,
+                      'refuse_button': False,
+                      'application': None}
 
             if not application:
                 if result['can_edit']:

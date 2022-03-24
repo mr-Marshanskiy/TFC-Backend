@@ -227,5 +227,17 @@ class ApplicationNestedEventSerializer(ApplicationSerializer):
             'status',
             'created_by',
             'is_moderator',
+            'user_status',
         ]
 
+
+class ApplicationNestedEventShortSerializer(ApplicationSerializer):
+
+    class Meta:
+        model = Application
+        fields = [
+            'id',
+            'user',
+            'status',
+            'user_status',
+        ]

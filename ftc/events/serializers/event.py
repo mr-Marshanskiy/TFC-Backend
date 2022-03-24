@@ -23,6 +23,8 @@ class EventDetailSerializer(serializers.ModelSerializer):
     status = DictSerializer()
     type = DictSerializer()
 
+    show_timer = serializers.SerializerMethodField()
+
     class Meta:
         model = Event
         fields = ('id',
@@ -32,35 +34,26 @@ class EventDetailSerializer(serializers.ModelSerializer):
                   'price',
                   'comment',
                   'is_moderator',
+                  'show_timer',
 
                   'sport',
                   'status',
                   'type',
                   'location',
                   'guests',
+                  'moderators',
                   'created_by',
                   )
 
-    def get_statistics(self, instance):
-        result = dict()
-        apps = instance.applications.aggregate(
-            on_moderation=Count('id', filter=Q(status_id=1)),
-            accepted=Count('id', filter=Q(status_id=2)),
-            rejected=Count('id', filter=Q(status_id=3)),
-            invited=Count('id', filter=Q(status_id=4)),
-            refused=Count('id', filter=Q(status_id=5)),
-            expired=Count('id', filter=Q(status_id=6)),
-        )
-        result['applications'] = apps
-        result['guests'] = instance.guests.count()
-        return apps
+    def get_show_timer(self, instance):
+        now = get_now()
+        if not (instance.status_new or instance.status_wait):
+            return False
+        if instance.time_start <= now:
+            return False
+        return True
 
-    def get_current_user_app(self, instance):
-        app = instance.applications.filter(user=get_current_user()).first()
-        if not app:
-            return None
-        serializer = ApplicationDetailSerializer(app, allow_null=True).data
-        return serializer
+
 
 
 class EventListSerializer(serializers.ModelSerializer):

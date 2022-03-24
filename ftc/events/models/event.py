@@ -79,6 +79,10 @@ class Event(InfoMixin):
         return f'Событие №{self.id}'
 
     @property
+    def moderators(self):
+        return self.get_moderators()
+
+    @property
     def price_per_player(self):
         players = self.applications_count_accepted + self.guests_count
         if players == 0:
