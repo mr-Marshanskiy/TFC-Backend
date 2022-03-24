@@ -9,7 +9,7 @@ from users.models import User
 
 
 class Player(InfoMixin):
-    user = models.ForeignKey(User, on_delete=models.RESTRICT, verbose_name='Спортсмен', related_name='players')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Спортсмен', related_name='players')
     team = models.ForeignKey(Team, on_delete=models.RESTRICT, verbose_name='Команда', related_name='players')
     number = models.PositiveIntegerField('Номер в команде', blank=True, null=True)
     active = models.BooleanField('Активность', default=True)

@@ -78,7 +78,7 @@ class Application(InfoMixin):
             return False
         if self.status_expired:
             return False
-        if self.status_rejected and not self.is_moderator:
+        if self.status_rejected and self.is_target_user:
             return False
         if self.status_refused and not self.is_target_user:
             return False

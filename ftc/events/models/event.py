@@ -35,7 +35,7 @@ class Event(InfoMixin):
     # Foreign Keys
     status = models.ForeignKey(Status, models.RESTRICT, 'events',
                                verbose_name='Статус события',
-                               null=True, blank=True)
+                               null=True)
     type = models.ForeignKey(Type, models.RESTRICT, 'events',
                              verbose_name='Тип события',
                              null=True)
@@ -147,7 +147,7 @@ class Event(InfoMixin):
 
     @property
     def can_submit_app(self):
-        if not self.status_new or self.status_wait:
+        if not (self.status_new or self.status_wait):
             return False
         if self.type_private:
             return False
