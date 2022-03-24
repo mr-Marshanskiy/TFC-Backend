@@ -144,4 +144,3 @@ def event_pre_save(sender, instance: Application, **kwargs):
         #             instance.status_id = 2
         #         else:
         #             instance.status_id = 4
-
