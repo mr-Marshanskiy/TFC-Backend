@@ -131,10 +131,8 @@ class Application(InfoMixin):
 
 @receiver(pre_save, sender=Application)
 def event_pre_save(sender, instance: Application, **kwargs):
-    pass
-    if not instance.id:
-        if instance.status_on_moderation and instance.event.can_fast_accept:
-            instance.status_id = 2
+    if instance.status_on_moderation and instance.event.can_fast_accept:
+        instance.status_id = 2
 
         # if not instance.status_refused:
         #     if instance.created_by != instance.event.created_by:
