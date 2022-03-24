@@ -143,7 +143,7 @@ class Event(InfoMixin):
 
     @property
     def can_submit_app(self):
-        if not self.status_active:
+        if not self.status_new or self.status_wait:
             return False
         if self.type_private:
             return False
