@@ -265,7 +265,7 @@ def event_pre_save(sender, instance: Event, **kwargs):
         5 - cancel
     '''
     if not instance.id:
-        instance.status_id = 1
+        instance.status_id = 2
 
     if instance.tracker.has_changed('status_id'):
         if instance.status_wait:
@@ -281,4 +281,4 @@ def event_pre_save(sender, instance: Event, **kwargs):
     if (instance.status_id == 2
             and (instance.tracker.has_changed('time_start') or
                  instance.tracker.has_changed('time_end'))):
-        instance.status_id = 1
+        instance.status_id = 2
