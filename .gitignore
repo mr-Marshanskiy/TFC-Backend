@@ -138,7 +138,11 @@ dmypy.json
 cython_debug/
 
 cache/
-migrations/
+
 
 .env
 env/
+
+*/*/migrations/*
+!*/*/migrations/__init__.py
+

@@ -1,30 +1,73 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from api.constants import NOT_CANCEL_STATUS
-from events.models.application import Application
-from users.models.user import User
-from users.serializers.user import PlayerNestedUserSerializer, GroupSerializer
+from users.models.profile import Profile
 
 
-class UserInfoSerializer(serializers.ModelSerializer):
-    groups = GroupSerializer(many=True)
+class MeSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = User
+        model = get_user_model()
         fields = ('id',
+                  'first_name',
+                  'last_name',
                   'full_name',
                   'phone_number',
+                  'phone_number_is_verified',
                   'email',
-                  'groups',
-                  'is_superuser')
+                  'email_is_verified',
+                  )
 
-    def get_teams(self, obj):
-        teams = obj.players.filter(active=True)
-        serializer = PlayerNestedUserSerializer(teams, many=True)
-        return serializer.data
+        read_only_fields = ('id',
+                            'full_name',
+                            'email_is_verified',
+                            'phone_number_is_verified',
+                            )
 
-    def get_stats(self, obj):
-        result = dict()
-        result['total_events'] = Application.objects.filter(
-            player__user=obj, event__status_id__in=NOT_CANCEL_STATUS).count()
-        return result
+
+class MeProfileSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(source='user.full_name', label='Имя')
+
+    class Meta:
+        model = Profile
+        fields = ('id',
+                  'full_name',
+                  'photo',
+                  'birthday',
+                  'gender',
+                  'address_text',
+                  'address',
+
+                  'vk',
+                  'instagram',
+                  'youtube',
+                  'twitter',
+                  'tiktok',
+                  'facebook',
+                  'telegram',
+                  )
+
+        read_only_fields = ('id',
+                            'full_name',
+                            'photo',
+                            )
+
+
+class MeProfileEditSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Profile
+        fields = (
+                  'photo',
+                  'birthday',
+                  'gender',
+                  'address',
+
+                  'vk',
+                  'instagram',
+                  'youtube',
+                  'twitter',
+                  'tiktok',
+                  'facebook',
+                  'telegram',
+                  )

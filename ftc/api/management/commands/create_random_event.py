@@ -54,7 +54,6 @@ class Command(BaseCommand):
             time_end=time_end,
             price=price,
             )
-        print(event)
         obj = EventPostSerializer(event)
 
         serializer = EventPostSerializer(data=obj.data)

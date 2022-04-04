@@ -1,5 +1,9 @@
+import pdb
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.db import IntegrityError, transaction
+from django.db.models import signals
 from rest_framework import serializers
 
 from api.constants import NOT_CANCEL_STATUS
@@ -7,6 +11,7 @@ from api.constants import NOT_CANCEL_STATUS
 from events.models.application import Application
 from players.models.player import Player
 from teams.serializers.nested import TeamNestedSerializer
+from users.models.confirm import post_save_confirm_email, EmailConfirmToken
 
 User = get_user_model()
 
@@ -36,21 +41,38 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'phone_number', 'active',
+        fields = ('id', 'phone_number',
                   'first_name', 'last_name', 'email', 'groups')
 
 
 class UserPostSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(style={"input_type": "password"},
+                                     write_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'phone_number', 'active', 'password',
-                  'first_name', 'last_name', 'email', 'groups')
+        fields = ('id', 'phone_number', 'password',
+                  'first_name', 'last_name', 'email')
 
     def create(self, validated_data):
-        user = super(UserPostSerializer, self).create(validated_data)
-        user.set_password(validated_data['password'])
-        user.save()
+        try:
+            user = self.perform_create(validated_data)
+        except IntegrityError:
+            self.fail("cannot_create_user")
+        return user
+
+    def perform_create(self, validated_data):
+        with transaction.atomic():
+            user = User.objects.create_user(**validated_data)
+
+        signals.post_save.disconnect(post_save_confirm_email,
+                                     sender=EmailConfirmToken)
+        token = EmailConfirmToken.objects.create(user=user)
+        signals.post_save.connect(post_save_confirm_email,
+                                  sender=EmailConfirmToken)
+        user.refresh_from_db()
+        token.confirm_email_send()
+
         return user
 
     def update(self, instance, validated_data):

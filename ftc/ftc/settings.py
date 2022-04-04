@@ -33,6 +33,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'debug_toolbar',
+    'rest_framework_simplejwt',
+    'django_json_widget',
+    'django_rest_passwordreset',
 
     'common',
     'users',
@@ -44,6 +47,7 @@ INSTALLED_APPS = [
     'sports',
     'guests',
     'dadataru',
+    'sendpulse',
 ]
 
 MIDDLEWARE = [
@@ -110,12 +114,14 @@ DJOSER = {
     'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': '#/activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': False,
-    'SERIALIZERS': {},
+    'SERIALIZERS': {
+        'create_user': 'users.serializers.UserPostSerializer'
+    },
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=31),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=31),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'ALGORITHM': 'HS256',
@@ -134,8 +140,8 @@ SIMPLE_JWT = {
     'JTI_CLAIM': 'jti',
 
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=1),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=7),
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=31),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=31),
 
 
 }
@@ -174,14 +180,16 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 AUTH_USER_MODEL = 'users.User'
-
+AUTHENTICATION_BACKENDS = ('users.backends.AuthBackend',)
 
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -215,3 +223,23 @@ INTERNAL_IPS = [
 
 DADATA_API = env('DADATA_API')
 DADATA_SECRET = env('DADATA_SECRET')
+
+
+############################
+#       SENDPULSE          #
+############################
+SENDPULSE_ID = env.str('SENDPULSE_ID', default='')
+SENDPULSE_SECRET = env.str('SENDPULSE_SECRET', default='')
+SENDPULSE_STORAGE = env.str('SENDPULSE_STORAGE', default='FILE')
+SENDPULSE_TEMP = env.str('SENDPULSE_TEMP', default='')
+SENDPULSE_ROOT = os.path.join(BASE_DIR, 'tmp/')
+
+EMAIL_ADMIN = env.str('EMAIL_ADMIN', default='')
+ROBOT_EMAIL = env.str('ROBOT_EMAIL', default='')
+ROBOT_NAME = env.str('ROBOT_NAME', default='')
+
+
+############################
+#    PROJECT CUSTOM        #
+############################
+FRONT_HOST = env.str('FRONT_HOST', default='')
