@@ -2,6 +2,8 @@ import uuid
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from model_utils import FieldTracker
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -43,7 +45,7 @@ class User(AbstractUser):
             )
         ).strip()
         if full_name is None or not any(c.isalpha() for c in full_name):
-            full_name = str(self.phone_number)
+            full_name = self.username or self.email or str(self.phone_number)
         return full_name
 
     def __str__(self):
@@ -52,4 +54,13 @@ class User(AbstractUser):
     @property
     def full_name(self):
         return self.get_full_name()
+
+
+@receiver(pre_save, sender=User)
+def user_post_save(sender, instance: User, **kwargs):
+    if instance.pk:
+        if instance.tracker.has_changed('email'):
+            instance.email_is_verified = False
+        if instance.tracker.has_changed('phone_number'):
+            instance.phone_number_is_verified = False
 

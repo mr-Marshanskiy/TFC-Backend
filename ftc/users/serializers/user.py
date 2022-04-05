@@ -12,6 +12,7 @@ from events.models.application import Application
 from players.models.player import Player
 from teams.serializers.nested import TeamNestedSerializer
 from users.models.confirm import post_save_confirm_email, EmailConfirmToken
+from users.serializers.profile import ProfileSerializer
 
 User = get_user_model()
 
@@ -37,12 +38,11 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    groups = GroupSerializer(many=True)
+    profile = ProfileSerializer()
 
     class Meta:
         model = User
-        fields = ('id', 'phone_number',
-                  'first_name', 'last_name', 'email', 'groups')
+        fields = ('id', 'full_name', 'username', 'profile')
 
 
 class UserPostSerializer(serializers.ModelSerializer):

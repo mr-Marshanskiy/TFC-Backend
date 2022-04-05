@@ -12,6 +12,7 @@ class MeSerializer(serializers.ModelSerializer):
                   'first_name',
                   'last_name',
                   'full_name',
+                  'username',
                   'phone_number',
                   'phone_number_is_verified',
                   'email',
@@ -46,11 +47,6 @@ class MeProfileSerializer(serializers.ModelSerializer):
                   'facebook',
                   'telegram',
                   )
-
-        read_only_fields = ('id',
-                            'full_name',
-                            'photo',
-                            )
 
 
 class MeProfileEditSerializer(serializers.ModelSerializer):

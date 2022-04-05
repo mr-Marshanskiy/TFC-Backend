@@ -1,4 +1,5 @@
 import pdb
+import pprint
 
 from dadata import Dadata
 from django_rest_passwordreset.views import HTTP_IP_ADDRESS_HEADER
@@ -8,7 +9,7 @@ from rest_framework.views import APIView
 
 from common.constants.api_params import address_param, address_level
 from common.mixins.permissions import PublicMixin
-from ftc.settings import DADATA_API
+from ftc.settings import DADATA_API, DADATA_SECRET
 
 
 class DaDataCityByIPView(PublicMixin, APIView):
