@@ -106,7 +106,6 @@ class ResetPasswordToken(DateMixin):
             variables = {
                 'full_name': self.user.full_name,
                 'username': self.user.username,
-                'phone': self.user.phone,
                 'confirm_link': f'{url}/me/password-confirm?token={self.key}'
             }
             if getattr(settings, 'USE_CELERY', False):
