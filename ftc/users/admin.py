@@ -15,7 +15,9 @@ from .models.profile import Profile
 class UserAdmin(UserAdmin):
     change_user_password_template = None
     fieldsets = (
-        (None, {'fields': ('username', 'phone_number', 'email', 'password')}),
+        (None, {'fields': ('username', 'phone_number',
+                           'phone_number_is_verified',
+                           'email', 'email_is_verified',)}),
         (_('Личная информация'),
          {'fields': ('first_name', 'last_name')}),
         (_('Permissions'), {
@@ -29,8 +31,10 @@ class UserAdmin(UserAdmin):
             'fields': ('email', 'phone_number', 'password1', 'password2',),
         }),
     )
-    list_display = ('id', 'full_name', 'profile_link', 'email', 'phone_number',
-                    'is_staff')
+    list_display = ('id', 'full_name', 'profile_link', 'email',
+                    'email_is_verified', 'phone_number',
+                    'phone_number_is_verified',)
+
     list_display_links = ('id', 'full_name',)
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
     search_fields = ('first_name', 'last_name', 'patronymic', 'email')
