@@ -18,11 +18,10 @@ token_param = openapi.Parameter('token', openapi.IN_PATH, description="Token", t
 User = get_user_model()
 
 
-class EmailConfirmView(IsAuthenticated, APIView):
+class EmailConfirmView(PublicMixin, APIView):
     @swagger_auto_schema(manual_parameters=[token_param], operation_summary="Подтвердить email", tags=['Пользователь'])
     def get(self, request, token):
-        token_obj = get_object_or_404(EmailConfirmToken, key=token,
-                                      user=get_current_user())
+        token_obj = get_object_or_404(EmailConfirmToken, key=token)
         token_obj.user.email_is_verified = True
         token_obj.user.save()
         token_obj.user.email_confirm_tokens.all().delete()
