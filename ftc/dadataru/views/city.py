@@ -23,5 +23,5 @@ class DaDataCityByIPView(PublicMixin, APIView):
         dadata = Dadata(token=DADATA_API)
         result = dadata.iplocate(ip_address)
         dadata.close()
-        pdb.set_trace()
-        return Response(request.META.get(HTTP_IP_ADDRESS_HEADER, ''))
+        result = {'ip': request.META.get(HTTP_IP_ADDRESS_HEADER, '')}
+        return Response(result)
