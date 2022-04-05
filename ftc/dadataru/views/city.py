@@ -16,12 +16,14 @@ class DaDataCityByIPView(PublicMixin, APIView):
     @swagger_auto_schema(operation_summary='Поиск города по IP',
                          tags=['DaData'])
     def get(self, request):
-        result = dict()
 
-        ip_address = request.META.get(HTTP_IP_ADDRESS_HEADER, '')
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip_address = x_forwarded_for.split(',')[0]
+        else:
+            ip_address = request.META.get('REMOTE_ADDR')
 
         dadata = Dadata(token=DADATA_API)
         result = dadata.iplocate(ip_address)
         dadata.close()
-        result = {'ip': request.META.get(HTTP_IP_ADDRESS_HEADER, '')}
         return Response(result)
