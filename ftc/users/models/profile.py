@@ -16,7 +16,7 @@ class Profile(InfoMixin):
         (GENDER_MALE, 'Мужской'),
         (GENDER_FEMALE, 'Женский'),
     )
-    user = models.OneToOneField(User, on_delete=models.RESTRICT,
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 verbose_name='Пользователь')
     photo = models.ImageField('Фото профиля', blank=True, null=True)
     birthday = models.DateField('День Рождения', blank=True, null=True)
