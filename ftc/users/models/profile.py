@@ -23,15 +23,6 @@ class Profile(InfoMixin):
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 verbose_name='Пользователь')
 
-    photo = models.ForeignKey(File, related_name='photo_id',
-                              verbose_name='Фотография',
-                              on_delete=models.SET_NULL,
-                              blank=True, null=True)
-    crop = models.ForeignKey(File, related_name='crop_id',
-                             verbose_name='Фотография 4х4',
-                             on_delete=models.SET_NULL,
-                             blank=True, null=True)
-
     birthday = models.DateField('День Рождения', blank=True, null=True)
     gender = models.IntegerField('Пол', choices=GENDERS, blank=True, null=True)
 

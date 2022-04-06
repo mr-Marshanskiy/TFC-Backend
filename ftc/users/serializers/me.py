@@ -37,7 +37,6 @@ class MeProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ('id',
                   'full_name',
-                  'photo',
                   'birthday',
                   'gender',
                   'address_text',
@@ -63,7 +62,6 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = (
-                  'photo',
                   'image',
                   'birthday',
                   'gender',
