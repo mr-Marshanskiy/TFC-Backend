@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from imagekit.models import ImageSpecField
+from pilkit.processors import ResizeToFill
 
 from common.mixins.system import InfoMixin
 from common.models.file import File
@@ -21,10 +23,10 @@ class Profile(InfoMixin):
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 verbose_name='Пользователь')
 
-    # photo = models.ForeignKey(File, related_name='photo_id',
-    #                           verbose_name='Фотография',
-    #                           on_delete=models.SET_NULL,
-    #                           blank=True, null=True)
+    photo = models.ForeignKey(File, related_name='photo_id',
+                              verbose_name='Фотография',
+                              on_delete=models.SET_NULL,
+                              blank=True, null=True)
     crop = models.ForeignKey(File, related_name='crop_id',
                              verbose_name='Фотография 4х4',
                              on_delete=models.SET_NULL,
@@ -45,6 +47,11 @@ class Profile(InfoMixin):
     tiktok = models.CharField('TikTok', max_length=255, blank=True, null=True)
     facebook = models.CharField('Facebook', max_length=255, blank=True, null=True)
     telegram = models.CharField('Telegram', max_length=255, blank=True, null=True)
+
+    image = models.ImageField(upload_to='topic', null=True, blank=True)
+    image_large = ImageSpecField(source='image', processors=[ResizeToFill(512, 512)], format='PNG', options={'quality': 70})
+    image_medium = ImageSpecField(source='image', processors=[ResizeToFill(256, 256)], format='PNG', options={'quality': 70})
+    image_small = ImageSpecField(source='image', processors=[ResizeToFill(64, 64)], format='PNG', options={'quality': 70})
 
     class Meta:
         verbose_name = 'Профиль пользователя'

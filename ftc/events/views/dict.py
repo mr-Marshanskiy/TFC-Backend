@@ -3,7 +3,7 @@ from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 
 from common.mixins.views import ListViewSet
-from common.serializers import DictSerializer
+from common.serializers.dict import DictSerializer
 from events.models.dict import Type, Status, ApplicationStatus
 
 

@@ -5,7 +5,7 @@ from django.db.models import Count, F, Case, When, Q
 from rest_framework import serializers
 
 from api.constants import ACTIVE_STATUS, BASE_DURATION_MINUTES
-from common.serializers import DictSerializer
+from common.serializers.dict import DictSerializer
 from common.service import get_now
 from events.models.event import Event
 from events.serializers.application import ApplicationDetailSerializer
@@ -35,7 +35,7 @@ class EventDetailSerializer(serializers.ModelSerializer):
                   'comment',
                   'is_moderator',
                   'show_timer',
-
+                  #
                   'sport',
                   'status',
                   'type',

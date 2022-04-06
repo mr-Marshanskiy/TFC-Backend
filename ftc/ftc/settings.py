@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django_json_widget',
     'django_rest_passwordreset',
+    'imagekit',
 
     'common',
     'users',

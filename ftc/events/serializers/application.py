@@ -2,7 +2,7 @@ from crum import get_current_user
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
-from common.serializers import DictSerializer
+from common.serializers.dict import DictSerializer
 from events.models.application import Application
 from events.serializers.nested import EventNestedSerializer
 from users.serializers.user import UserNestedSerializer
@@ -50,7 +50,7 @@ class ApplicationPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Application
-        fields = ['id', 'player', 'user', 'event', 'status', 'created_by']
+        fields = ['id', 'user', 'event', 'status', 'created_by']
         extra_kwargs = {'status': {'required': True}}
 
     def validate(self, data):

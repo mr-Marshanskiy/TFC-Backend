@@ -57,7 +57,7 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display_links = ('user',)
     list_filter = ('gender',)
     fieldsets = (
-        (None, {'fields': ('user', 'birthday', 'photo', 'gender')}),
+        (None, {'fields': ('user', 'birthday', 'photo', 'gender', 'image')}),
 
         ('Адреса', {'fields': ('address_text', 'address',)}),
 

@@ -29,6 +29,10 @@ class MeSerializer(serializers.ModelSerializer):
 class MeProfileSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(source='user.full_name', label='Имя')
 
+    image_large = serializers.ImageField(read_only=True)
+    image_medium = serializers.ImageField(read_only=True)
+    image_small = serializers.ImageField(read_only=True)
+
     class Meta:
         model = Profile
         fields = ('id',
@@ -46,6 +50,11 @@ class MeProfileSerializer(serializers.ModelSerializer):
                   'tiktok',
                   'facebook',
                   'telegram',
+
+                  'image',
+                  'image_large',
+                  'image_medium',
+                  'image_small',
                   )
 
 
@@ -55,6 +64,7 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
         model = Profile
         fields = (
                   'photo',
+                  'image',
                   'birthday',
                   'gender',
                   'address',

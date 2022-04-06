@@ -9,6 +9,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = (
                   'photo',
+                  'image',
                   'gender',
 
                   'vk',

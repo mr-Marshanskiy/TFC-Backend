@@ -41,15 +41,20 @@ class EventViewSet(CRUViewSet):
             queryset = Event.objects.select_related(
                 'sport', 'status', 'type', 'location', 'created_by',
                 'updated_by'
+            ).prefetch_related(
+                'guests',
+                'applications',
             ).order_by('-time_start')
         else:
-            queryset = Event.objects.prefetch_related(
-                'comments', 'applications',
-                'comments__user',
-                'applications__player__user',
-                'applications__player__team').select_related(
-                'sport', 'status', 'type', 'location', 'created_by',
+            queryset = Event.objects.select_related(
+                'sport',
+                'status',
+                'type',
+                'location',
+                'created_by',
                 'updated_by',
+            ).prefetch_related(
+                'guests',
             ).order_by('-time_start')
         return queryset
 
