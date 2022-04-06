@@ -1,4 +1,4 @@
-from common.models import DictAbstract
+from common.models.dict import DictAbstract
 
 
 class Type(DictAbstract):

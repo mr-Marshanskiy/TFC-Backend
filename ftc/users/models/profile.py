@@ -1,9 +1,11 @@
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from common.mixins.system import InfoMixin
+from common.models.file import File
 
 
 User = get_user_model()
@@ -18,7 +20,16 @@ class Profile(InfoMixin):
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 verbose_name='Пользователь')
-    photo = models.ImageField('Фото профиля', blank=True, null=True)
+
+    # photo = models.ForeignKey(File, related_name='photo_id',
+    #                           verbose_name='Фотография',
+    #                           on_delete=models.SET_NULL,
+    #                           blank=True, null=True)
+    crop = models.ForeignKey(File, related_name='crop_id',
+                             verbose_name='Фотография 4х4',
+                             on_delete=models.SET_NULL,
+                             blank=True, null=True)
+
     birthday = models.DateField('День Рождения', blank=True, null=True)
     gender = models.IntegerField('Пол', choices=GENDERS, blank=True, null=True)
 
