@@ -20,7 +20,7 @@ User = get_user_model()
 
 class EmailConfirmView(PublicMixin, APIView):
     @swagger_auto_schema(manual_parameters=[token_param], operation_summary="Подтвердить email", tags=['Пользователь'])
-    def get(self, request, token):
+    def post(self, request, token):
         token_obj = get_object_or_404(EmailConfirmToken, key=token)
         token_obj.user.email_is_verified = True
         token_obj.user.save()
@@ -30,7 +30,7 @@ class EmailConfirmView(PublicMixin, APIView):
 
 class EmailConfirmSendView(IsAuthenticated, APIView):
     @swagger_auto_schema(operation_summary="Запросить ссылку для подтверждения email", tags=['Пользователь'])
-    def get(self, request):
+    def post(self, request):
         if request.user.email_is_verified is False:
             try:
                 token = EmailConfirmToken(user=get_current_user())
