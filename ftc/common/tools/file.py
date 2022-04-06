@@ -4,6 +4,10 @@ import requests
 from PIL import Image
 
 
+def get_file_dir(instance, f):
+    return f'images/{instance.FOLDER_NAME}/{instance.pk}_{f}'
+
+
 def download_file(url, file_path, request=requests):
     get_response = request.get(url, stream=True)
     with open(file_path, 'wb') as f:

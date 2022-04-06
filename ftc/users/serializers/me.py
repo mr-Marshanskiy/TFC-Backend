@@ -29,9 +29,9 @@ class MeSerializer(serializers.ModelSerializer):
 class MeProfileSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(source='user.full_name', label='Имя')
 
-    image_large = serializers.ImageField(read_only=True)
-    image_medium = serializers.ImageField(read_only=True)
-    image_small = serializers.ImageField(read_only=True)
+    photo_large = serializers.ImageField(read_only=True)
+    photo_medium = serializers.ImageField(read_only=True)
+    photo_small = serializers.ImageField(read_only=True)
 
     class Meta:
         model = Profile
@@ -50,10 +50,10 @@ class MeProfileSerializer(serializers.ModelSerializer):
                   'facebook',
                   'telegram',
 
-                  'image',
-                  'image_large',
-                  'image_medium',
-                  'image_small',
+                  'photo',
+                  'photo_large',
+                  'photo_medium',
+                  'photo_small',
                   )
 
 
@@ -62,7 +62,7 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = (
-                  'image',
+                  'photo',
                   'birthday',
                   'gender',
                   'address',

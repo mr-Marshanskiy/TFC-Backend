@@ -1,10 +1,7 @@
 import uuid
 from django.db import models
 
-
-def get_file_dir(instance, f):
-    folder = str(instance.id).split('-')[0]
-    return f'files/{folder}/{instance.id}_{f}'
+from common.tools.file import get_file_dir
 
 
 class File(models.Model):

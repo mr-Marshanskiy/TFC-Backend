@@ -8,12 +8,14 @@ from pilkit.processors import ResizeToFill
 
 from common.mixins.system import InfoMixin
 from common.models.file import File
-
+from common.tools.file import get_file_dir
 
 User = get_user_model()
 
 
 class Profile(InfoMixin):
+    FOLDER_NAME = 'users'
+
     GENDER_MALE = 1
     GENDER_FEMALE = 2
     GENDERS = (
@@ -39,10 +41,10 @@ class Profile(InfoMixin):
     facebook = models.CharField('Facebook', max_length=255, blank=True, null=True)
     telegram = models.CharField('Telegram', max_length=255, blank=True, null=True)
 
-    image = models.ImageField(upload_to='topic', null=True, blank=True)
-    image_large = ImageSpecField(source='image', processors=[ResizeToFill(512, 512)], format='PNG', options={'quality': 70})
-    image_medium = ImageSpecField(source='image', processors=[ResizeToFill(256, 256)], format='PNG', options={'quality': 70})
-    image_small = ImageSpecField(source='image', processors=[ResizeToFill(64, 64)], format='PNG', options={'quality': 70})
+    photo = models.ImageField(upload_to=get_file_dir, null=True, blank=True)
+    photo_large = ImageSpecField(source='photo', processors=[ResizeToFill(512, 512)], format='PNG', options={'quality': 70})
+    photo_medium = ImageSpecField(source='photo', processors=[ResizeToFill(256, 256)], format='PNG', options={'quality': 70})
+    photo_small = ImageSpecField(source='photo', processors=[ResizeToFill(64, 64)], format='PNG', options={'quality': 70})
 
     class Meta:
         verbose_name = 'Профиль пользователя'
@@ -50,6 +52,8 @@ class Profile(InfoMixin):
 
     def __str__(self):
         return f'Профиль пользователя {self.user.full_name}'
+
+
 
 
 @receiver(post_save, sender=User)
