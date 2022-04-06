@@ -56,7 +56,7 @@ class EmailConfirmToken(DateMixin):
                 'full_name': self.user.full_name,
                 'email': self.user.email,
                 'username': self.user.username,
-                'confirm_link': f'{url}/me/check-email-confirm?token={self.key}'
+                'confirm_link': f'{url}/security/email-confirm?token={self.key}'
             }
             if getattr(settings, 'USE_CELERY', False):
                 send_email.delay(template_id=template.id, subject=template.theme,
@@ -106,7 +106,7 @@ class ResetPasswordToken(DateMixin):
             variables = {
                 'full_name': self.user.full_name,
                 'username': self.user.username,
-                'confirm_link': f'{url}/security/email-confirm?token={self.key}'
+                'confirm_link': f'{url}/security/password-reset?token={self.key}'
             }
             if getattr(settings, 'USE_CELERY', False):
                 send_email.delay(template_id=template.id, subject=template.theme,
