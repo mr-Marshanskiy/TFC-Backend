@@ -13,7 +13,8 @@ from users.serializers.me import MeSerializer, MeProfileSerializer, \
 @method_decorator(name='get', decorator=swagger_auto_schema(operation_summary="Общая информация", tags=['Пользователь']))
 @method_decorator(name='patch', decorator=swagger_auto_schema(operation_summary="Частичное обновление общей информации", tags=['Пользователь']))
 @method_decorator(name='put', decorator=swagger_auto_schema(operation_summary="Обновление общей информации", tags=['Пользователь']))
-class MeViewSet(IsAuthenticated, generics.RetrieveUpdateAPIView):
+class MeViewSet(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = MeSerializer
 
     def get_object(self):
@@ -23,7 +24,8 @@ class MeViewSet(IsAuthenticated, generics.RetrieveUpdateAPIView):
 @method_decorator(name='get', decorator=swagger_auto_schema(operation_summary="Профиль", tags=['Пользователь']))
 @method_decorator(name='patch', decorator=swagger_auto_schema(operation_summary="Частичное обновление профиля", tags=['Пользователь']))
 @method_decorator(name='put', decorator=swagger_auto_schema(operation_summary="Обновление профиля", tags=['Пользователь']))
-class MeProfileViewSet(IsAuthenticated, generics.RetrieveUpdateAPIView):
+class MeProfileViewSet(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return get_current_user().profile

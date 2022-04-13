@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.exceptions import ParseError
 
 from users.models.profile import Profile
 
@@ -75,3 +76,8 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
                   'facebook',
                   'telegram',
                   )
+
+    def validate_photo(self, instance):
+        max_size = 1024 * 1024 * 2
+        if instance.size > max_size:
+            raise ParseError('Размер фото должен быть меньше 2Мб.')

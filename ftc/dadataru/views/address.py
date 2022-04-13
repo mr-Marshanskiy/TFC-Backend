@@ -8,7 +8,7 @@ from common.mixins.permissions import PublicMixin
 from ftc.settings import DADATA_API
 
 
-class DaDataAddressView(PublicMixin, APIView):
+class DaDataCommonView(PublicMixin, APIView):
 
     @swagger_auto_schema(manual_parameters=[address_param, address_level], operation_summary='Поиск по адресу',
                          tags=['DaData'])
@@ -24,7 +24,6 @@ class DaDataAddressView(PublicMixin, APIView):
         - 8 — дом
         - 9 — помещение
         - 65 — планировочная структура
-
         `По умолчанию 7, 8, 65`
         """
         query = request.GET.get('q', None)
@@ -47,3 +46,5 @@ class DaDataAddressView(PublicMixin, APIView):
                 adds.append(item_data)
 
         return Response(adds)
+
+
