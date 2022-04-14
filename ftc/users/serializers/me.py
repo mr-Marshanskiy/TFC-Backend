@@ -81,3 +81,5 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
         max_size = 1024 * 1024 * 2
         if instance.size > max_size:
             raise ParseError('Размер фото должен быть меньше 2Мб.')
+
+        return instance

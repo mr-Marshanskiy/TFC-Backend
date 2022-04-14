@@ -31,6 +31,7 @@ class MeProfileViewSet(generics.RetrieveUpdateAPIView):
         return get_current_user().profile
 
     def get_serializer_class(self):
+
         if self.request.method in ['PATCH', 'PUT']:
             return MeProfileEditSerializer
         return MeProfileSerializer
