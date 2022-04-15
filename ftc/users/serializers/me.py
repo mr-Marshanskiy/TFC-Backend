@@ -6,6 +6,7 @@ from users.models.profile import Profile
 
 
 class MeSerializer(serializers.ModelSerializer):
+    photo = serializers.ImageField(source='profile.photo_small')
 
     class Meta:
         model = get_user_model()
@@ -18,12 +19,14 @@ class MeSerializer(serializers.ModelSerializer):
                   'phone_number_is_verified',
                   'email',
                   'email_is_verified',
+                  'photo',
                   )
 
         read_only_fields = ('id',
                             'full_name',
                             'email_is_verified',
                             'phone_number_is_verified',
+                            'photo',
                             )
 
 
