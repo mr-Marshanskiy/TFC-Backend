@@ -92,8 +92,9 @@ class UserShortSerializer(serializers.ModelSerializer):
 
 
 class UserNestedSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer()
 
     class Meta:
         model = User
-        fields = ('id', 'full_name')
+        fields = ('id', 'full_name', 'profile')
 

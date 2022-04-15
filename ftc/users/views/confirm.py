@@ -1,7 +1,6 @@
 from crum import get_current_user
 from django.contrib.auth import get_user_model
-from django_rest_passwordreset.views import HTTP_USER_AGENT_HEADER, \
-    HTTP_IP_ADDRESS_HEADER
+
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.generics import get_object_or_404, GenericAPIView
@@ -62,8 +61,8 @@ class PasswordResetTokenView(PublicMixin, APIView):
         else:
             token = ResetPasswordToken.objects.create(
                 user=user,
-                user_agent=request.META.get(HTTP_USER_AGENT_HEADER, ''),
-                ip_address=request.META.get(HTTP_IP_ADDRESS_HEADER, ''),
+                user_agent=request.META.get('HTTP_USER_AGENT', ''),
+                ip_address=request.META.get('REMOTE_ADDR', ''),
             )
         token.confirm_reset_pass_send_email()
         return Response({'detail': 'Ссылка отправлена', 'email': email})

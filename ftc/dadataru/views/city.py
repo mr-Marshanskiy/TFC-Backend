@@ -47,6 +47,7 @@ def clean_city_data(adds):
                 'fias_level': item_data.get('fias_level'),
                 'geo_lat': item_data.get('geo_lat'),
                 'geo_lon': item_data.get('geo_lon'),
+                'value': item_data.get('value'),
             }
 
             result.append(clean_data)
