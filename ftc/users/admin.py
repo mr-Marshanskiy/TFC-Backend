@@ -59,7 +59,7 @@ class ProfileAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('user', 'birthday', 'photo', 'gender',)}),
 
-        ('Адреса', {'fields': ('address_text', 'address',)}),
+        # ('Адреса', {'fields': ('address_text', 'address',)}),
 
         ('Социальные сети', {'fields': ('vk', 'instagram', 'youtube', 'twitter',
                                         'tiktok', 'facebook', 'telegram')}),
@@ -67,7 +67,7 @@ class ProfileAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.JSONField: {'widget': JSONEditorWidget},
     }
-    search_fields = ('address_text',)
+    # search_fields = ('address_text',)
     readonly_fields = ('created_by', 'updated_by', 'user')
 
     def user_link(self, obj):

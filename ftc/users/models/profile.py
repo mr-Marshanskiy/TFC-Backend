@@ -33,10 +33,10 @@ class Profile(InfoMixin):
                              verbose_name='Город', related_name='profiles',
                              blank=True, null=True)
 
-    address_text = models.CharField('Адрес проживания (Текст)',
-                                    max_length=255, blank=True, null=True)
-    address = models.JSONField('Адрес проживания',
-                               blank=True, null=True)
+    # address_text = models.CharField('Адрес проживания (Текст)',
+    #                                 max_length=255, blank=True, null=True)
+    # address = models.JSONField('Адрес проживания',
+    #                            blank=True, null=True)
 
     vk = models.CharField('Вконтакте', max_length=255, blank=True, null=True)
     instagram = models.CharField('Instagram', max_length=255, blank=True, null=True)

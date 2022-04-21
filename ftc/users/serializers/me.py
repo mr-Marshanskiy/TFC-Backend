@@ -49,8 +49,6 @@ class MeProfileSerializer(serializers.ModelSerializer):
                   'birthday',
                   'gender',
                   'city',
-                  'address_text',
-                  'address',
 
                   'vk',
                   'instagram',
@@ -77,7 +75,6 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
                   'birthday',
                   'gender',
                   'city',
-                  'address',
 
                   'vk',
                   'instagram',
