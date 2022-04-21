@@ -16,7 +16,7 @@ class City(DateMixin):
 
 
 class Address(DateMixin):
-    name = models.CharField('Название адреса', max_length=32)
+    name = models.CharField('Название адреса', max_length=255)
     location = models.JSONField('Данные JSON', null=True, blank=True)
 
     class Meta:
