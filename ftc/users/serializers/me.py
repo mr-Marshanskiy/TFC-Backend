@@ -105,7 +105,7 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
             address_obj, created = Address.objects.get_or_create(
                 name=address.get('name'),
                 defaults={
-                    'location': address.get('location')
+                    'address': address.get('address')
                 })
             profile.address = address_obj
 
