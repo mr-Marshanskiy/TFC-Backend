@@ -10,7 +10,7 @@ from ftc.settings import DADATA_API
 
 def clean_city_data(adds):
     result = []
-    levels = [4, 6]
+    levels = [1, 3, 4, 5, 6]
     if not adds:
         return result
 

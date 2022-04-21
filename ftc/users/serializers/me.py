@@ -1,7 +1,11 @@
+import pdb
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
+from common.models.location import City
+from common.serializers.location import CitySerializer
 from users.models.profile import Profile
 
 
@@ -31,6 +35,7 @@ class MeSerializer(serializers.ModelSerializer):
 
 
 class MeProfileSerializer(serializers.ModelSerializer):
+    city = CitySerializer()
     full_name = serializers.CharField(source='user.full_name', label='Имя')
 
     photo_large = serializers.ImageField(read_only=True)
@@ -43,6 +48,7 @@ class MeProfileSerializer(serializers.ModelSerializer):
                   'full_name',
                   'birthday',
                   'gender',
+                  'city',
                   'address_text',
                   'address',
 
@@ -62,6 +68,7 @@ class MeProfileSerializer(serializers.ModelSerializer):
 
 
 class MeProfileEditSerializer(serializers.ModelSerializer):
+    city = CitySerializer()
 
     class Meta:
         model = Profile
@@ -69,6 +76,7 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
                   'photo',
                   'birthday',
                   'gender',
+                  'city',
                   'address',
 
                   'vk',
@@ -80,7 +88,25 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
                   'telegram',
                   )
 
+    def update(self, instance, validated_data):
+        city = validated_data.pop('city')
+        profile = super(MeProfileEditSerializer, self).update(instance,
+                                                              validated_data)
+        if city:
+            city_obj, created = City.objects.get_or_create(
+                name=city.get('name'),
+                defaults={
+                    'location': city.get('location')
+                })
+
+            profile.city = city_obj
+            profile.save()
+
+        return profile
+
     def validate_photo(self, instance):
+        if not instance:
+            return instance
         max_size = 1024 * 1024 * 2
         if instance.size > max_size:
             raise ParseError('Размер фото должен быть меньше 2Мб.')

@@ -8,6 +8,7 @@ from pilkit.processors import ResizeToFill
 
 from common.mixins.system import InfoMixin
 from common.models.file import File
+from common.models.location import City
 from common.tools.file import get_file_dir
 
 User = get_user_model()
@@ -27,6 +28,10 @@ class Profile(InfoMixin):
 
     birthday = models.DateField('День Рождения', blank=True, null=True)
     gender = models.IntegerField('Пол', choices=GENDERS, blank=True, null=True)
+
+    city = models.ForeignKey(City, on_delete=models.SET_NULL,
+                             verbose_name='Город', related_name='profiles',
+                             blank=True, null=True)
 
     address_text = models.CharField('Адрес проживания (Текст)',
                                     max_length=255, blank=True, null=True)

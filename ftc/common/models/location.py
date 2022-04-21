@@ -3,7 +3,7 @@ from common.mixins.system import DateMixin
 
 
 class City(DateMixin):
-    name = models.CharField('Название города', max_length=32)
+    name = models.CharField('Название города', max_length=255)
     location = models.JSONField('Данные JSON', null=True, blank=True)
 
     class Meta:
