@@ -67,8 +67,8 @@ class MeProfileSerializer(serializers.ModelSerializer):
 
 
 class MeProfileEditSerializer(serializers.ModelSerializer):
-    city = CitySerializer()
-    address = AddressSerializer()
+    city = CitySerializer(required=False, allow_null=True)
+    address = AddressSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Profile
@@ -89,8 +89,15 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
                   )
 
     def update(self, instance, validated_data):
-        city = validated_data.pop('city')
-        address = validated_data.pop('address')
+        try:
+            city = validated_data.pop('city')
+        except Exception as e:
+            city = None
+        try:
+            address = validated_data.pop('address')
+        except Exception as e:
+            address = None
+
         profile = super(MeProfileEditSerializer, self).update(instance,
                                                               validated_data)
         if city:
@@ -105,7 +112,7 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
             address_obj, created = Address.objects.get_or_create(
                 name=address.get('name'),
                 defaults={
-                    'address': address.get('address')
+                    'location': address.get('location')
                 })
             profile.address = address_obj
 
