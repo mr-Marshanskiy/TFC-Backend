@@ -36,6 +36,7 @@ class MeSerializer(serializers.ModelSerializer):
 
 class MeProfileSerializer(serializers.ModelSerializer):
     city = CitySerializer()
+    address = AddressSerializer()
     full_name = serializers.CharField(source='user.full_name', label='Имя')
 
     photo_large = serializers.ImageField(read_only=True)
@@ -67,8 +68,8 @@ class MeProfileSerializer(serializers.ModelSerializer):
 
 
 class MeProfileEditSerializer(serializers.ModelSerializer):
-    city = CitySerializer(required=False, allow_null=True)
-    address = AddressSerializer(required=False, allow_null=True)
+    city = serializers.CharField()
+    address = serializers.CharField()
 
     class Meta:
         model = Profile
@@ -89,30 +90,28 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
                   )
 
     def update(self, instance, validated_data):
-        try:
+        city = None
+        address = None
+        if 'city' in validated_data:
             city = validated_data.pop('city')
-        except Exception as e:
-            city = None
-        try:
+        if 'address' in validated_data:
             address = validated_data.pop('address')
-        except Exception as e:
-            address = None
 
         profile = super(MeProfileEditSerializer, self).update(instance,
                                                               validated_data)
         if city:
             city_obj, created = City.objects.get_or_create(
-                name=city.get('name'),
+                name=city,
                 defaults={
-                    'location': city.get('location')
+                   # добавить сюда location
                 })
-            profile.address = city_obj
+            profile.city = city_obj
 
         if address:
             address_obj, created = Address.objects.get_or_create(
-                name=address.get('name'),
+                name=address,
                 defaults={
-                    'location': address.get('location')
+                    # добавить сюда location
                 })
             profile.address = address_obj
 
