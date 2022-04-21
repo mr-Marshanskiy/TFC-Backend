@@ -56,10 +56,11 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'user_link')
     list_display_links = ('user',)
     list_filter = ('gender',)
+    autocomplete_fields = ('city', 'address',)
     fieldsets = (
         (None, {'fields': ('user', 'birthday', 'photo', 'gender',)}),
 
-        # ('Адреса', {'fields': ('address_text', 'address',)}),
+        ('Адреса', {'fields': ('city', 'address',)}),
 
         ('Социальные сети', {'fields': ('vk', 'instagram', 'youtube', 'twitter',
                                         'tiktok', 'facebook', 'telegram')}),
@@ -67,7 +68,7 @@ class ProfileAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.JSONField: {'widget': JSONEditorWidget},
     }
-    # search_fields = ('address_text',)
+    search_fields = ('address',)
     readonly_fields = ('created_by', 'updated_by', 'user')
 
     def user_link(self, obj):

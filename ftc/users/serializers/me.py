@@ -4,8 +4,8 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
-from common.models.location import City
-from common.serializers.location import CitySerializer
+from common.models.location import City, Address
+from common.serializers.location import CitySerializer, AddressSerializer
 from users.models.profile import Profile
 
 
@@ -49,6 +49,7 @@ class MeProfileSerializer(serializers.ModelSerializer):
                   'birthday',
                   'gender',
                   'city',
+                  'address',
 
                   'vk',
                   'instagram',
@@ -67,6 +68,7 @@ class MeProfileSerializer(serializers.ModelSerializer):
 
 class MeProfileEditSerializer(serializers.ModelSerializer):
     city = CitySerializer()
+    address = AddressSerializer()
 
     class Meta:
         model = Profile
@@ -75,6 +77,7 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
                   'birthday',
                   'gender',
                   'city',
+                  'address',
 
                   'vk',
                   'instagram',
@@ -87,6 +90,7 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         city = validated_data.pop('city')
+        address = validated_data.pop('address')
         profile = super(MeProfileEditSerializer, self).update(instance,
                                                               validated_data)
         if city:
@@ -95,9 +99,17 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
                 defaults={
                     'location': city.get('location')
                 })
+            profile.address = city_obj
 
-            profile.city = city_obj
-            profile.save()
+        if address:
+            address_obj, created = Address.objects.get_or_create(
+                name=address.get('name'),
+                defaults={
+                    'location': address.get('location')
+                })
+            profile.address = address_obj
+
+        profile.save()
 
         return profile
 
