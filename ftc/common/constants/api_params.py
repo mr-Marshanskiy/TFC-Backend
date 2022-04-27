@@ -15,3 +15,10 @@ address_level = openapi.Parameter(
     type=openapi.TYPE_ARRAY,
     items=openapi.Items(type=openapi.TYPE_NUMBER)
 )
+
+kladr_param = openapi.Parameter(
+    name='kladr',
+    in_=openapi.IN_QUERY,
+    type=openapi.TYPE_STRING,
+    description='КЛАДР'
+)
