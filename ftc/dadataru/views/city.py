@@ -74,7 +74,10 @@ class DaDataCityView(PublicMixin, APIView):
             fias_level = item_data.get('fias_level', None)
             if ((item_data.get('city') or item_data.get('settlement')) and int(fias_level) < 7):
 
-                clean_data = item.get('value')
+                clean_data = {
+                    'kladr': item_data.get('kladr_id'),
+                    'name': item.get('value'),
+                }
 
                 result.append(clean_data)
 
