@@ -1,3 +1,5 @@
+import pdb
+
 from dadata import Dadata
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.response import Response
@@ -7,6 +9,44 @@ from common.constants.api_params import address_param
 from common.mixins.permissions import PublicMixin
 from dadataru.views.address import DADATA
 from ftc.settings import DADATA_API
+
+
+def find_city_location(city: str):
+    dadata = DADATA
+    result = dadata.suggest('address', city)
+    try:
+        item = result[0]
+        item_data = item.get('data')
+        clean_data = {
+            'name': item.get('value'),
+            'full_name': item.get('unrestricted_value'),
+
+            'postal_code': item_data.get('postal_code'),
+            'country': item_data.get('country'),
+
+            'region_kladr_id': item_data.get('region_kladr_id'),
+            'region_with_type': item_data.get('region_with_type'),
+
+            'area_kladr_id': item_data.get('area_kladr_id'),
+            'area_with_type': item_data.get('area_with_type'),
+
+            'city_kladr_id': item_data.get('city_kladr_id'),
+            'city_with_type': item_data.get('city_with_type'),
+
+            'city_district_kladr_id': item_data.get('city_district_fias_id'),
+            'city_district_with_type': item_data.get('city_district_with_type'),
+
+            'settlement_kladr_id': item_data.get('settlement_kladr_id'),
+            'settlement_with_type': item_data.get( 'settlement_with_type'),
+
+            'kladr_id': item_data.get('fias_id'),
+            'fias_level': item_data.get('fias_level'),
+            'geo_lat': item_data.get('geo_lat'),
+            'geo_lon': item_data.get('geo_lon'),
+        }
+    except Exception as e:
+        clean_data = {}
+    return clean_data
 
 
 class DaDataCityView(PublicMixin, APIView):
@@ -34,35 +74,7 @@ class DaDataCityView(PublicMixin, APIView):
             fias_level = item_data.get('fias_level', None)
             if ((item_data.get('city') or item_data.get('settlement')) and int(fias_level) < 7):
 
-                clean_data = {
-                    # 'postal_code': item_data.get('postal_code'),
-                    # 'country': item_data.get('country'),
-                    #
-                    # 'region_fias_id': item_data.get('region_fias_id'),
-                    # 'region_with_type': item_data.get('region_with_type'),
-                    #
-                    # 'area_fias_id': item_data.get('area_fias_id'),
-                    # 'area_with_type': item_data.get('area_with_type'),
-                    #
-                    # 'city_fias_id': item_data.get('city_fias_id'),
-                    # 'city_with_type': item_data.get('city_with_type'),
-                    # 'city': item_data.get('city'),
-                    #
-                    # 'city_district_fias_id': item_data.get('city_district_fias_id'),
-                    # 'city_district_with_type': item_data.get('city_district_with_type'),
-                    # 'city_district': item_data.get('city_district'),
-                    #
-                    # 'settlement_fias_id': item_data.get('settlement_fias_id'),
-                    # 'settlement_with_type': item_data.get( 'settlement_with_type'),
-                    # 'settlement': item_data.get('settlement'),
-                    #
-                    # 'fias_id': item_data.get('fias_id'),
-                    # 'fias_level': item_data.get('fias_level'),
-                    # 'geo_lat': item_data.get('geo_lat'),
-                    # 'geo_lon': item_data.get('geo_lon'),
-                    'kladr': item_data.get('kladr_id'),
-                    'name': item.get('value'),
-                }
+                clean_data = item.get('value')
 
                 result.append(clean_data)
 

@@ -6,6 +6,8 @@ from rest_framework.exceptions import ParseError
 
 from common.models.location import City, Address
 from common.serializers.location import CitySerializer, AddressSerializer
+from dadataru.views.address import find_address_location
+from dadataru.views.city import find_city_location
 from users.models.profile import Profile
 
 
@@ -68,8 +70,8 @@ class MeProfileSerializer(serializers.ModelSerializer):
 
 
 class MeProfileEditSerializer(serializers.ModelSerializer):
-    city = CitySerializer()
-    address = AddressSerializer()
+    city = serializers.CharField()
+    address = serializers.CharField()
 
     class Meta:
         model = Profile
@@ -100,23 +102,29 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
         profile = super(MeProfileEditSerializer, self).update(instance,
                                                               validated_data)
         if city:
-            city_obj, created = City.objects.get_or_create(
-                name=city.get('name'),
-                kladr=city.get('kladr'),
-                defaults={
-                   # добавить сюда location
-                })
-            profile.city = city_obj
+            try:
+                city_location = find_city_location(city=city)
+                city_obj, created = City.objects.get_or_create(
+                    name=city_location.get('name'),
+                    defaults={
+                        'name': city_location.get('name'),
+                        'location': city_location
+                    })
+                profile.city = city_obj
+            except Exception as e:
+                pass
 
         if address:
-            address_obj, created = Address.objects.get_or_create(
-                name=address.get('name'),
-                kladr=address.get('kladr'),
-                defaults={
-                    # добавить сюда location
-                })
-            profile.address = address_obj
-
+            try:
+                address_location = find_address_location(address=address)
+                address_obj, created = Address.objects.get_or_create(
+                    name=address_location.get('name'),
+                    defaults={
+                        'location': address_location,
+                    })
+                profile.address = address_obj
+            except Exception as e:
+                pass
         profile.save()
 
         return profile

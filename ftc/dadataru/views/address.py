@@ -12,6 +12,50 @@ from ftc.settings import DADATA_API
 DADATA = Dadata(token=DADATA_API)
 
 
+def find_address_location(address: str):
+    dadata = DADATA
+    result = dadata.suggest('address', address)
+    try:
+        item = result[0]
+        item_data = item.get('data')
+        clean_data = {
+            'name': item.get('value'),
+            'full_name': item.get('unrestricted_value'),
+
+            'postal_code': item_data.get('postal_code'),
+            'country': item_data.get('country'),
+
+            'region_kladr_id': item_data.get('region_kladr_id'),
+            'region_with_type': item_data.get('region_with_type'),
+
+            'area_kladr_id': item_data.get('area_kladr_id'),
+            'area_with_type': item_data.get('area_with_type'),
+
+            'city_kladr_id': item_data.get('city_kladr_id'),
+            'city_with_type': item_data.get('city_with_type'),
+
+            'city_district_kladr_id': item_data.get('city_district_fias_id'),
+            'city_district_with_type': item_data.get('city_district_with_type'),
+
+            'settlement_kladr_id': item_data.get('settlement_kladr_id'),
+            'settlement_with_type': item_data.get( 'settlement_with_type'),
+
+            'street_kladr_id': item_data.get('street_kladr_id'),
+            'street_with_type': item_data.get('street_with_type'),
+
+            'house_kladr_id': item_data.get('house_kladr_id'),
+            'house': item_data.get('house'),
+
+            'kladr_id': item_data.get('fias_id'),
+            'fias_level': item_data.get('fias_level'),
+            'geo_lat': item_data.get('geo_lat'),
+            'geo_lon': item_data.get('geo_lon'),
+        }
+    except Exception as e:
+        clean_data = {}
+    return clean_data
+
+
 class DaDataCommonView(PublicMixin, APIView):
 
     @swagger_auto_schema(manual_parameters=[address_param, address_level], operation_summary='Поиск по адресу',
@@ -85,10 +129,7 @@ class DaDataAddressView(PublicMixin, APIView):
             fias_level = item_data.get('fias_level', None)
             if fias_level is not None and int(fias_level) >= 8:
 
-                clean_data = {
-                    'name': item.get('value', None),
-                    'kladr': item_data.get('kladr_id', None),
-                }
+                clean_data = item.get('value', None)
 
                 result.append(clean_data)
 
