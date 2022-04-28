@@ -68,8 +68,8 @@ class MeProfileSerializer(serializers.ModelSerializer):
 
 
 class MeProfileEditSerializer(serializers.ModelSerializer):
-    city = serializers.CharField()
-    address = serializers.CharField()
+    city = CitySerializer()
+    address = AddressSerializer()
 
     class Meta:
         model = Profile
@@ -101,7 +101,7 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
                                                               validated_data)
         if city:
             city_obj, created = City.objects.get_or_create(
-                name=city.get('value'),
+                name=city.get('name'),
                 kladr=city.get('kladr'),
                 defaults={
                    # добавить сюда location
@@ -110,7 +110,7 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
 
         if address:
             address_obj, created = Address.objects.get_or_create(
-                name=address.get('value'),
+                name=address.get('name'),
                 kladr=address.get('kladr'),
                 defaults={
                     # добавить сюда location

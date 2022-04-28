@@ -60,8 +60,8 @@ class DaDataCityView(PublicMixin, APIView):
                     # 'fias_level': item_data.get('fias_level'),
                     # 'geo_lat': item_data.get('geo_lat'),
                     # 'geo_lon': item_data.get('geo_lon'),
-                    'kladr_id': item_data.get('kladr_id'),
-                    'value': item.get('value'),
+                    'kladr': item_data.get('kladr_id'),
+                    'name': item.get('value'),
                 }
 
                 result.append(clean_data)

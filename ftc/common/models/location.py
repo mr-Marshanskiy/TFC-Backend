@@ -4,7 +4,7 @@ from common.mixins.system import DateMixin
 
 class City(DateMixin):
     name = models.CharField('Название города', max_length=255)
-    kladr= models.CharField('КЛАДР', max_length=32, null=True)
+    kladr = models.CharField('КЛАДР', max_length=32, null=True)
     location = models.JSONField('Данные JSON', null=True, blank=True)
 
     class Meta:

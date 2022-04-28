@@ -86,8 +86,8 @@ class DaDataAddressView(PublicMixin, APIView):
             if fias_level is not None and int(fias_level) >= 8:
 
                 clean_data = {
-                    'value': item.get('value', None),
-                    'kladr_id': item_data.get('kladr_id', None),
+                    'name': item.get('value', None),
+                    'kladr': item_data.get('kladr_id', None),
                 }
 
                 result.append(clean_data)
