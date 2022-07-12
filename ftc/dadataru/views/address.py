@@ -1,4 +1,3 @@
-from dadata import Dadata
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
@@ -6,9 +5,8 @@ from rest_framework.views import APIView
 
 from common.constants import api_params
 from common.mixins.permissions import PublicMixin
-from dadataru.serializers import DaDataAddressSerializer
 from dadataru.tools import get_address_by_geolocate
-from ftc.settings import DADATA_API, dadata
+from ftc.settings import dadata
 
 
 class DaDataCommonView(PublicMixin, APIView):
