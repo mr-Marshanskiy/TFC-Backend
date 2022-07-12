@@ -15,3 +15,18 @@ address_level = openapi.Parameter(
     type=openapi.TYPE_ARRAY,
     items=openapi.Items(type=openapi.TYPE_NUMBER)
 )
+
+geo_lat_param = openapi.Parameter(
+    name='lat',
+    in_=openapi.IN_QUERY,
+    type=openapi.FORMAT_FLOAT,
+    description='Latitude'
+)
+
+geo_lon_param = openapi.Parameter(
+    name='lon',
+    in_=openapi.IN_QUERY,
+    type=openapi.FORMAT_FLOAT,
+    description='Longitude'
+)
+

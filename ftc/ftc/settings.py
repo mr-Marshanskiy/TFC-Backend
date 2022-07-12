@@ -2,7 +2,7 @@ import os
 
 import environ
 from datetime import timedelta
-
+from dadata import Dadata
 root = environ.Path(__file__) - 2
 env = environ.Env()
 environ.Env.read_env(env.str(root(), '.env'))
@@ -221,7 +221,7 @@ INTERNAL_IPS = [
 
 DADATA_API = env('DADATA_API')
 DADATA_SECRET = env('DADATA_SECRET')
-
+dadata = Dadata(token=DADATA_API)
 
 ############################
 #       SENDPULSE          #

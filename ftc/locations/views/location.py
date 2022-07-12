@@ -6,7 +6,7 @@ from rest_framework import filters
 from common.mixins.views import CRUViewSet
 from locations.models.location import Location
 from locations.serializers.location import LocationListSerializer, \
-    LocationPostSerializer, LocationDetailSerializer
+    LocationPostSerializer, LocationDetailSerializer, LocationCreateSerializer
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Список мест", tags=['Места']))
@@ -25,5 +25,5 @@ class LocationViewSet(CRUViewSet):
         if self.action == 'list':
             return LocationListSerializer
         if self.action in ['create', 'update', 'partial_update']:
-            return LocationPostSerializer
+            return LocationCreateSerializer
         return LocationDetailSerializer

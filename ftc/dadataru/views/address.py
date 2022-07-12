@@ -1,17 +1,21 @@
 from dadata import Dadata
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from common.constants.api_params import address_param, address_level
+from common.constants import api_params
 from common.mixins.permissions import PublicMixin
-from ftc.settings import DADATA_API
+from dadataru.serializers import DaDataAddressSerializer
+from dadataru.tools import get_address_by_geolocate
+from ftc.settings import DADATA_API, dadata
 
 
 class DaDataCommonView(PublicMixin, APIView):
 
-    @swagger_auto_schema(manual_parameters=[address_param, address_level], operation_summary='Поиск по адресу',
-                         tags=['DaData'])
+    @swagger_auto_schema(
+        manual_parameters=[api_params.address_param, api_params.address_level],
+        operation_summary='Поиск по адресу', tags=['DaData'])
     def get(self, request):
         """
         Варианты уровня:
@@ -34,9 +38,7 @@ class DaDataCommonView(PublicMixin, APIView):
         if not query:
             return Response(result)
 
-        dadata = Dadata(token=DADATA_API)
         result = dadata.suggest('address', query, count=20)
-        dadata.close()
 
         for item in result:
             item_data = item.get('data')
@@ -48,3 +50,15 @@ class DaDataCommonView(PublicMixin, APIView):
         return Response(adds)
 
 
+class DaDataGeolocateView(PublicMixin, APIView):
+    @swagger_auto_schema(
+        manual_parameters=[api_params.geo_lat_param, api_params.geo_lon_param],
+        operation_summary='Поиск по адресу', tags=['DaData'])
+    def get(self, request):
+        latitude = request.GET.get('lat', None)
+        longitude = request.GET.get('lon', None)
+        if not (latitude and longitude):
+            raise ParseError('Не указаны координаты')
+        result = get_address_by_geolocate(latitude, longitude)
+
+        return Response(result)
