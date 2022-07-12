@@ -4,8 +4,10 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
-from common.models.location import City
-from common.serializers.location import CitySerializer
+from common.models.location import City, Address
+from common.serializers.location import CitySerializer, AddressSerializer
+from dadataru.views.address import find_address_location
+from dadataru.views.city import find_city_location
 from users.models.profile import Profile
 
 
@@ -36,6 +38,7 @@ class MeSerializer(serializers.ModelSerializer):
 
 class MeProfileSerializer(serializers.ModelSerializer):
     city = CitySerializer()
+    address = AddressSerializer()
     full_name = serializers.CharField(source='user.full_name', label='Имя')
 
     photo_large = serializers.ImageField(read_only=True)
@@ -49,7 +52,6 @@ class MeProfileSerializer(serializers.ModelSerializer):
                   'birthday',
                   'gender',
                   'city',
-                  'address_text',
                   'address',
 
                   'vk',
@@ -68,7 +70,8 @@ class MeProfileSerializer(serializers.ModelSerializer):
 
 
 class MeProfileEditSerializer(serializers.ModelSerializer):
-    city = CitySerializer()
+    city = serializers.CharField()
+    address = serializers.CharField()
 
     class Meta:
         model = Profile
@@ -89,18 +92,40 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
                   )
 
     def update(self, instance, validated_data):
-        city = validated_data.pop('city')
+        city = None
+        address = None
+        if 'city' in validated_data:
+            city = validated_data.pop('city')
+        if 'address' in validated_data:
+            address = validated_data.pop('address')
+
         profile = super(MeProfileEditSerializer, self).update(instance,
                                                               validated_data)
         if city:
-            city_obj, created = City.objects.get_or_create(
-                name=city.get('name'),
-                defaults={
-                    'location': city.get('location')
-                })
+            try:
+                city_location = find_city_location(city=city)
+                city_obj, created = City.objects.get_or_create(
+                    name=city_location.get('name'),
+                    defaults={
+                        'name': city_location.get('name'),
+                        'location': city_location
+                    })
+                profile.city = city_obj
+            except Exception as e:
+                pass
 
-            profile.city = city_obj
-            profile.save()
+        if address:
+            try:
+                address_location = find_address_location(address=address)
+                address_obj, created = Address.objects.get_or_create(
+                    name=address_location.get('name'),
+                    defaults={
+                        'location': address_location,
+                    })
+                profile.address = address_obj
+            except Exception as e:
+                pass
+        profile.save()
 
         return profile
 
