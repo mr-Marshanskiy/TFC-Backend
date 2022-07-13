@@ -27,7 +27,7 @@ class LocationListSerializer(serializers.ModelSerializer):
 class LocationPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
-        fields = ('id', 'name', 'address', 'description', 'confirmed', 'active',)
+        fields = ('id', 'name', 'address', 'description', 'confirmed', 'active')
 
 
 class LocationCreateSerializer(serializers.ModelSerializer):
@@ -45,6 +45,7 @@ class LocationCreateSerializer(serializers.ModelSerializer):
         try:
             address_data = get_address_by_geolocate(latitude, longitude)[0]
             validated_data['address_full'] = address_data
+            validated_data['address'] = address_data.get('value')
         except Exception as e:
             print(e)
 
