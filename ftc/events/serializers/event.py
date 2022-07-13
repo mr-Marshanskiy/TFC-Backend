@@ -54,28 +54,26 @@ class EventDetailSerializer(serializers.ModelSerializer):
         return True
 
 
-
-
 class EventListSerializer(serializers.ModelSerializer):
     status = serializers.CharField(source='status.name')
     type = serializers.CharField(source='type.name')
-    location = LocationNestedSerializer()
     sport = serializers.CharField(source='sport.name', allow_null=True)
+
+    location = LocationNestedSerializer()
     applications_count = serializers.SerializerMethodField()
-    guests = GuestSerializer(many=True)
 
     class Meta:
         model = Event
         fields = ('id',
-                  'time_start',
-                  'time_end',
+                  'short_time',
+                  'short_date',
                   'sport',
                   'type',
                   'status',
                   'location',
                   'price',
                   'applications_count',
-                  'guests',)
+                  )
 
     def get_applications_count(self, instance):
         result = instance.applications.count() + instance.guests.count()

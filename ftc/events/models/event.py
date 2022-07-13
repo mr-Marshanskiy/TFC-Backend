@@ -73,7 +73,7 @@ class Event(InfoMixin):
     class Meta:
         verbose_name = 'Событие'
         verbose_name_plural = 'События'
-        ordering = ('-id',)
+        ordering = ('id',)
 
     def __str__(self):
         return f'Событие №{self.id}'

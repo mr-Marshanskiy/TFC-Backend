@@ -8,6 +8,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters, generics
 from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
@@ -33,14 +34,14 @@ from events.serializers.event import (EventListSerializer, EventPostSerializer,
 @method_decorator(name='partial_update',  decorator=swagger_auto_schema(operation_summary="Обновить событие частично", tags=['События']))
 class EventViewSet(CRUViewSet):
     permission_classes = ((IsOwnerAdminOrCreate),)
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, OrderingFilter]
     filter_class = EventFilter
+    ordering = ('time_start',)
 
     def get_queryset(self):
-        if self.action == 'list':
+        if self.action in ['list', 'group_by_date']:
             queryset = Event.objects.select_related(
-                'sport', 'status', 'type', 'location', 'created_by',
-                'updated_by'
+                'sport', 'status', 'type', 'location',
             ).prefetch_related(
                 'guests',
                 'applications',
@@ -65,6 +66,8 @@ class EventViewSet(CRUViewSet):
             return EventPostSerializer
         if self.action == 'applications':
             return None
+        if self.action == 'group_by_date':
+            return EventListSerializer
         return EventDetailSerializer
 
     @method_decorator(name='get', decorator=swagger_auto_schema(
@@ -94,11 +97,31 @@ class EventViewSet(CRUViewSet):
         }
         result['event_stats'] = event_stats
 
-
         return Response(result)
 
-    @method_decorator(name='get', decorator=swagger_auto_schema(manual_parameters=[APPLICATION_ACTION], operation_summary='Быстрая заявка на участие', tags=['События']))
-    @action(detail=True, methods=['get'], url_path='application', permission_classes=((IsAuthenticated),))
+    @method_decorator(name='get', decorator=swagger_auto_schema(
+        operation_summary='Список событий с группировкой по дате',
+        tags=['События']))
+    @action(detail=False, methods=['get'], url_path='group-by-date',
+            permission_classes=((IsAuthenticated),))
+    def group_by_date(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        group_data = dict()
+        for obj in serializer.data:
+            if obj['short_date'] not in group_data:
+                group_data[obj['short_date']] = list()
+            group_data[obj['short_date']].append(obj)
+        return Response(group_data)
+
+    @method_decorator(name='get', decorator=swagger_auto_schema(
+        manual_parameters=[APPLICATION_ACTION],
+        operation_summary='Быстрая заявка на участие',
+        tags=['События']))
+    @action(detail=True, methods=['get'], url_path='application',
+            permission_classes=((IsAuthenticated),))
     def application(self, request, pk=None):
         event = get_object_or_404(Event, id=pk)
         user = get_current_user()

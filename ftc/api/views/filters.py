@@ -31,7 +31,7 @@ class EventFilter(django_filters.FilterSet):
     class Meta:
         model = Event
         fields = ['time_start', 'time_end', 'multi_status',
-                  'status']
+                  'status', 'location']
 
     def multi_status_filter(self, queryset, name, value):
         statuses = []
