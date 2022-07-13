@@ -1,3 +1,5 @@
+import pdb
+
 from django.db import models
 
 from common.mixins.system import InfoMixin
@@ -40,3 +42,17 @@ class Location(InfoMixin):
     @property
     def name_address_short(self):
         return f'{self.short_name}, {self.short_address}'
+
+    @property
+    def lat(self):
+        try:
+            return float(self.address_full['geo_lat'])
+        except:
+            return None
+
+    @property
+    def lon(self):
+        try:
+            return float(self.address_full['geo_lon'])
+        except:
+            return None
