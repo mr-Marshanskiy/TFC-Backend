@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 from common.permissions import AnonCreate, IsOwnerOrAdmin, ReadOnly
 from users.models import User
-from users.serializers.user import UserSerializer, UserPostSerializer, \
+from users.serializers.user import UserListSerializer, UserCreateUpdateSerializer, \
     GroupSerializer
 
 
@@ -32,10 +32,10 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action == 'list':
-            return UserSerializer
+            return UserListSerializer
         if self.action in ['create', 'update', 'partial_update']:
-            return UserPostSerializer
-        return UserSerializer
+            return UserCreateUpdateSerializer
+        return UserListSerializer
 
     def update(self, request, *args, **kwargs):
         kwargs['partial'] = True

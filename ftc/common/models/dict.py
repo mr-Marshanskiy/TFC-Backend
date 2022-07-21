@@ -6,6 +6,7 @@ class DictAbstract(models.Model):
     slug = models.SlugField('Слаг', max_length=31)
     description = models.TextField('Описание', null=True, blank=True)
     sort = models.PositiveSmallIntegerField('Сортировка', null=True, blank=True)
+    icon = models.TextField('Изображение', null=True, blank=True)
     active = models.BooleanField('Активный', default=True)
 
     class Meta:

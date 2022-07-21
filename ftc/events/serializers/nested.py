@@ -1,10 +1,9 @@
 from rest_framework import serializers
 
 from events.models.comment import Comment
-from events.models.application import Application
 from events.models.event import Event
 from locations.serializers.nested import LocationNestedSerializer
-from users.serializers.user import UserNestedSerializer
+from users.serializers.nested import UserNestedSerializer
 
 
 class CommentNestedSerializer(serializers.ModelSerializer):

@@ -15,9 +15,7 @@ class ProfileSerializer(serializers.ModelSerializer):
                   'photo_large',
                   'photo_medium',
                   'photo_small',
-
                   'gender',
-
                   'vk',
                   'instagram',
                   'youtube',

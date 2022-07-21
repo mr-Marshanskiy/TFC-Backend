@@ -1,9 +1,14 @@
 from rest_framework import mixins, viewsets, permissions
 from rest_framework.viewsets import ModelViewSet
 
+from common.serializers.mixin import SelectSerializerMixin
 
-class CRUViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
-                 mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+
+class CRUViewSet(SelectSerializerMixin,
+                 mixins.ListModelMixin,
+                 mixins.CreateModelMixin,
+                 mixins.RetrieveModelMixin,
+                 mixins.UpdateModelMixin,
                  viewsets.GenericViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 

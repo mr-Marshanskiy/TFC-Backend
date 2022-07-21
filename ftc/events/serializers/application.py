@@ -5,7 +5,7 @@ from rest_framework.exceptions import ParseError
 from common.serializers.dict import DictSerializer
 from events.models.application import Application
 from events.serializers.nested import EventNestedSerializer
-from users.serializers.user import UserNestedSerializer
+from users.serializers.nested import UserNestedSerializer
 
 
 class ApplicationSerializer(serializers.ModelSerializer):

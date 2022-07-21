@@ -1,6 +1,6 @@
 import uuid
 
-from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser, BaseUserManager, Group
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
@@ -35,8 +35,6 @@ class User(AbstractUser):
         verbose_name_plural = 'Пользователи'
         db_table = 'user'
 
-
-
     def get_full_name(self):
         full_name = ' '.join(
             map(
@@ -54,6 +52,12 @@ class User(AbstractUser):
     @property
     def full_name(self):
         return self.get_full_name()
+
+
+Group.add_to_class('code', models.CharField('Code',
+                                            max_length=64,
+                                            null=True,
+                                            unique=True))
 
 
 @receiver(pre_save, sender=User)

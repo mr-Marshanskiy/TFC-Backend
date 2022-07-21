@@ -11,7 +11,6 @@ class LocationDetailSerializer(serializers.ModelSerializer):
 
 
 class LocationListSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Location
         fields = ('id',
@@ -21,13 +20,8 @@ class LocationListSerializer(serializers.ModelSerializer):
                   'confirmed',
                   'active',
                   'lat',
-                  'lon')
-
-
-class LocationPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Location
-        fields = ('id', 'name', 'address', 'description', 'confirmed', 'active')
+                  'lon',
+                  )
 
 
 class LocationCreateSerializer(serializers.ModelSerializer):
@@ -36,8 +30,13 @@ class LocationCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Location
-        fields = ('name', 'lat', 'lon', 'description', 'address_full')
-        read_only_fields = ['address_full']
+        fields = ('name',
+                  'lat',
+                  'lon',
+                  'description',
+                  'address_full',
+                  )
+        read_only_fields = ('address_full',)
 
     def create(self, validated_data):
         latitude = validated_data.pop('lat')

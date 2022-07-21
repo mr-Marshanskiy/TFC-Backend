@@ -28,10 +28,18 @@ class EventFilter(django_filters.FilterSet):
     multi_status = django_filters.CharFilter(method='multi_status_filter',
                                              label='multi_status')
 
+    # geo_tl = django_filters.NumberFilter(method='geo_tl_filter',
+    #                                      label='geo_tl_filter')
+
     class Meta:
         model = Event
-        fields = ['time_start', 'time_end', 'multi_status',
-                  'status', 'location']
+        fields = ('time_start',
+                  'time_end',
+                  'multi_status',
+                  'status',
+                  'location',)
+                  # 'geo_tl',
+                  # 'geo_br')
 
     def multi_status_filter(self, queryset, name, value):
         statuses = []
@@ -41,3 +49,5 @@ class EventFilter(django_filters.FilterSet):
             pass
         queryset = queryset.filter(status__in=statuses)
         return queryset
+
+    # def geo_tl_filter(self, queryset, name, value):

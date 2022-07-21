@@ -34,10 +34,10 @@ class PlayerNestedUserSerializer(serializers.ModelSerializer):
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'code']
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserListSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
 
     class Meta:
@@ -45,7 +45,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'full_name', 'username', 'profile')
 
 
-class UserPostSerializer(serializers.ModelSerializer):
+class UserCreateUpdateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(style={"input_type": "password"},
                                      write_only=True)
 
@@ -76,25 +76,10 @@ class UserPostSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
-        user = super(UserPostSerializer, self).update(instance, validated_data)
+        user = super(UserCreateUpdateSerializer, self).update(instance, validated_data)
         if validated_data.get('password'):
             instance.set_password(validated_data['password'])
             instance.save()
         return user
 
-
-class UserShortSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = ('id', 'phone_number',
-                  'first_name', 'last_name', 'email')
-
-
-class UserNestedSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer()
-
-    class Meta:
-        model = User
-        fields = ('id', 'full_name', 'profile')
 

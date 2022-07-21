@@ -10,10 +10,9 @@ from rest_framework import filters, generics
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import get_object_or_404
-from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from api.constants import APPLICATION_ACTION
 from api.views.filters import EventFilter
@@ -21,20 +20,39 @@ from common.mixins.views import CRUViewSet, ListViewSet
 from common.permissions import IsOwnerAdminOrCreate
 
 from events.models.event import Event
-from events.serializers.application import MeApplicationPostSerializer, \
-    ApplicationPostSerializer, ApplicationNestedEventSerializer
-from events.serializers.event import (EventListSerializer, EventPostSerializer,
-                                      EventDetailSerializer)
+from events.serializers import event, application
 
 
-@method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Список событий", tags=['События']))
-@method_decorator(name='create', decorator=swagger_auto_schema(operation_summary="Добавить событие", tags=['События']))
-@method_decorator(name='retrieve', decorator=swagger_auto_schema(operation_summary="Получить событие", tags=['События']))
-@method_decorator(name='update', decorator=swagger_auto_schema(operation_summary="Обновить событие", tags=['События']))
-@method_decorator(name='partial_update',  decorator=swagger_auto_schema(operation_summary="Обновить событие частично", tags=['События']))
+@method_decorator(name='list', decorator=swagger_auto_schema(
+    operation_summary='Список событий', tags=['События']))
+@method_decorator(name='create', decorator=swagger_auto_schema(
+    operation_summary='Добавить событие', tags=['События']))
+@method_decorator(name='retrieve', decorator=swagger_auto_schema(
+    operation_summary='Получить событие', tags=['События']))
+@method_decorator(name='update', decorator=swagger_auto_schema(
+    operation_summary='Обновить событие', tags=['События']))
+@method_decorator(name='partial_update',  decorator=swagger_auto_schema(
+    operation_summary='Обновить событие частично', tags=['События']))
+@method_decorator(name='statistics', decorator=swagger_auto_schema(
+    operation_summary='Статистика по событию', tags=['События']))
+@method_decorator(name='group_by_date', decorator=swagger_auto_schema(
+    operation_summary='Список событий (группировка по дате)', tags=['События']))
+@method_decorator(name='application', decorator=swagger_auto_schema(
+    manual_parameters=[APPLICATION_ACTION],
+    operation_summary='Быстрая заявка на участие', tags=['События']))
 class EventViewSet(CRUViewSet):
-    permission_classes = ((IsOwnerAdminOrCreate),)
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, OrderingFilter]
+    serializer_class_multi = {
+        'applications': None,
+        'list': event.EventListSerializer,
+        'group_by_date': event.EventListSerializer,
+        'create': event.EventPostSerializer,
+        'update': event.EventPostSerializer,
+        'partial_update': event.EventPostSerializer,
+    }
+    permission_classes = (IsOwnerAdminOrCreate,)
+    filter_backends = (DjangoFilterBackend,
+                       filters.SearchFilter,
+                       OrderingFilter)
     filter_class = EventFilter
     ordering = ('time_start',)
 
@@ -59,20 +77,6 @@ class EventViewSet(CRUViewSet):
             ).order_by('-time_start')
         return queryset
 
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return EventListSerializer
-        if self.action in ['create', 'update', 'partial_update']:
-            return EventPostSerializer
-        if self.action == 'applications':
-            return None
-        if self.action == 'group_by_date':
-            return EventListSerializer
-        return EventDetailSerializer
-
-    @method_decorator(name='get', decorator=swagger_auto_schema(
-        operation_summary='Статистика по событию',
-        tags=['События']))
     @action(detail=True, methods=['get'], url_path='statistics')
     def statistics(self, request, pk):
         event = get_object_or_404(Event, id=pk)
@@ -99,11 +103,8 @@ class EventViewSet(CRUViewSet):
 
         return Response(result)
 
-    @method_decorator(name='get', decorator=swagger_auto_schema(
-        operation_summary='Список событий с группировкой по дате',
-        tags=['События']))
     @action(detail=False, methods=['get'], url_path='group-by-date',
-            permission_classes=((IsAuthenticated),))
+            permission_classes=(IsAuthenticated,))
     def group_by_date(self, request):
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -116,16 +117,12 @@ class EventViewSet(CRUViewSet):
             group_data[obj['short_date']].append(obj)
         return Response(group_data)
 
-    @method_decorator(name='get', decorator=swagger_auto_schema(
-        manual_parameters=[APPLICATION_ACTION],
-        operation_summary='Быстрая заявка на участие',
-        tags=['События']))
     @action(detail=True, methods=['get'], url_path='application',
-            permission_classes=((IsAuthenticated),))
+            permission_classes=(IsAuthenticated,))
     def application(self, request, pk=None):
         event = get_object_or_404(Event, id=pk)
         user = get_current_user()
-        application = event.applications.filter(user=user).first()
+        application_obj = event.applications.filter(user=user).first()
         query_action = request.GET.get('action')
 
         if query_action not in ['accept', 'refuse']:
@@ -134,16 +131,18 @@ class EventViewSet(CRUViewSet):
                       'refuse_button': False,
                       'application': None}
 
-            if not application:
+            if not application_obj:
                 if result['can_edit']:
                     result['accept_button'] = True
                     result['refuse_button'] = True
                 return Response(result)
 
-            result['can_edit'] = application.can_edit
-            result['accept_button'] = application.can_accept
-            result['refuse_button'] = application.can_refuse
-            result['application'] = ApplicationNestedEventSerializer(application).data
+            result['can_edit'] = application_obj.can_edit
+            result['accept_button'] = application_obj.can_accept
+            result['refuse_button'] = application_obj.can_refuse
+            result['application'] = (
+                application_obj.ApplicationNestedEventSerializer(
+                    application_obj).data)
             return Response(result)
 
         if not event.status_active:
@@ -153,9 +152,9 @@ class EventViewSet(CRUViewSet):
         if query_action == 'refuse':
             data['status'] = 5
 
-        if application:
-            serializer = ApplicationPostSerializer(
-                application, data=data, partial=True)
+        if application_obj:
+            serializer = application_obj.ApplicationPostSerializer(
+                application_obj, data=data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response({'status': 'Заявка успешно зарегистрирована'})
@@ -164,19 +163,20 @@ class EventViewSet(CRUViewSet):
 
         data['user'] = get_current_user().id
         data['event'] = pk
-        serializer = ApplicationPostSerializer(data=data)
+        serializer = application.ApplicationPostSerializer(data=data)
         if serializer.is_valid():
             serializer.create(serializer.validated_data)
             return Response({'status': 'Заявка успешно зарегистрирована'})
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
-@method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Игры пользователя", tags=['Профиль']))
+@method_decorator(name='list', decorator=swagger_auto_schema(
+    operation_summary="Игры пользователя", tags=['Профиль']))
 class MeEventViewSet(ListViewSet):
     permission_classes = (IsAuthenticated,)
-    serializer_class = EventListSerializer
+    serializer_class = event.EventListSerializer
     model = serializer_class.Meta.model
-    filter_backends = [DjangoFilterBackend,]
+    filter_backends = (DjangoFilterBackend,)
     filter_class = EventFilter
 
     def get_queryset(self):

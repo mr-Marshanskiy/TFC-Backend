@@ -6,4 +6,4 @@ from sports.models.sport import Sport
 class SportNestedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sport
-        fields = ['id', 'slug', 'name']
+        fields = ['id', 'slug', 'name', 'icon']

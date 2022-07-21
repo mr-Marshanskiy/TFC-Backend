@@ -1,6 +1,17 @@
 from rest_framework import serializers
 
-from common.serializers import DictAbstractSerializer
-from events.models.dict import Status, Type, ApplicationStatus
+from events.models import dict
 
 
+class EventTypeShortSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = dict.Type
+        fields = ('id', 'name', 'icon')
+
+
+class StatusShortSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = dict.Status
+        fields = ('id', 'name', 'icon')

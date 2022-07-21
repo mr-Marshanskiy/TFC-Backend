@@ -1,18 +1,16 @@
 from datetime import timedelta
 
-from crum import get_current_user
-from django.db.models import Count, F, Case, When, Q
 from rest_framework import serializers
 
 from api.constants import ACTIVE_STATUS, BASE_DURATION_MINUTES
 from common.serializers.dict import DictSerializer
 from common.service import get_now
 from events.models.event import Event
-from events.serializers.application import ApplicationDetailSerializer
 
 from guests.serializers.guest import GuestSerializer
 from locations.serializers.nested import LocationNestedSerializer
-from users.serializers.user import UserNestedSerializer
+from sports.serializers.nested import SportNestedSerializer
+from users.serializers.nested import UserNestedSerializer
 
 
 class EventDetailSerializer(serializers.ModelSerializer):
@@ -35,7 +33,6 @@ class EventDetailSerializer(serializers.ModelSerializer):
                   'comment',
                   'is_moderator',
                   'show_timer',
-                  #
                   'sport',
                   'status',
                   'type',
@@ -55,9 +52,9 @@ class EventDetailSerializer(serializers.ModelSerializer):
 
 
 class EventListSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(source='status.name')
-    type = serializers.CharField(source='type.name')
-    sport = serializers.CharField(source='sport.name', allow_null=True)
+    status = DictSerializer()
+    type = DictSerializer()
+    sport = SportNestedSerializer()
 
     location = LocationNestedSerializer()
     applications_count = serializers.SerializerMethodField()

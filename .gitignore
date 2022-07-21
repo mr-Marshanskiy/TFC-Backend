@@ -147,3 +147,7 @@ env/
 !*/*/migrations/__init__.py
 
 /ftc/media/
+/ftc/sstatic/
+
+*/migrations/*
+!*/migrations/__init__.py
