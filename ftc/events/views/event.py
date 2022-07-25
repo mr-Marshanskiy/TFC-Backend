@@ -42,7 +42,7 @@ from events.serializers import event, application
     operation_summary='Быстрая заявка на участие', tags=['События']))
 class EventViewSet(CRUViewSet):
     serializer_class_multi = {
-        'applications': None,
+        'application': None,
         'list': event.EventListSerializer,
         'retrieve': event.EventDetailSerializer,
         'group_by_date': event.EventListSerializer,
