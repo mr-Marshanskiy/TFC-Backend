@@ -44,6 +44,7 @@ class EventViewSet(CRUViewSet):
     serializer_class_multi = {
         'applications': None,
         'list': event.EventListSerializer,
+        'retrieve': event.EventDetailSerializer,
         'group_by_date': event.EventListSerializer,
         'create': event.EventPostSerializer,
         'update': event.EventPostSerializer,
