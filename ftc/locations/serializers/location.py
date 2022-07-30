@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from common.serializers.file import FileSerializer
 from dadataru.tools import get_address_by_geolocate
 from locations.models.location import Location
 
@@ -11,6 +12,8 @@ class LocationDetailSerializer(serializers.ModelSerializer):
 
 
 class LocationListSerializer(serializers.ModelSerializer):
+    images = FileSerializer(many=True)
+
     class Meta:
         model = Location
         fields = ('id',
@@ -21,6 +24,7 @@ class LocationListSerializer(serializers.ModelSerializer):
                   'active',
                   'lat',
                   'lon',
+                  'images',
                   )
 
 
@@ -35,6 +39,7 @@ class LocationCreateSerializer(serializers.ModelSerializer):
                   'lon',
                   'description',
                   'address_full',
+                  'images',
                   )
         read_only_fields = ('address_full',)
 

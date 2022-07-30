@@ -14,4 +14,4 @@ class StatusShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = dict.Status
-        fields = ('id', 'name', 'icon')
+        fields = ('id', 'name', 'icon', 'color')

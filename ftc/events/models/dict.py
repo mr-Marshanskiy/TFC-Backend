@@ -1,3 +1,5 @@
+from django.db import models
+
 from common.models.dict import DictAbstract
 
 
@@ -9,6 +11,10 @@ class Type(DictAbstract):
 
 
 class Status(DictAbstract):
+    FILE_NAME = 'event_statuses'
+
+    color = models.CharField('Цвет', max_length=32, null=True, blank=True)
+
     class Meta:
         verbose_name = 'Статус события'
         verbose_name_plural = 'Статусы события'

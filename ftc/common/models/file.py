@@ -17,9 +17,7 @@ class File(models.Model):
         verbose_name_plural = 'Файл'
 
     def __str__(self):
-        if self.file_name:
-            return str(self.file_name)
-        return str(self.id)
+        return self.file.url
 
     def delete(self, using=None, keep_parents=False):
         self.file.delete()
