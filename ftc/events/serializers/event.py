@@ -6,6 +6,7 @@ from api.constants import ACTIVE_STATUS, BASE_DURATION_MINUTES
 from common.serializers.dict import DictSerializer
 from common.service import get_now
 from events.models.event import Event
+from events.serializers.dict import StatusShortSerializer
 
 from guests.serializers.guest import GuestSerializer
 from locations.serializers.nested import LocationNestedSerializer
@@ -52,7 +53,7 @@ class EventDetailSerializer(serializers.ModelSerializer):
 
 
 class EventListSerializer(serializers.ModelSerializer):
-    status = DictSerializer()
+    status = StatusShortSerializer()
     type = DictSerializer()
     sport = SportNestedSerializer()
 
