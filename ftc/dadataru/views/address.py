@@ -55,9 +55,8 @@ class DaDataGeolocateView(PublicMixin, APIView):
     def get(self, request):
         latitude = request.GET.get('lat', None)
         longitude = request.GET.get('lon', None)
-        radius_meters = 20
         if not (latitude and longitude):
             raise ParseError('Не указаны координаты')
-        result = get_address_by_geolocate(latitude, longitude, radius_meters)
+        result = get_address_by_geolocate(latitude, longitude)
 
         return Response(result)

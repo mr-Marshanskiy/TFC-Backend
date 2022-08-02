@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ParseError
 
 from common.serializers.file import FileSerializer
 from dadataru.tools import get_address_by_geolocate
@@ -46,16 +47,16 @@ class LocationCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         latitude = validated_data.pop('lat')
         longitude = validated_data.pop('lon')
-        radius_meters = 20
 
         try:
             address_data = get_address_by_geolocate(latitude,
-                                                    longitude,
-                                                    radius_meters)[0]
+                                                    longitude)[0]
             validated_data['address_full'] = address_data
             validated_data['address'] = address_data.get('value')
+            validated_data['address_full']['lat'] = latitude
+            validated_data['address_full']['on'] = longitude
         except Exception as e:
-            print(e)
+            raise ParseError(e)
 
         obj = Location.objects.create(**validated_data)
         obj.save()
