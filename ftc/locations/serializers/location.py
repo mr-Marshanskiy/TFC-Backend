@@ -46,8 +46,12 @@ class LocationCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         latitude = validated_data.pop('lat')
         longitude = validated_data.pop('lon')
+        radius_meters = 20
+
         try:
-            address_data = get_address_by_geolocate(latitude, longitude)[0]
+            address_data = get_address_by_geolocate(latitude,
+                                                    longitude,
+                                                    radius_meters)[0]
             validated_data['address_full'] = address_data
             validated_data['address'] = address_data.get('value')
         except Exception as e:
