@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 
 from common.constants import api_params
 from common.mixins.permissions import PublicMixin
-from dadataru.tools import get_address_by_geolocate
+from dadataru.tools import get_address_by_geolocate, get_address
 from ftc.settings import dadata
 
 
@@ -51,12 +51,25 @@ class DaDataCommonView(PublicMixin, APIView):
 class DaDataGeolocateView(PublicMixin, APIView):
     @swagger_auto_schema(
         manual_parameters=[api_params.geo_lat_param, api_params.geo_lon_param],
-        operation_summary='Поиск по адресу', tags=['DaData'])
+        operation_summary='Поиск по координатам', tags=['DaData'])
     def get(self, request):
         latitude = request.GET.get('lat', None)
         longitude = request.GET.get('lon', None)
         if not (latitude and longitude):
             raise ParseError('Не указаны координаты')
         result = get_address_by_geolocate(latitude, longitude)
+
+        return Response(result)
+
+
+class DaDataAddressView(PublicMixin, APIView):
+    @swagger_auto_schema(
+        manual_parameters=[api_params.address_param],
+        operation_summary='Поиск по адресу', tags=['DaData'])
+    def get(self, request):
+        q = request.GET.get('q', None)
+        if not q:
+            raise ParseError('Не указан адрес')
+        result = get_address(q=q)
 
         return Response(result)
