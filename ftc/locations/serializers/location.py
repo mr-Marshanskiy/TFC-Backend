@@ -53,8 +53,8 @@ class LocationCreateSerializer(serializers.ModelSerializer):
                                                     longitude)[0]
             validated_data['address_full'] = address_data
             validated_data['address'] = address_data.get('value')
-            validated_data['address_full']['lat'] = latitude
-            validated_data['address_full']['on'] = longitude
+            validated_data['address_full']['geo_lat'] = latitude
+            validated_data['address_full']['geo_lon'] = longitude
         except Exception as e:
             raise ParseError(e)
 
