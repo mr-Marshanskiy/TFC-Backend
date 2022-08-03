@@ -1,17 +1,11 @@
-from datetime import timedelta
-
 from crum import get_current_user
 from django.db import models
-from django.db.models import DecimalField
-from django.db.models.signals import post_save, pre_save
-from django.dispatch import receiver
 from model_utils import FieldTracker
 
-from api.constants import BASE_DURATION_MINUTES
 from common.mixins.system import InfoMixin
-from common.service import get_now, get_date_ru, get_week_day_ru_full, \
+from common.service import get_date_ru, get_week_day_ru_full, \
     get_week_day_ru_short, get_short_date
-from events.models.dict import Status, Type
+from events.models.dict import Status, Type, EventParams
 from guests.models.guest import Guest
 from locations.models.location import Location
 from sports.models.sport import Sport
@@ -65,6 +59,10 @@ class Event(InfoMixin):
 
     # Temporary
     guests = models.ManyToManyField(Guest, 'events', verbose_name='Гости',
+                                    blank=True)
+
+    params = models.ManyToManyField(EventParams, 'events',
+                                    verbose_name='Параметры события',
                                     blank=True)
 
     # Service
@@ -250,35 +248,3 @@ class Event(InfoMixin):
 
     def get_user_app(self):
         return self.applications.filter(user=get_current_user()).first()
-
-
-@receiver(pre_save, sender=Event)
-def event_pre_save(sender, instance: Event, **kwargs):
-    now = get_now()
-
-    '''
-        Проверка статусов
-        1 - new,
-        2 - wait,
-        3 - open,
-        4 - close,
-        5 - cancel
-    '''
-    if not instance.id:
-        instance.status_id = 2
-
-    if instance.tracker.has_changed('status_id'):
-        if instance.status_wait:
-            instance.time_wait = now
-        elif instance.status_open:
-            instance.time_open = now
-        elif instance.status_close:
-            instance.time_close = now
-        elif instance.status_cancel:
-            instance.time_cancel = now
-
-    #  если был wait и поменялось время - то поменять статус на new
-    if (instance.status_id == 2
-            and (instance.tracker.has_changed('time_start') or
-                 instance.tracker.has_changed('time_end'))):
-        instance.status_id = 2

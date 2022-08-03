@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from events.views import event, dict, comment, application
+from events.views import event, dict, comment, application, queue
 
 
 app_name = 'events'
@@ -20,6 +20,9 @@ router.register(r'me/applications', application.MeApplicationAPIView, basename='
 router.register(r'dict/events/statuses', dict.StatusViewSet, basename='event-statuses')
 router.register(r'dict/events/types', dict.TypeViewSet, basename='event-types')
 router.register(r'dict/applications/statuses', dict.ApplicationStatusViewSet, basename='app-statuses')
+
+# queue
+router.register(r'events/(?P<event_id>\d+)/queue', queue.QueueParticipantListViewSet, basename='queues')
 
 urlpatterns = [
     path('', include(router.urls)),

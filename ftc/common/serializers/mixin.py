@@ -14,6 +14,9 @@ class SelectSerializerMixin(object):
             'or override the `get_serializer_class()` method.'
             % self.__class__.__name__)
 
+        if not self.serializer_class_multi:
+            return self.serializer_class
+
         role = self._get_role()
 
         action = self.action if hasattr(self, 'action') else self.request.method

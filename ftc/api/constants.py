@@ -11,3 +11,6 @@ PLAYER = openapi.Parameter('player', in_=openapi.IN_QUERY, type=openapi.TYPE_INT
 
 APPLICATION_ACTION = openapi.Parameter('action', in_=openapi.IN_QUERY, type=openapi.TYPE_STRING,
                                        required=True, description='Действие: [accept,refuse]',)
+
+EVENT_QUEUE_PARAM = 'queue_enabled'
+

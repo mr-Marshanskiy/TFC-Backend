@@ -2,10 +2,12 @@ from datetime import timedelta
 
 from rest_framework import serializers
 
-from api.constants import ACTIVE_STATUS, BASE_DURATION_MINUTES
+from api.constants import ACTIVE_STATUS, BASE_DURATION_MINUTES, \
+    EVENT_QUEUE_PARAM
 from common.serializers.dict import DictSerializer
 from common.service import get_now
 from events.models.event import Event
+from events.models.queue import Queue
 from events.serializers.dict import StatusShortSerializer
 
 from guests.serializers.guest import GuestSerializer
@@ -89,11 +91,18 @@ class EventPostSerializer(serializers.ModelSerializer):
                   'sport',
                   'location',
                   'price',
-                  'guests',)
+                  'guests',
+                  'params',)
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        if instance.params.filter(slug=EVENT_QUEUE_PARAM).exists():
+            Queue.objects.create(event=instance)
+        return instance
 
     def validate_time_start(self, value):
         now = get_now()
-        if value < now:
+        if value < now - timedelta(minutes=15):
             raise serializers.ValidationError(
                 'Время начала мероприятия должно быть больше текущего времени')
         return value

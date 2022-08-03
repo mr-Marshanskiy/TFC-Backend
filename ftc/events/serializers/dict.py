@@ -15,3 +15,10 @@ class StatusShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = dict.Status
         fields = '__all__'
+
+
+class QueueStatusShortSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = dict.QueueStatus
+        fields = '__all__'

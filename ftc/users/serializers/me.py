@@ -2,10 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
-from common.models.location import City, Address
 from common.serializers.location import CitySerializer, AddressSerializer
-# from dadataru.views.address import find_address_location
-# from dadataru.views.city import find_city_location
 from users.models.profile import Profile
 
 

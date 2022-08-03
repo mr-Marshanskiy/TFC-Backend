@@ -22,7 +22,9 @@ class ListCreateViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
-class ListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class ListViewSet(SelectSerializerMixin,
+                  mixins.ListModelMixin,
+                  viewsets.GenericViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
