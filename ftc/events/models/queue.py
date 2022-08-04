@@ -37,14 +37,16 @@ class Queue(InfoMixin):
 
     def update_positions_after_game(self, who_win):
         if self.skill_mode:
-            return self._update_positions_in_skill_mode(who_win=who_win)
-        return self._update_positions_in_equality_mode()
+            self._update_positions_in_skill_mode(who_win=who_win)
+        self._update_positions_in_equality_mode()
 
     def _update_positions_in_skill_mode(self, who_win):
         participants = self.participants.all()
         # Первые 2 команды переводятся в статус old
         participants[0].set_old_status()
+        participants[0].shift = 0
         participants[1].set_old_status()
+        participants[1].shift = 0
 
         # Если выиграла первая команда, то уходит на 2 место
         # чтобы после уменьшения счетсчика снова попала на 1 место
@@ -85,8 +87,16 @@ class Queue(InfoMixin):
         return position
 
     def _define_position_new_to_start(self):
-        position = self.participants.count() + 1
-        return position
+        participants_count = self.participants.count()
+        if participants_count < 4:
+            return participants_count + 1
+
+        nearest = self.participants.filter(status__slug='old',
+                                           position__gt=3,
+                                           shift=0).first()
+        if not nearest:
+            return participants_count + 1
+        return nearest.position
 
 
 class QueueParticipant(InfoMixin):

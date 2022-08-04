@@ -1,3 +1,6 @@
+import pdb
+
+from django.db.transaction import atomic
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -83,6 +86,25 @@ class QueueParticipantCreateSerializer(serializers.ModelSerializer,
         kwargs['position'] = event.queue.define_position_in_queue()
         super(QueueParticipantCreateSerializer, self).save(**kwargs)
 
+    def create(self, validated_data):
+        position = validated_data.get('position')
+        queue = validated_data.get('queue')
+        participants = queue.participants.all()
+
+        with atomic():
+            if position <= len(participants):
+                shift_participants = participants.filter(position__gte=position)
+                obj_to_add_shift = shift_participants.first()
+                obj_to_add_shift.shift += 1
+                obj_to_add_shift.save()
+                for participant in shift_participants:
+                    participant.position += 1
+                    participant.save()
+
+            instance = super(
+                QueueParticipantCreateSerializer, self).create(validated_data)
+            return instance
+
 
 class QueueParticipantUpdateSerializer(serializers.ModelSerializer,
                                        GetObjectFromURL):
@@ -115,6 +137,12 @@ class QueueNextMoveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Queue
         fields = ('who_win',)
+
+    def validate(self, attrs):
+        if self.instance.participants.count() < 2:
+            raise ValidationError('Невозможно завершить матч, т.к. '
+                                  'зарегистрирована только одна команда')
+        return attrs
 
     def validate_who_win(self, value):
         if value not in [1, 2]:
