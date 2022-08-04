@@ -70,11 +70,17 @@ class QueueParticipantCreateSerializer(serializers.ModelSerializer,
 
         return value
 
+    def validate_team(self, value):
+        event = self.context.get('event')
+        if event.queue.participants.filter(team=value).exists():
+            raise ValidationError('Выбранная команда уже в очереди')
+        return value
+
     def save(self, **kwargs):
         event = self.context.get('event')
         kwargs['queue'] = event.queue
         kwargs['status'] = QueueStatus.objects.get(slug='new')
-        kwargs['position'] = QueueParticipant.define_position_in_queue(event)
+        kwargs['position'] = event.queue.define_position_in_queue()
         super(QueueParticipantCreateSerializer, self).save(**kwargs)
 
 
@@ -113,12 +119,9 @@ class QueueNextMoveSerializer(serializers.ModelSerializer):
     def validate_who_win(self, value):
         if value not in [1, 2]:
             raise ValidationError('Победить может команда с позиции 1 или 2')
+        return value
 
     def update(self, instance, validated_data):
-        participants = instance.participants.all()
-        for participant in participants:
-            participant.position -= 1
-            participant.save()
-        participants[0].position = len(participants)
-        participants[0].save()
-        return instance
+        # Update positions in queue
+        who_win = validated_data.get('who_win')
+        instance.update_positions_after_game(who_win)
