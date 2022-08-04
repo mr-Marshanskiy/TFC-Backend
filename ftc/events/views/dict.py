@@ -9,7 +9,7 @@ from events.models.dict import Type, Status, ApplicationStatus
 
 @method_decorator(name='list', decorator=swagger_auto_schema(operation_summary="Список типов события", tags=['Словари']))
 class TypeViewSet(ListViewSet):
-    queryset = Type.objects.all()
+    queryset = Type.objects.filter(active=True)
     serializer_class = DictSerializer
 
 
