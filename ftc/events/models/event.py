@@ -2,6 +2,7 @@ from crum import get_current_user
 from django.db import models
 from model_utils import FieldTracker
 
+from api.constants import EVENT_QUEUE_PARAM
 from common.mixins.system import InfoMixin
 from common.service import get_date_ru, get_week_day_ru_full, \
     get_week_day_ru_short, get_short_date
@@ -245,6 +246,10 @@ class Event(InfoMixin):
         return (self.status_new or
                 self.status_wait or
                 self.status_open)
+
+    @property
+    def queue_is_enabled(self):
+        return self.params.filter(slug=EVENT_QUEUE_PARAM).exists()
 
     def get_user_app(self):
         return self.applications.filter(user=get_current_user()).first()

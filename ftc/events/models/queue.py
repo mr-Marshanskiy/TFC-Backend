@@ -53,3 +53,12 @@ class QueueParticipant(InfoMixin):
 
     def __str__(self):
         return f'{self.queue}({self.captain})'
+
+    @staticmethod
+    def generate_brief_name():
+        return 'test'
+
+    @staticmethod
+    def define_position_in_queue(event):
+        position = event.queue.participants.count() + 1
+        return position

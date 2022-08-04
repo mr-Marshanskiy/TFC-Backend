@@ -22,7 +22,7 @@ router.register(r'dict/events/types', dict.TypeViewSet, basename='event-types')
 router.register(r'dict/applications/statuses', dict.ApplicationStatusViewSet, basename='app-statuses')
 
 # queue
-router.register(r'events/(?P<event_id>\d+)/queue', queue.QueueParticipantListViewSet, basename='queues')
+router.register(r'events/(?P<event_id>\d+)/queue/participants', queue.QueueParticipantViewSet, basename='queues')
 
 urlpatterns = [
     path('', include(router.urls)),

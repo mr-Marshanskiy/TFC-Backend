@@ -13,7 +13,15 @@ class CRUViewSet(SelectSerializerMixin,
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
-class CRUDViewSet(ModelViewSet):
+class ListCreateDeleteViewSet(SelectSerializerMixin,
+                              mixins.ListModelMixin,
+                              mixins.CreateModelMixin,
+                              mixins.DestroyModelMixin,
+                              viewsets.GenericViewSet):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class CRUDViewSet(SelectSerializerMixin, ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
