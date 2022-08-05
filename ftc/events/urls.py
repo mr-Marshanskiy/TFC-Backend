@@ -19,6 +19,8 @@ router.register(r'me/applications', application.MeApplicationAPIView, basename='
 # dict
 router.register(r'dict/events/statuses', dict.StatusViewSet, basename='event-statuses')
 router.register(r'dict/events/types', dict.TypeViewSet, basename='event-types')
+router.register(r'dict/events/params', dict.EventParamsViewSet, basename='event-params')
+router.register(r'dict/events/queue-params', dict.QueueParamsViewSet, basename='queue-params')
 router.register(r'dict/applications/statuses', dict.ApplicationStatusViewSet, basename='app-statuses')
 
 # queue
