@@ -116,7 +116,11 @@ class EventViewSet(CRUViewSet):
             if obj['short_date'] not in group_data:
                 group_data[obj['short_date']] = list()
             group_data[obj['short_date']].append(obj)
-        return Response(group_data)
+
+        result_list = list()
+        for key, value in group_data.items():
+            result_list.append({key: value})
+        return Response(result_list)
 
     @action(detail=True, methods=['get'], url_path='application',
             permission_classes=(IsAuthenticated,))
