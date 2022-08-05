@@ -132,7 +132,7 @@ class EventPostSerializer(serializers.ModelSerializer):
             if data.get('time_start') and data.get('time_end'):
                 if data.get('time_start') > data.get('time_end'):
                     raise serializers.ValidationError(
-                        'Время окончания не должно превышать время начала.')
+                        'Время начала не должно превышать время окончания.')
 
             if data.get('time_start').date() != data.get('time_end').date():
                 raise serializers.ValidationError(
