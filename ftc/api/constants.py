@@ -14,3 +14,8 @@ APPLICATION_ACTION = openapi.Parameter('action', in_=openapi.IN_QUERY, type=open
 
 EVENT_QUEUE_PARAM = 'queue_enabled'
 
+QUEUE_SKILL_MODE_PARAM = 'skill_mode'
+QUEUE_EQUALITY_MODE_PARAM = 'equality_mode'
+QUEUE_NEW_TO_START_PARAM = 'new_to_start'
+QUEUE_NEW_TO_END_PARAM = 'new_to_end'
+

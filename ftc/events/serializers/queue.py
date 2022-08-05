@@ -1,3 +1,6 @@
+import pdb
+
+from django.db.transaction import atomic
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -70,12 +73,37 @@ class QueueParticipantCreateSerializer(serializers.ModelSerializer,
 
         return value
 
+    def validate_team(self, value):
+        event = self.context.get('event')
+        if event.queue.participants.filter(team=value).exists():
+            raise ValidationError('Выбранная команда уже в очереди')
+        return value
+
     def save(self, **kwargs):
         event = self.context.get('event')
         kwargs['queue'] = event.queue
         kwargs['status'] = QueueStatus.objects.get(slug='new')
-        kwargs['position'] = QueueParticipant.define_position_in_queue(event)
+        kwargs['position'] = event.queue.define_position_in_queue()
         super(QueueParticipantCreateSerializer, self).save(**kwargs)
+
+    def create(self, validated_data):
+        position = validated_data.get('position')
+        queue = validated_data.get('queue')
+        participants = queue.participants.all()
+
+        with atomic():
+            if position <= len(participants):
+                shift_participants = participants.filter(position__gte=position)
+                obj_to_add_shift = shift_participants.first()
+                obj_to_add_shift.shift += 1
+                obj_to_add_shift.save()
+                for participant in shift_participants:
+                    participant.position += 1
+                    participant.save()
+
+            instance = super(
+                QueueParticipantCreateSerializer, self).create(validated_data)
+            return instance
 
 
 class QueueParticipantUpdateSerializer(serializers.ModelSerializer,
@@ -110,15 +138,18 @@ class QueueNextMoveSerializer(serializers.ModelSerializer):
         model = Queue
         fields = ('who_win',)
 
+    def validate(self, attrs):
+        if self.instance.participants.count() < 2:
+            raise ValidationError('Невозможно завершить матч, т.к. '
+                                  'зарегистрирована только одна команда')
+        return attrs
+
     def validate_who_win(self, value):
         if value not in [1, 2]:
             raise ValidationError('Победить может команда с позиции 1 или 2')
+        return value
 
     def update(self, instance, validated_data):
-        participants = instance.participants.all()
-        for participant in participants:
-            participant.position -= 1
-            participant.save()
-        participants[0].position = len(participants)
-        participants[0].save()
-        return instance
+        # Update positions in queue
+        who_win = validated_data.get('who_win')
+        instance.update_positions_after_game(who_win)
