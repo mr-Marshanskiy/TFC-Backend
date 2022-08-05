@@ -119,7 +119,11 @@ class EventViewSet(CRUViewSet):
 
         result_list = list()
         for key, value in group_data.items():
-            result_list.append({key: value})
+            result_list.append(
+                {'date': key,
+                 'events': value
+                 }
+            )
         return Response(result_list)
 
     @action(detail=True, methods=['get'], url_path='application',
