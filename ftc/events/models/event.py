@@ -92,13 +92,13 @@ class Event(InfoMixin):
     def short_date(self):
         week_day = get_week_day_ru_short(self.time_start)
         date_str = get_short_date(self.time_start)
-        return f'{week_day}, {date_str}'
+        return f'{date_str}, {week_day}'
 
     @property
     def full_date(self):
         week_day = get_week_day_ru_full(self.time_start)
         date_str = get_date_ru(self.time_start)
-        return f'{week_day}, {date_str}'
+        return f'{date_str}, {week_day}'
 
     @property
     def short_time(self):
