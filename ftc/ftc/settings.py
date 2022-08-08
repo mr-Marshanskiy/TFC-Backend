@@ -227,7 +227,7 @@ INTERNAL_IPS = [
 #############################
 DADATA_API = env('DADATA_API', None)
 DADATA_SECRET = env('DADATA_SECRET', None)
-dadata = DaData(token=DADATA_API)
+dadata = DaData(token=DADATA_API, secret=DADATA_SECRET)
 
 ############################
 #       SENDPULSE          #

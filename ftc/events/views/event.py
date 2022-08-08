@@ -16,6 +16,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from api.constants import APPLICATION_ACTION
 from api.views.filters import EventFilter
+from common.mixins.permissions import PublicMixin
 from common.mixins.views import CRUViewSet, ListViewSet
 from common.permissions import IsOwnerAdminOrCreate
 
@@ -40,7 +41,8 @@ from events.serializers import event, application
 @method_decorator(name='application', decorator=swagger_auto_schema(
     manual_parameters=[APPLICATION_ACTION],
     operation_summary='Быстрая заявка на участие', tags=['События']))
-class EventViewSet(CRUViewSet):
+class EventViewSet(PublicMixin, CRUViewSet):
+
     serializer_class_multi = {
         'application': None,
         'list': event.EventListSerializer,
@@ -50,7 +52,7 @@ class EventViewSet(CRUViewSet):
         'update': event.EventPostSerializer,
         'partial_update': event.EventPostSerializer,
     }
-    permission_classes = (IsOwnerAdminOrCreate,)
+    # permission_classes = (IsOwnerAdminOrCreate,)
     filter_backends = (DjangoFilterBackend,
                        filters.SearchFilter,
                        OrderingFilter)
