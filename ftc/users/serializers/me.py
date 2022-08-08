@@ -1,7 +1,10 @@
+import pdb
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
+from common.models.location import City, Address
 from common.serializers.location import CitySerializer, AddressSerializer
 from users.models.profile import Profile
 
@@ -65,8 +68,9 @@ class MeProfileSerializer(serializers.ModelSerializer):
 
 
 class MeProfileEditSerializer(serializers.ModelSerializer):
-    city = serializers.CharField()
-    address = serializers.CharField()
+    city = serializers.CharField(max_length=255)
+    address = serializers.CharField(max_length=255, allow_null=True,
+                                    allow_blank=True)
 
     class Meta:
         model = Profile
@@ -86,44 +90,6 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
                   'telegram',
                   )
 
-    def update(self, instance, validated_data):
-        city = None
-        address = None
-        if 'city' in validated_data:
-            city = validated_data.pop('city')
-        if 'address' in validated_data:
-            address = validated_data.pop('address')
-
-        profile = super(MeProfileEditSerializer, self).update(instance,
-                                                              validated_data)
-        # if city:
-        #     try:
-        #         city_location = find_city_location(city=city)
-        #         city_obj, created = City.objects.get_or_create(
-        #             name=city_location.get('name'),
-        #             defaults={
-        #                 'name': city_location.get('name'),
-        #                 'location': city_location
-        #             })
-        #         profile.city = city_obj
-        #     except Exception as e:
-        #         pass
-        #
-        # if address:
-        #     try:
-        #         address_location = find_address_location(address=address)
-        #         address_obj, created = Address.objects.get_or_create(
-        #             name=address_location.get('name'),
-        #             defaults={
-        #                 'location': address_location,
-        #             })
-        #         profile.address = address_obj
-        #     except Exception as e:
-        #         pass
-        profile.save()
-
-        return profile
-
     def validate_photo(self, instance):
         if not instance:
             return instance
@@ -132,3 +98,19 @@ class MeProfileEditSerializer(serializers.ModelSerializer):
             raise ParseError('Размер фото должен быть меньше 2Мб.')
 
         return instance
+
+    def validate_city(self, value):
+        if value == '':
+            return None
+        city_obj = City.find_city(value)
+        if not city_obj:
+            raise ParseError('Указанный город не найден')
+        return city_obj
+
+    def validate_address(self, value):
+        address_obj = Address.find_address(value)
+        if value == '':
+            return None
+        if not address_obj:
+            raise ParseError('Указанный адрес не найден')
+        return address_obj

@@ -62,3 +62,11 @@ def get_week_day_ru_short(datetime):
         return f'{DAYS_SHORT_LIST[datetime.isoweekday()-1]}'
     except TypeError as e:
         return str(datetime)
+
+
+def get_user_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0]
+    else:
+        return request.META.get('REMOTE_ADDR')

@@ -2,7 +2,7 @@ import os
 
 import environ
 from datetime import timedelta
-from dadata import Dadata
+from dadataru.tools import DaData
 root = environ.Path(__file__) - 2
 env = environ.Env()
 environ.Env.read_env(env.str(root(), '.env'))
@@ -189,6 +189,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 AUTHENTICATION_BACKENDS = ('users.backends.AuthBackend',)
 
+
+#############################
+#        SENTRY             #
+#############################
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -200,6 +204,9 @@ sentry_sdk.init(
 )
 
 
+#############################
+#        SWAGGER            #
+#############################
 SWAGGER_SETTINGS = {
     "DEFAULT_AUTO_SCHEMA_CLASS":"api.yasg.CustomAutoSchema",
     'SECURITY_DEFINITIONS': {
@@ -218,10 +225,9 @@ INTERNAL_IPS = [
 #############################
 #       DADATARU            #
 #############################
-
-DADATA_API = env('DADATA_API')
-DADATA_SECRET = env('DADATA_SECRET')
-dadata = Dadata(token=DADATA_API)
+DADATA_API = env('DADATA_API', None)
+DADATA_SECRET = env('DADATA_SECRET', None)
+dadata = DaData(token=DADATA_API)
 
 ############################
 #       SENDPULSE          #
@@ -241,3 +247,5 @@ ROBOT_NAME = env.str('ROBOT_NAME', default='')
 #    PROJECT CUSTOM        #
 ############################
 FRONT_HOST = env.str('FRONT_HOST', default='')
+DEFAULT_FIAS_ID = env.str('DEFAULT_FIAS_ID',
+                          default='2a1c7bdb-05ea-492f-9e1c-b3999f79dcbc')

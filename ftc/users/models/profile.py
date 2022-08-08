@@ -10,6 +10,7 @@ from common.mixins.system import InfoMixin
 from common.models.file import File
 from common.models.location import City, Address
 from common.tools.file import get_file_dir
+from ftc.settings import dadata, DEFAULT_FIAS_ID
 
 User = get_user_model()
 
@@ -58,9 +59,10 @@ class Profile(InfoMixin):
         return f'Профиль пользователя {self.user.full_name}'
 
 
-
-
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance: User, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        city = City.find_city_by_ip()
+        if not city:
+            city = City.find_city(fias_id=DEFAULT_FIAS_ID)
+        Profile.objects.create(user=instance, city=city)

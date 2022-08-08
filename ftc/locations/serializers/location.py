@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
 from common.serializers.file import FileSerializer
-from dadataru.tools import get_address_by_geolocate
+from ftc.settings import dadata
 from locations.models.location import Location
 
 
@@ -49,7 +49,7 @@ class LocationCreateSerializer(serializers.ModelSerializer):
         longitude = validated_data.pop('lon')
 
         try:
-            address_data = get_address_by_geolocate(latitude,
+            address_data = dadata.get_address_by_geolocate(latitude,
                                                     longitude)[0]
             validated_data['address_full'] = address_data
             validated_data['address'] = address_data.get('value')
