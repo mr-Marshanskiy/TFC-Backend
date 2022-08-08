@@ -41,7 +41,7 @@ from events.serializers import event, application
 @method_decorator(name='application', decorator=swagger_auto_schema(
     manual_parameters=[APPLICATION_ACTION],
     operation_summary='Быстрая заявка на участие', tags=['События']))
-class EventViewSet(PublicMixin, CRUViewSet):
+class EventViewSet(CRUViewSet):
 
     serializer_class_multi = {
         'application': None,
