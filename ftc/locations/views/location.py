@@ -32,3 +32,5 @@ class LocationViewSet(CRUViewSet):
     filterset_fields = ('active',)
     search_fields = ('short_name',
                      'full_name',)
+    pagination_class = None
+
