@@ -60,8 +60,9 @@ class LocationCreateSerializer(serializers.ModelSerializer):
             city_fias = (address_serializer.get('city_fias_id')
                          or address_serializer.get('settlement_fias_id')
                          or address_serializer.get('region_fias_id'))
+
             validated_data['city'] = City.find_city(fias_id=city_fias)
-            validated_data['address_full'] = address_data
+            validated_data['address_full'] = address_data.get('data')
             validated_data['address'] = address_data.get('value')
             validated_data['address_full']['geo_lat'] = latitude
             validated_data['address_full']['geo_lon'] = longitude

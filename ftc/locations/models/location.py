@@ -9,7 +9,8 @@ class Location(InfoMixin):
     name = models.CharField('Название места', max_length=255, unique=True)
     city = models.ForeignKey('common.City', models.RESTRICT, 'locations',
                              verbose_name='Город', null=True, blank=True)
-
+    address = models.CharField('Адрес места', max_length=255, blank=True, null=True)
+    address_full = models.JSONField('Адрес места (Json)', blank=True, null=True)
     description = models.TextField('Описание места',  blank=True, null=True)
     active = models.BooleanField('Активность', default=True)
     confirmed = models.BooleanField('Подтвержден', default=False)
