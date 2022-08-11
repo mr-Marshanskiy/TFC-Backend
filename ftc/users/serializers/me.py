@@ -5,12 +5,14 @@ from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
 from common.models.location import City, Address
-from common.serializers.location import CitySerializer, AddressSerializer
+from common.serializers.location import CitySerializer, AddressSerializer, \
+    CityShortSerializer
 from users.models.profile import Profile
 
 
 class MeSerializer(serializers.ModelSerializer):
     photo = serializers.ImageField(source='profile.photo_small')
+    city = CityShortSerializer(source='profile.city', allow_null=True)
 
     class Meta:
         model = get_user_model()
@@ -24,6 +26,7 @@ class MeSerializer(serializers.ModelSerializer):
                   'email',
                   'email_is_verified',
                   'photo',
+                  'city',
                   )
 
         read_only_fields = ('id',

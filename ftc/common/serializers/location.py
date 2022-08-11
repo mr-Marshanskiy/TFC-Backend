@@ -12,6 +12,15 @@ class CitySerializer(serializers.ModelSerializer):
         }
 
 
+class CityShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ('id', 'name', 'fias_id')
+        extra_kwargs = {
+            'location': {'read_only': True},
+        }
+
+
 class AddressSerializer(serializers.ModelSerializer):
 
     class Meta:
