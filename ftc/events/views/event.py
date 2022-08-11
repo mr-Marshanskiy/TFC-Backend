@@ -1,3 +1,4 @@
+import pdb
 from poplib import CR
 
 from crum import get_current_user
@@ -18,6 +19,7 @@ from api.constants import APPLICATION_ACTION
 from api.views.filters import EventFilter
 from common.mixins.permissions import PublicMixin
 from common.mixins.views import CRUViewSet, ListViewSet
+from common.models.location import City
 from common.permissions import IsOwnerAdminOrCreate
 
 from events.models.event import Event
@@ -78,6 +80,10 @@ class EventViewSet(CRUViewSet):
             ).prefetch_related(
                 'guests',
             ).order_by('-time_start')
+
+        if 'city' not in self.request.query_params:
+            return queryset.filter(location__city=City.find_default_city())
+
         return queryset
 
     @action(detail=True, methods=['get'], url_path='statistics')

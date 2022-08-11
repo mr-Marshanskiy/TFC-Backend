@@ -4,6 +4,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters
 
 from common.mixins.views import CRUViewSet
+from common.models.location import City
 from locations.models.location import Location
 from locations.serializers import location
 
@@ -29,8 +30,14 @@ class LocationViewSet(CRUViewSet):
     }
     queryset = Location.objects.all()
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filterset_fields = ('active',)
+    filterset_fields = ('active', 'city')
     search_fields = ('short_name',
                      'full_name',)
     pagination_class = None
 
+    def get_queryset(self):
+        queryset = Location.objects.all()
+
+        if 'city' not in self.request.query_params:
+            return queryset.filter(location__city=City.find_default_city())
+        return queryset

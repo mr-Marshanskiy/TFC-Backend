@@ -1,6 +1,6 @@
 import pprint
 
-from crum import get_current_request
+from crum import get_current_request, get_current_user
 from django.db import models
 from common.mixins.system import DateMixin
 from common.service import get_user_ip
@@ -56,6 +56,14 @@ class City(DateMixin):
                 'location': location
             })
         return city_obj
+
+    @staticmethod
+    def find_default_city():
+        user = get_current_user()
+        if user and hasattr(user, 'city') and user.city:
+            return user.city
+        else:
+            return City.find_city(fias_id=DEFAULT_FIAS_ID)
 
 
 class Address(DateMixin):

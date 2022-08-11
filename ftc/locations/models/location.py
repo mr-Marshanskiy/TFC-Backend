@@ -34,14 +34,14 @@ class Location(InfoMixin):
 
     @property
     def short_address(self):
-        address = self.address[:40]
-        if len(address) != len(self.address):
+        address = self.address.name[:40]
+        if len(address) != len(self.address.name):
             address += '...'
         return f'{address}'
 
     @property
     def name_address(self):
-        return f'{self.name}, {self.address}'
+        return f'{self.name}, {self.address.name}'
 
     @property
     def name_address_short(self):
