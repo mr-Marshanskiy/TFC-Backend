@@ -47,9 +47,10 @@ class MainTitleView(PublicMixin, CommonListAPIView):
     def get(self, request, *args, **kwargs):
         location_queryset = self.filter_queryset(self.get_location_queryset())
         event_queryset = self.get_event_queryset(locations=location_queryset)
-
-        locations = self.serializer_location(location_queryset, many=True)
-        events = self.serializer_event(event_queryset, many=True)
+        locations = self.serializer_location(
+            location_queryset, many=True, context=self.get_serializer_context())
+        events = self.serializer_event(
+            event_queryset, many=True, context=self.get_serializer_context())
 
         group_data = dict()
         for obj in events.data:
