@@ -1,4 +1,5 @@
 from rest_framework import mixins, viewsets, permissions
+from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
 
 from common.serializers.mixin import SelectSerializerMixin
@@ -41,3 +42,7 @@ class ListRetrieveUpdateViewSet(mixins.ListModelMixin,
                                 mixins.UpdateModelMixin,
                                 viewsets.GenericViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class CommonListAPIView(SelectSerializerMixin, ListAPIView):
+    pass

@@ -81,9 +81,6 @@ class EventViewSet(CRUViewSet):
                 'guests',
             ).order_by('-time_start')
 
-        if 'city' not in self.request.query_params:
-            return queryset.filter(location__city=City.find_default_city())
-
         return queryset
 
     @action(detail=True, methods=['get'], url_path='statistics')

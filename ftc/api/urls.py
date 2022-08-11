@@ -2,6 +2,7 @@ from django.urls import include, path
 from rest_framework import routers
 
 import users.views as user
+from common.views.locations import CityViewSet
 from .views.main import MainTitleView
 
 from .yasg import urlpatterns as doc_urls
@@ -15,6 +16,7 @@ from dadataru.urls import urlpatterns as dadata_urls
 
 app_name = 'api'
 router = routers.DefaultRouter()
+router.register(r'dict/cities', CityViewSet, 'cities')
 
 urlpatterns = doc_urls
 urlpatterns += path('', include(router.urls)),

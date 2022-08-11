@@ -37,7 +37,4 @@ class LocationViewSet(CRUViewSet):
 
     def get_queryset(self):
         queryset = Location.objects.all()
-
-        if 'city' not in self.request.query_params:
-            return queryset.filter(city=City.find_default_city())
         return queryset

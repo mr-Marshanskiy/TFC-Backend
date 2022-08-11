@@ -8,6 +8,7 @@ from common.models.location import City
 from events.models.application import Application
 from events.models.event import Event
 from ftc.settings import DEFAULT_FIAS_ID
+from locations.models.location import Location
 
 
 class EndFilter(django_filters.DateFilter):
@@ -67,3 +68,14 @@ class EventFilter(django_filters.FilterSet):
     #     super().__init__(data, *args, **kwargs)
 
     # def geo_tl_filter(self, queryset, name, value):
+
+
+class MainFilter(django_filters.FilterSet):
+    """
+       Фильтр главной страницы
+    """
+    class Meta:
+        model = Location
+        fields = ('active',
+                  'confirmed',
+                  'city',)
