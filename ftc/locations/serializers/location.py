@@ -1,7 +1,11 @@
+import pdb
+
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
+from common.models.location import City
 from common.serializers.file import FileSerializer
+from dadataru.serializers import DaDataCitySerializer
 from ftc.settings import dadata
 from locations.models.location import Location
 
@@ -50,7 +54,13 @@ class LocationCreateSerializer(serializers.ModelSerializer):
 
         try:
             address_data = dadata.get_address_by_geolocate(latitude,
-                                                    longitude)[0]
+                                                           longitude)[0]
+            address_serializer = DaDataCitySerializer(address_data).data
+
+            city_fias = (address_serializer.get('city_fias_id')
+                         or address_serializer.get('settlement_fias_id')
+                         or address_serializer.get('region_fias_id'))
+            validated_data['city'] = City.find_city(fias_id=city_fias)
             validated_data['address_full'] = address_data
             validated_data['address'] = address_data.get('value')
             validated_data['address_full']['geo_lat'] = latitude
