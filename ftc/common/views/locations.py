@@ -1,5 +1,6 @@
 from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.filters import SearchFilter
 
 from common.mixins.views import ListViewSet
 from common.models.location import City
@@ -12,3 +13,5 @@ class CityViewSet(ListViewSet):
     queryset = City.objects.all()
     serializer_class = CityShortSerializer
     pagination_class = None
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
