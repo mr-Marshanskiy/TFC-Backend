@@ -21,6 +21,12 @@ class City(DateMixin):
     def __str__(self):
         return self.name
 
+    @property
+    def short_name(self):
+        return (self.location.get('settlement_with_type') or
+                self.location.get('city_with_type') or
+                self.name)
+
     @staticmethod
     def find_city(fias_id):
         city_location = dadata.find_by_id('address', fias_id)

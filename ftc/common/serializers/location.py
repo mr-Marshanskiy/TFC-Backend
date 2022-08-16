@@ -6,7 +6,7 @@ from common.models.location import City, Address
 class CitySerializer(serializers.ModelSerializer):
     class Meta:
         model = City
-        fields = ('id', 'name', 'fias_id', 'location')
+        fields = ('id', 'name', 'short_name', 'fias_id', 'location')
         extra_kwargs = {
             'location': {'read_only': True},
         }
@@ -15,7 +15,7 @@ class CitySerializer(serializers.ModelSerializer):
 class CityShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = City
-        fields = ('id', 'name', 'fias_id')
+        fields = ('id', 'name', 'short_name', 'fias_id')
         extra_kwargs = {
             'location': {'read_only': True},
         }
