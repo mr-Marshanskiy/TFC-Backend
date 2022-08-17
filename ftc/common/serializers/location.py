@@ -13,12 +13,12 @@ class CitySerializer(serializers.ModelSerializer):
 
 
 class CityShortSerializer(serializers.ModelSerializer):
+    lat = serializers.CharField(source='location.geo_lat')
+    lon = serializers.CharField(source='location.geo_lon')
+
     class Meta:
         model = City
-        fields = ('id', 'name', 'short_name', 'fias_id')
-        extra_kwargs = {
-            'location': {'read_only': True},
-        }
+        fields = ('id', 'name', 'short_name', 'fias_id', 'lat', 'lon')
 
 
 class AddressSerializer(serializers.ModelSerializer):
