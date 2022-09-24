@@ -7,7 +7,9 @@ from rest_framework.parsers import MultiPartParser, FileUploadParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from common.mixins.permissions import PublicMixin
 from common.models.file import File
+from common.serializers.file import FileSerializer
 
 
 @method_decorator(name='post', decorator=swagger_auto_schema(operation_summary="Загрузить файл", tags=['Файлы']))

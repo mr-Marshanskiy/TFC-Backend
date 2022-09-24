@@ -11,6 +11,8 @@ from locations.models.location import Location
 
 
 class LocationDetailSerializer(serializers.ModelSerializer):
+    images = FileSerializer(many=True)
+
     class Meta:
         model = Location
         fields = '__all__'

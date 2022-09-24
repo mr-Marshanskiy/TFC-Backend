@@ -15,3 +15,5 @@ class CityViewSet(ListViewSet):
     pagination_class = None
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
+    def get_queryset(self):
+        self.ser
