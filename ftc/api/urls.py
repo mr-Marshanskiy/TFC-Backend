@@ -13,6 +13,7 @@ from sports.urls import urlpatterns as sport_urls
 from teams.urls import urlpatterns as team_urls
 from locations.urls import urlpatterns as location_urls
 from dadataru.urls import urlpatterns as dadata_urls
+from common.urls import urlpatterns as common_urls
 
 app_name = 'api'
 router = routers.DefaultRouter()
@@ -41,4 +42,5 @@ urlpatterns += sport_urls
 urlpatterns += team_urls
 urlpatterns += location_urls
 urlpatterns += dadata_urls
+urlpatterns += common_urls
 

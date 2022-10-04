@@ -12,7 +12,7 @@ from common.models.file import File
 from common.serializers.file import FileSerializer
 
 
-@method_decorator(name='post', decorator=swagger_auto_schema(operation_summary="Загрузить файл", tags=['Файлы']))
+@method_decorator(name='post', decorator=swagger_auto_schema(operation_summary='Загрузить файл', tags=['Файлы']))
 class FileUploadView(PublicMixin, CreateAPIView):
     serializer_class = FileSerializer
     parser_classes = (MultiPartParser, FileUploadParser, FormParser)
@@ -23,7 +23,7 @@ class FileUploadView(PublicMixin, CreateAPIView):
         return self.create(request, *args, **kwargs)
 
 
-@method_decorator(name='delete', decorator=swagger_auto_schema(operation_summary="Удалить файл", tags=['Файлы']))
+@method_decorator(name='delete', decorator=swagger_auto_schema(operation_summary='Удалить файл', tags=['Файлы']))
 class FileDeleteView(PublicMixin, APIView):
     def get_object(self, id):
         try:
