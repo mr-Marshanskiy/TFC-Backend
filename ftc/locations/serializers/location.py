@@ -77,5 +77,5 @@ class LocationCreateSerializer(serializers.ModelSerializer):
 
         obj = Location.objects.create(**validated_data)
         obj.save()
-        obj.images.add(images)
+        obj.images.set(images)
         return obj
