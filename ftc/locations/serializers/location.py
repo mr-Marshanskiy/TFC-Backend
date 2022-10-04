@@ -23,16 +23,17 @@ class LocationListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Location
-        fields = ('id',
-                  'name',
-                  'address',
-                  'description',
-                  'confirmed',
-                  'active',
-                  'lat',
-                  'lon',
-                  'images',
-                  )
+        fields = (
+            'id',
+            'name',
+            'address',
+            'description',
+            'confirmed',
+            'active',
+            'lat',
+            'lon',
+            'images',
+          )
 
 
 class LocationCreateSerializer(serializers.ModelSerializer):
