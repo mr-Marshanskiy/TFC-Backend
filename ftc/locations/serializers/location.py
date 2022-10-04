@@ -54,7 +54,10 @@ class LocationCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         latitude = validated_data.pop('lat')
         longitude = validated_data.pop('lon')
-
+        try:
+            images = validated_data.pop('images')
+        except Exception:
+            images = []
         try:
             address_data = dadata.get_address_by_geolocate(latitude,
                                                            longitude)[0]
@@ -74,4 +77,5 @@ class LocationCreateSerializer(serializers.ModelSerializer):
 
         obj = Location.objects.create(**validated_data)
         obj.save()
+        obj.images.add(images)
         return obj
