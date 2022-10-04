@@ -1,5 +1,6 @@
 import pdb
 
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
@@ -58,24 +59,25 @@ class LocationCreateSerializer(serializers.ModelSerializer):
             images = validated_data.pop('images')
         except Exception:
             images = []
-        try:
-            address_data = dadata.get_address_by_geolocate(latitude,
-                                                           longitude)[0]
-            address_serializer = DaDataCitySerializer(address_data).data
+        with transaction.atomic():
+            try:
+                address_data = dadata.get_address_by_geolocate(latitude,
+                                                               longitude)[0]
+                address_serializer = DaDataCitySerializer(address_data).data
 
-            city_fias = (address_serializer.get('city_fias_id')
-                         or address_serializer.get('settlement_fias_id')
-                         or address_serializer.get('region_fias_id'))
+                city_fias = (address_serializer.get('city_fias_id')
+                             or address_serializer.get('settlement_fias_id')
+                             or address_serializer.get('region_fias_id'))
 
-            validated_data['city'] = City.find_city(fias_id=city_fias)
-            validated_data['address_full'] = address_data.get('data')
-            validated_data['address'] = address_data.get('value')
-            validated_data['address_full']['geo_lat'] = latitude
-            validated_data['address_full']['geo_lon'] = longitude
-        except Exception as e:
-            raise ParseError(e)
+                validated_data['city'] = City.find_city(fias_id=city_fias)
+                validated_data['address_full'] = address_data.get('data')
+                validated_data['address'] = address_data.get('value')
+                validated_data['address_full']['geo_lat'] = latitude
+                validated_data['address_full']['geo_lon'] = longitude
 
-        obj = Location.objects.create(**validated_data)
-        obj.save()
-        obj.images.set(images)
+                obj = Location.objects.create(**validated_data)
+                obj.save()
+                obj.images.set(images)
+            except Exception as e:
+                raise ParseError(e)
         return obj
