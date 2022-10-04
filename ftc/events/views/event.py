@@ -108,8 +108,7 @@ class EventViewSet(PublicMixin, CRUViewSet):
 
         return Response(result)
 
-    @action(detail=False, methods=['get'], url_path='group-by-date',
-            permission_classes=(IsAuthenticated,))
+    @action(detail=False, methods=['get'], url_path='group-by-date')
     def group_by_date(self, request):
         queryset = self.filter_queryset(self.get_queryset())
 
