@@ -11,32 +11,32 @@ class CRUViewSet(SelectSerializerMixin,
                  mixins.RetrieveModelMixin,
                  mixins.UpdateModelMixin,
                  viewsets.GenericViewSet):
-
+    pass
 
 class ListCreateDeleteViewSet(SelectSerializerMixin,
                               mixins.ListModelMixin,
                               mixins.CreateModelMixin,
                               mixins.DestroyModelMixin,
                               viewsets.GenericViewSet):
-
+    pass
 
 class CRUDViewSet(SelectSerializerMixin, ModelViewSet):
-
+    pass
 
 class ListCreateViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
                         viewsets.GenericViewSet):
-
+    pass
 
 class ListViewSet(SelectSerializerMixin,
                   mixins.ListModelMixin,
                   viewsets.GenericViewSet):
-
+    pass
 
 class ListRetrieveUpdateViewSet(mixins.ListModelMixin,
                                 mixins.RetrieveModelMixin,
                                 mixins.UpdateModelMixin,
                                 viewsets.GenericViewSet):
-
+    pass
 
 class CommonListAPIView(SelectSerializerMixin, ListAPIView):
     pass
