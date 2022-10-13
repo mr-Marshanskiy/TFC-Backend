@@ -1,7 +1,5 @@
 import pdb
-from poplib import CR
 
-from coreapi.exceptions import ParseError
 from crum import get_current_user
 from django.db.models import Count, Q
 from django.utils.decorators import method_decorator
@@ -10,6 +8,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters, generics
 from rest_framework.decorators import action
+from rest_framework.exceptions import ParseError
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -44,7 +43,7 @@ from events.serializers import event, application
 @method_decorator(name='application', decorator=swagger_auto_schema(
     manual_parameters=[APPLICATION_ACTION],
     operation_summary='Быстрая заявка на участие', tags=['События']))
-class EventViewSet(PublicMixin, CRUViewSet):
+class EventViewSet(CRUViewSet):
 
     serializer_class_multi = {
         'application': None,
@@ -55,6 +54,7 @@ class EventViewSet(PublicMixin, CRUViewSet):
         'update': event.EventPostSerializer,
         'partial_update': event.EventPostSerializer,
     }
+    permission_classes = [IsAuthenticated]
     filter_backends = (DjangoFilterBackend,
                        filters.SearchFilter,
                        OrderingFilter)
@@ -62,6 +62,8 @@ class EventViewSet(PublicMixin, CRUViewSet):
     ordering = ('time_start',)
 
     def get_queryset(self):
+        user = get_current_user()
+        print(user)
         if self.action in ['list', 'group_by_date']:
             queryset = Event.objects.select_related(
                 'sport', 'status', 'type', 'location',
@@ -131,10 +133,10 @@ class EventViewSet(PublicMixin, CRUViewSet):
         return Response(result_list)
 
     @action(detail=True, methods=['get'], url_path='application')
-    def application(self, request, pk=None):
+    def application(self, request, pk):
+        user = get_current_user()
         event = get_object_or_404(Event, id=pk)
-        user = request.user
-        if not user:
+        if not user.is_authenticated:
             raise ParseError('Войдите в систему для просмотра заявки')
         application_obj = event.applications.filter(user=user).first()
         query_action = request.GET.get('action')
@@ -155,7 +157,7 @@ class EventViewSet(PublicMixin, CRUViewSet):
             result['accept_button'] = application_obj.can_accept
             result['refuse_button'] = application_obj.can_refuse
             result['application'] = (
-                application_obj.ApplicationNestedEventSerializer(
+                application.ApplicationNestedEventSerializer(
                     application_obj).data)
             return Response(result)
 
