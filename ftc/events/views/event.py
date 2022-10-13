@@ -1,6 +1,7 @@
 import pdb
 from poplib import CR
 
+from coreapi.exceptions import ParseError
 from crum import get_current_user
 from django.db.models import Count, Q
 from django.utils.decorators import method_decorator
@@ -132,7 +133,9 @@ class EventViewSet(PublicMixin, CRUViewSet):
     @action(detail=True, methods=['get'], url_path='application')
     def application(self, request, pk=None):
         event = get_object_or_404(Event, id=pk)
-        user = get_current_user()
+        user = request.user
+        if not user:
+            raise ParseError('Войдите в систему для просмотра заявки')
         application_obj = event.applications.filter(user=user).first()
         query_action = request.GET.get('action')
 
