@@ -27,7 +27,7 @@ from events.serializers.application import (ApplicationListSerializer,
 @method_decorator(name='retrieve', decorator=swagger_auto_schema(operation_summary="Получить заявку на событие", tags=['События: Заявки на участие']))
 @method_decorator(name='update', decorator=swagger_auto_schema(operation_summary="Обновить заявку на событие", tags=['События: Заявки на участие']))
 @method_decorator(name='partial_update',  decorator=swagger_auto_schema(operation_summary="Обновить заявку на событие частично", tags=['События: Заявки на участие']))
-class ApplicationViewSet(CRUViewSet):
+class ApplicationViewSet(PublicMixin, CRUViewSet):
     queryset = Application.objects.select_related(
         'event',
         'event__created_by',
@@ -35,7 +35,6 @@ class ApplicationViewSet(CRUViewSet):
         'status',
         'created_by',
     )
-    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['status']
     pagination_class = None

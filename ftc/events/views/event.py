@@ -130,7 +130,7 @@ class EventViewSet(PublicMixin, CRUViewSet):
         return Response(result_list)
 
     @action(detail=True, methods=['get'], url_path='application',
-            permission_classes=(IsAuthenticated,))
+            permission_classes=[IsAuthenticated])
     def application(self, request, pk=None):
         event = get_object_or_404(Event, id=pk)
         user = get_current_user()
