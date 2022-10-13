@@ -54,7 +54,7 @@ class EventViewSet(CRUViewSet):
         'update': event.EventPostSerializer,
         'partial_update': event.EventPostSerializer,
     }
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     filter_backends = (DjangoFilterBackend,
                        filters.SearchFilter,
                        OrderingFilter)
