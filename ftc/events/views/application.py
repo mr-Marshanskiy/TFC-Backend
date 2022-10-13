@@ -35,6 +35,7 @@ class ApplicationViewSet(PublicMixin, CRUViewSet):
         'status',
         'created_by',
     )
+    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['status']
     pagination_class = None
