@@ -61,6 +61,12 @@ class EventViewSet(CRUViewSet):
     filter_class = EventFilter
     ordering = ('time_start',)
 
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve', 'group_by_date']:
+            return [permission() for permission in [AllowAny]]
+        else:
+            return [permission() for permission in [IsAuthenticated]]
+
     def get_queryset(self):
         user = get_current_user()
         print(user)
@@ -169,7 +175,7 @@ class EventViewSet(CRUViewSet):
             data['status'] = 5
 
         if application_obj:
-            serializer = application_obj.ApplicationPostSerializer(
+            serializer = application.ApplicationPostSerializer(
                 application_obj, data=data, partial=True)
             if serializer.is_valid():
                 serializer.save()
