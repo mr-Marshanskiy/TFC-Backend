@@ -1,98 +1,82 @@
-import pprint
 from datetime import timedelta
 
-from django.db.models import Count, Q, DecimalField
-from django.db.models.functions import Coalesce
 from rest_framework import serializers
-from rest_framework.fields import IntegerField
 
-from api.constants import ACTIVE_STATUS, BASE_DURATION_MINUTES
+from api.constants import ACTIVE_STATUS, BASE_DURATION_MINUTES, \
+    EVENT_QUEUE_PARAM
+from common.serializers.dict import DictSerializer
 from common.service import get_now
 from events.models.event import Event
-from events.serializers.nested import (SurveyNestedSerializer,
-    CommentNestedSerializer, ParticipantNestedSerializer)
+from events.models.queue import Queue
+from events.serializers.dict import StatusShortSerializer
+
 from guests.serializers.guest import GuestSerializer
 from locations.serializers.nested import LocationNestedSerializer
-from users.serializers import UserNestedSerializer
+from sports.serializers.nested import SportNestedSerializer
+from users.serializers.nested import UserNestedSerializer
 
 
 class EventDetailSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(source='status.name', allow_null=True)
-    type = serializers.CharField(source='type.name', allow_null=True)
-    sport = serializers.CharField(source='sport.name', allow_null=True)
-    location = LocationNestedSerializer()
-
     created_by = UserNestedSerializer()
-    updated_by = UserNestedSerializer()
-
-    comments = CommentNestedSerializer(many=True)
-    surveys = serializers.SerializerMethodField()
-    participants = serializers.SerializerMethodField()
-
-    stats = serializers.SerializerMethodField()
-
     guests = GuestSerializer(many=True)
-
-    class Meta:
-        model = Event
-        fields = '__all__'
-
-    def get_participants(self, obj):
-        confirmed = obj.participants.filter(confirmed=True).select_related()
-        unconfirmed = obj.participants.filter(confirmed=False).select_related()
-        result = {
-            'confirmed': ParticipantNestedSerializer(confirmed, many=True).data,
-            'unconfirmed': ParticipantNestedSerializer(unconfirmed, many=True).data,
-        }
-        return result
-
-    def get_surveys(self, obj):
-        true = obj.surveys.filter(answer=True).select_related()
-        false = obj.surveys.filter(answer=False).select_related()
-        unknown = obj.surveys.filter(answer=None).select_related()
-        result = {
-            'true': SurveyNestedSerializer(true, many=True).data,
-            'false': SurveyNestedSerializer(false, many=True).data,
-            'unknown': SurveyNestedSerializer(unknown, many=True).data,
-        }
-        return result
-
-    def get_stats(self, obj):
-        result = dict()
-        player_count = obj.participants.filter(confirmed=True).count()
-        player_count += obj.guests.count()
-
-        if player_count == 0:
-            result['price_per_player'] = 0
-        else:
-            result['price_per_player'] = round(float(obj.price / player_count), 2)
-            print(result['price_per_player'])
-        return result
-
-
-class EventListSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(source='status.name')
-    type = serializers.CharField(source='type.name')
     location = LocationNestedSerializer()
-    sport = serializers.CharField(source='sport.name', allow_null=True)
-    participants_count = serializers.SerializerMethodField()
-    guests = GuestSerializer(many=True)
+    sport = DictSerializer()
+    status = DictSerializer()
+    type = DictSerializer()
+
+    show_timer = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
         fields = ('id',
                   'time_start',
-                  'time_end',
+                  'full_date',
+                  'short_time',
+                  'price',
+                  'comment',
+                  'is_moderator',
+                  'show_timer',
+                  'sport',
+                  'status',
+                  'type',
+                  'location',
+                  'guests',
+                  'moderators',
+                  'created_by',
+                  )
+
+    def get_show_timer(self, instance):
+        now = get_now()
+        if not (instance.status_new or instance.status_wait):
+            return False
+        if instance.time_start <= now:
+            return False
+        return True
+
+
+class EventListSerializer(serializers.ModelSerializer):
+    status = StatusShortSerializer()
+    type = DictSerializer()
+    sport = SportNestedSerializer()
+
+    location = LocationNestedSerializer()
+    applications_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Event
+        fields = ('id',
+                  'short_time',
+                  'short_date',
                   'sport',
                   'type',
                   'status',
                   'location',
                   'price',
-                  'participants_count',
-                  'guests',)
+                  'applications_count',
+                  )
 
-    def get_participants_count(self, instance):
-        result = instance.participants.count() + instance.guests.count()
+    def get_applications_count(self, instance):
+        result = instance.applications.count() + instance.guests.count()
         return result
 
 
@@ -107,11 +91,18 @@ class EventPostSerializer(serializers.ModelSerializer):
                   'sport',
                   'location',
                   'price',
-                  'guests',)
+                  'guests',
+                  'params',)
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        if instance.params.filter(slug=EVENT_QUEUE_PARAM).exists():
+            Queue.objects.create(event=instance)
+        return instance
 
     def validate_time_start(self, value):
         now = get_now()
-        if value < now:
+        if value < now - timedelta(minutes=15):
             raise serializers.ValidationError(
                 'Время начала мероприятия должно быть больше текущего времени')
         return value
@@ -141,12 +132,12 @@ class EventPostSerializer(serializers.ModelSerializer):
             if data.get('time_start') and data.get('time_end'):
                 if data.get('time_start') > data.get('time_end'):
                     raise serializers.ValidationError(
-                        'Время окончания не должно превышать время начала.')
+                        'Время начала не должно превышать время окончания.')
 
             if data.get('time_start').date() != data.get('time_end').date():
                 raise serializers.ValidationError(
-                'Событие должно начинаться и заканчиваться в один день.'
-            )
+                    'Событие должно начинаться и заканчиваться в один день.'
+                )
 
         """ Проверка пересечений """
         if data.get('time_start') and data.get(
@@ -192,40 +183,3 @@ class EventPostSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(message)
 
         return data
-
-
-class EventForMainSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(source='status.name', allow_null=True)
-    type = serializers.CharField(source='type.name', allow_null=True)
-    location = LocationNestedSerializer()
-    sport = serializers.CharField(source='sport.name', allow_null=True)
-    date = serializers.SerializerMethodField()
-    participants_count = serializers.SerializerMethodField()
-    guests = GuestSerializer(many=True)
-
-    class Meta:
-        model = Event
-        fields = ('id',
-                  'date',
-                  'sport',
-                  'participants_count',
-                  'type',
-                  'status',
-                  'location',
-                  'price',
-                  'guests')
-
-    def get_date(self, instance):
-        result = dict()
-        result['time_start'] = instance.time_start.astimezone()
-        result['time_end'] = instance.time_end.astimezone()
-        result['date_short'] = instance.time_start.astimezone().date()
-        result['time_short'] = (
-            f'{instance.time_start.astimezone().strftime("%H:%M")}-'
-            f'{instance.time_end.astimezone().strftime("%H:%M")}')
-
-        return result
-
-    def get_participants_count(self, instance):
-        result = instance.participants.count()
-        return result

@@ -2,7 +2,7 @@ import os
 
 import environ
 from datetime import timedelta
-
+from dadataru.tools import DaData
 root = environ.Path(__file__) - 2
 env = environ.Env()
 environ.Env.read_env(env.str(root(), '.env'))
@@ -26,13 +26,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    #'drf_spectacular',
     'drf_yasg',
     'rest_framework',
     'djoser',
     'corsheaders',
     'django_filters',
     'debug_toolbar',
+    'rest_framework_simplejwt',
+    'django_json_widget',
+    'imagekit',
 
     'common',
     'users',
@@ -43,6 +45,8 @@ INSTALLED_APPS = [
     'locations',
     'sports',
     'guests',
+    'dadataru',
+    'sendpulse',
 ]
 
 MIDDLEWARE = [
@@ -109,12 +113,14 @@ DJOSER = {
     'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': '#/activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': False,
-    'SERIALIZERS': {},
+    'SERIALIZERS': {
+        'create_user': 'users.serializers.UserPostSerializer'
+    },
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=31),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=31),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'ALGORITHM': 'HS256',
@@ -133,8 +139,8 @@ SIMPLE_JWT = {
     'JTI_CLAIM': 'jti',
 
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=1),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=7),
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=31),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=31),
 
 
 }
@@ -172,16 +178,21 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-
 AUTH_USER_MODEL = 'users.User'
+AUTHENTICATION_BACKENDS = ('users.backends.AuthBackend',)
 
 
+#############################
+#        SENTRY             #
+#############################
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -193,7 +204,11 @@ sentry_sdk.init(
 )
 
 
+#############################
+#        SWAGGER            #
+#############################
 SWAGGER_SETTINGS = {
+    "DEFAULT_AUTO_SCHEMA_CLASS":"api.yasg.CustomAutoSchema",
     'SECURITY_DEFINITIONS': {
         'basic': {
             'type': 'basic'
@@ -205,3 +220,32 @@ SWAGGER_SETTINGS = {
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+
+#############################
+#       DADATARU            #
+#############################
+DADATA_API = env('DADATA_API', None)
+DADATA_SECRET = env('DADATA_SECRET', None)
+dadata = DaData(token=DADATA_API, secret=DADATA_SECRET)
+
+############################
+#       SENDPULSE          #
+############################
+SENDPULSE_ID = env.str('SENDPULSE_ID', default='')
+SENDPULSE_SECRET = env.str('SENDPULSE_SECRET', default='')
+SENDPULSE_STORAGE = env.str('SENDPULSE_STORAGE', default='FILE')
+SENDPULSE_TEMP = env.str('SENDPULSE_TEMP', default='')
+SENDPULSE_ROOT = os.path.join(BASE_DIR, 'tmp/')
+
+EMAIL_ADMIN = env.str('EMAIL_ADMIN', default='')
+ROBOT_EMAIL = env.str('ROBOT_EMAIL', default='')
+ROBOT_NAME = env.str('ROBOT_NAME', default='')
+
+
+############################
+#    PROJECT CUSTOM        #
+############################
+FRONT_HOST = env.str('FRONT_HOST', default='')
+DEFAULT_FIAS_ID = env.str('DEFAULT_FIAS_ID',
+                          default='2a1c7bdb-05ea-492f-9e1c-b3999f79dcbc')

@@ -1,8 +1,14 @@
+import pdb
 from datetime import timedelta
 
 import django_filters
+from crum import get_current_user
 
+from common.models.location import City
+from events.models.application import Application
 from events.models.event import Event
+from ftc.settings import DEFAULT_FIAS_ID
+from locations.models.location import Location
 
 
 class EndFilter(django_filters.DateFilter):
@@ -26,12 +32,19 @@ class EventFilter(django_filters.FilterSet):
     time_end = EndFilter(field_name='time_end', lookup_expr='lte')
     multi_status = django_filters.CharFilter(method='multi_status_filter',
                                              label='multi_status')
-    user = django_filters.CharFilter(field_name='players__user')
+
+    city = django_filters.ModelChoiceFilter(queryset=City.objects.all(),
+                                            label='Город',
+                                            field_name='location__city')
 
     class Meta:
         model = Event
-        fields = ['time_start', 'time_end', 'multi_status',
-                  'status', 'user']
+        fields = ('time_start',
+                  'time_end',
+                  'multi_status',
+                  'status',
+                  'location',
+                  'city',)
 
     def multi_status_filter(self, queryset, name, value):
         statuses = []
@@ -41,3 +54,28 @@ class EventFilter(django_filters.FilterSet):
             pass
         queryset = queryset.filter(status__in=statuses)
         return queryset
+
+
+    # def __init__(self, data=None, *args, **kwargs):
+    #     if not 'city' in data:
+    #         user = get_current_user()
+    #         if user and hasattr(user, 'city_id') and user.city_id:
+    #             city = user.city_id
+    #         else:
+    #             city = City.find_city(fias_id=DEFAULT_FIAS_ID)
+    #             city = city.id if city else None
+    #         data['city'] = [city]
+    #     super().__init__(data, *args, **kwargs)
+
+    # def geo_tl_filter(self, queryset, name, value):
+
+
+class MainFilter(django_filters.FilterSet):
+    """
+       Фильтр главной страницы
+    """
+    class Meta:
+        model = Location
+        fields = ('active',
+                  'confirmed',
+                  'city',)

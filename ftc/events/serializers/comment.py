@@ -1,9 +1,7 @@
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from events.models.comment import Comment
-from events.models.event import Event
-from users.serializers import UserNestedSerializer
+from users.serializers.nested import UserNestedSerializer
 
 
 class CommentListSerializer(serializers.ModelSerializer):
@@ -11,7 +9,14 @@ class CommentListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        exclude = ('created_by', 'updated_by')
+        fields = [
+            'id',
+            'user',
+            'event',
+            'comment',
+            'created_at',
+            'updated_at',
+        ]
 
 
 class CommentDetailSerializer(serializers.ModelSerializer):
@@ -19,20 +24,22 @@ class CommentDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        exclude = ('created_by', 'updated_by')
+        fields = [
+            'id',
+            'user',
+            'event',
+            'comment',
+            'created_at',
+            'updated_at',
+        ]
 
 
 class CommentPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('comment',)
+        fields = [
+            'event',
+            'comment',
 
-    def validate_user(self, value):
-        return self.context.get('request').user
-
-    def validate_event(self, value):
-        event = get_object_or_404(
-            Event, id=self.context['view'].kwargs.get('event_pk'))
-        return event
-
+        ]

@@ -5,6 +5,9 @@ class Sport(models.Model):
     name = models.CharField('Название', max_length=63)
     slug = models.SlugField('Слаг', max_length=31)
     description = models.TextField('Описание', null=True, blank=True)
+    icon = models.TextField('Иконка', null=True, blank=True)
+    image = models.ForeignKey('common.File', models.SET_NULL, 'sports',
+                              verbose_name='Изображение', null=True, blank=True)
 
     class Meta:
         verbose_name = 'Вид спорта'
