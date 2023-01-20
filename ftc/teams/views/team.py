@@ -2,6 +2,7 @@ from django.utils.decorators import method_decorator
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters
+from rest_framework.viewsets import ViewSet, GenericViewSet, ModelViewSet
 
 from common.mixins.views import CRUViewSet, CRUDViewSet
 from common.permissions import IsOwnerAdminOrCreate
@@ -29,4 +30,3 @@ class TeamViewSet(CRUDViewSet):
         if self.action in ['create', 'update', 'partial_update']:
             return TeamPostSerializer
         return TeamDetailSerializer
-
